@@ -14,7 +14,7 @@ setting sample rates, setting stream modes, configuring switches, and calibratio
 Although this driver can select the streaming mode of the LMS7002M,
 it does not directly interact with receive or transmit baseband data.
 
-# Hardware independent
+## Hardware independent
 
 End applications may access the SPI bus for the LMS7002M in a variety of ways.
 To ensure that the driver can talk to the LMS7002M independent of the hardware,
