@@ -1,46 +1,50 @@
+/*!
+ * Main interface header for LMS7002M C driver.
+ */
+
 #pragma once
+#include <stdint.h>
+#include <stdbool.h>
 
 #define LMS7002M_API
 
-/*!
- * Function typedef for a function that implements SPI register writes.
- * The data is the same pointer that the user passed into the driver instance.
- * Example: the data may be a pointer to a /dev/spiXX file descriptor
- *
- * \param data user provided data
- * \param addr the register address
- * \param value the new register value
- */
-typedef void (*LMS7002M_spi_write_reg_t)(void *data, int addr, int value);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*!
- * Function typedef for a function that implements SPI register reads.
- * The data is the same pointer that the user passed into the driver instance.
+ * Function typedef for a function that implements SPI register transactions.
+ * The user is the same pointer that the user passed into the driver instance.
  * Example: the data may be a pointer to a /dev/spiXX file descriptor
  *
- * \param data user provided data
- * \param addr the register address
- * \return the register value
+ * The readback option supplied by the driver specifies whether or not
+ * it requires the result of the spi transaction to be returned.
+ * The implementor of this function can use the readback parameter
+ * to implement non-blocking spi transactions (as an optimization).
+ *
+ * \param user user provided data
+ * \param data the 32-bit write data
+ * \param readback true to readback
+ * \return the 32-bit readback data
  */
-typedef int (*LMS7002M_spi_read_reg_t)(void *data, int addr);
+typedef uint32_t (*LMS7002M_spi_transact_t)(void *user, const uint32_t data, const bool readback);
 
 //! The opaque instance of the LMS7002M instance
 struct LMS7002M_struct;
 
 //! Helpful typedef for the LMS7002M driver instance
-typedef LMS7002M_struct LMS7002M_t;
+typedef struct LMS7002M_struct LMS7002M_t;
 
 /*!
  * Create an instance of the LMS7002M driver.
  * This call does not reset or initialize the LMS7002M.
  * See LMS7002M_init(...) and LMS7002M_reset(...).
  *
- * \param write the SPI register write function
- * \param read the SPI register read function
- * \param data arbitrary user data for callbacks
+ * \param transact the SPI transaction function
+ * \param user arbitrary user data for callbacks
  * \return a new instance of the LMS7002M driver
  */
-LMS7002M_API LMS7002M_t *LMS7002M_create(LMS7002M_spi_write_reg_t write, LMS7002M_spi_read_reg_t read, void *data);
+LMS7002M_API LMS7002M_t *LMS7002M_create(LMS7002M_spi_transact_t transact, void *user);
 
 /*!
  * Destroy an instance of the LMS7002M driver.
@@ -51,3 +55,7 @@ LMS7002M_API LMS7002M_t *LMS7002M_create(LMS7002M_spi_write_reg_t write, LMS7002
  * \param self an instance of the LMS7002M driver
  */
 LMS7002M_API void LMS7002M_destroy(LMS7002M_t *self);
+
+#ifdef __cplusplus
+}
+#endif
