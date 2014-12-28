@@ -6,7 +6,14 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define LMS7002M_API
+/*!
+ * API export macro to declare linkage for driver functions:
+ * We want to support including implementation headers for private use
+ * or building this into a library -- so define LMS7002M_API accordingly.
+ */
+#ifndef LMS7002M_API
+#define LMS7002M_API static inline
+#endif
 
 #ifdef __cplusplus
 extern "C" {

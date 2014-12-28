@@ -3,6 +3,8 @@
  */
 
 #include <LMS7002M/LMS7002M.h>
+#include <LMS7002M/LMS7002M_impl.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -89,6 +91,8 @@ int main(int argc, char **argv)
     if (sdata == NULL) return EXIT_FAILURE;
 
     //create and test lms....
+    LMS7002M_t *lms = LMS7002M_create(my_spidev_transact, (void *)sdata);
+    LMS7002M_destroy(lms);
 
     my_spidev_exit(sdata);
 
