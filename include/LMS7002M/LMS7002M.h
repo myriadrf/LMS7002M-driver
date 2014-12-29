@@ -1,6 +1,14 @@
-/*!
- * Main interface header for LMS7002M C driver.
- */
+///
+/// \file LMS7002M/LMS7002M.h
+///
+/// Main interface header for LMS7002M C driver.
+///
+/// \copyright
+/// Copyright (c) 2014-2015 Fairwaves, Inc.
+/// Copyright (c) 2014-2015 Rice University
+/// SPDX-License-Identifier: Apache-2.0
+/// http://www.apache.org/licenses/LICENSE-2.0
+///
 
 #pragma once
 #include <stdint.h>

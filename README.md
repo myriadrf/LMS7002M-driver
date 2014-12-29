@@ -20,3 +20,9 @@ End applications may access the SPI bus for the LMS7002M in a variety of ways.
 To ensure that the driver can talk to the LMS7002M independent of the hardware,
 the caller provides the driver instance with SPI access callback functions.
 These functions implement the hardware-dependent SPI register access routines.
+
+## Licensing information
+
+Use, modification and distribution is subject to the Apache License
+Version 2.0. (See accompanying file LICENSE-2.0.txt or copy at
+https://www.apache.org/licenses/LICENSE-2.0.txt)

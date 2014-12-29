@@ -1,6 +1,11 @@
-/*!
- * Test instantiating the LMS7002M through spidev on linux
- */
+//
+// Test instantiating the LMS7002M through spidev on linux
+//
+// Copyright (c) 2014-2015 Fairwaves, Inc.
+// Copyright (c) 2014-2015 Rice University
+// SPDX-License-Identifier: Apache-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
+//
 
 #include <LMS7002M/LMS7002M.h>
 #include <LMS7002M/LMS7002M_impl.h>
