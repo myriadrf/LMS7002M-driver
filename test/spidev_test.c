@@ -97,6 +97,12 @@ int main(int argc, char **argv)
 
     //create and test lms....
     LMS7002M_t *lms = LMS7002M_create(my_spidev_transact, (void *)sdata);
+
+    for (int addr = 0x20; addr <= 0x2f; addr++)
+    {
+        printf("reg[0x%x]=0x%x\n", addr, LMS7002M_spi_read(lms, addr));
+    }
+
     LMS7002M_destroy(lms);
 
     my_spidev_exit(sdata);
