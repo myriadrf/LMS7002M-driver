@@ -103,6 +103,14 @@ int main(int argc, char **argv)
         printf("reg[0x%x]=0x%x\n", addr, LMS7002M_spi_read(lms, addr));
     }
 
+    {
+        uint32_t info = LMS7002M_spi_read(lms, 0x2f);
+        int ver = (info >> 11) & 0x1f;
+        int rev = (info >> 6) & 0x1f;
+        int mask = (info >> 0) & 0x3f;
+        printf("ver=%d, rev=%d, mask=%d\n", ver, rev, mask);
+    }
+
     LMS7002M_destroy(lms);
 
     my_spidev_exit(sdata);
