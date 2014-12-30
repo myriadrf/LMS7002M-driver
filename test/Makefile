@@ -1,20 +1,19 @@
 IDIR =../include
 CC=gcc
-CFLAGS=-I$(IDIR) -std=c99
+CFLAGS=-I$(IDIR) -std=c99 -I../interfaces
 
 LIBS=-lm
 
-DEPS=$(wildcard $(IDIR)/LMS7002M/*.h)
+DEPS = \
+	$(wildcard $(IDIR)/LMS7002M/*.h) \
+	$(wildcard ../interfaces/*.h)
 
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-all: spidev_test.exe gpio_test.exe
+all: access_test.exe
 
-spidev_test.exe: spidev_test.o
-	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
-
-gpio_test.exe: gpio_test.o
+access_test.exe: access_test.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 .PHONY: clean

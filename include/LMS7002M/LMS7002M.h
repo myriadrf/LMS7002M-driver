@@ -29,7 +29,7 @@ extern "C" {
 
 /*!
  * Function typedef for a function that implements SPI register transactions.
- * The user is the same pointer that the user passed into the driver instance.
+ * The handle is the same pointer that the handle passed into the driver instance.
  * Example: the data may be a pointer to a /dev/spiXX file descriptor
  *
  * The readback option supplied by the driver specifies whether or not
@@ -37,12 +37,12 @@ extern "C" {
  * The implementor of this function can use the readback parameter
  * to implement non-blocking spi transactions (as an optimization).
  *
- * \param user user provided data
+ * \param handle handle provided data
  * \param data the 32-bit write data
  * \param readback true to readback
  * \return the 32-bit readback data
  */
-typedef uint32_t (*LMS7002M_spi_transact_t)(void *user, const uint32_t data, const bool readback);
+typedef uint32_t (*LMS7002M_spi_transact_t)(void *handle, const uint32_t data, const bool readback);
 
 //! The opaque instance of the LMS7002M instance
 struct LMS7002M_struct;
@@ -56,10 +56,10 @@ typedef struct LMS7002M_struct LMS7002M_t;
  * See LMS7002M_init(...) and LMS7002M_reset(...).
  *
  * \param transact the SPI transaction function
- * \param user arbitrary user data for callbacks
+ * \param handle arbitrary handle data for transact
  * \return a new instance of the LMS7002M driver
  */
-LMS7002M_API LMS7002M_t *LMS7002M_create(LMS7002M_spi_transact_t transact, void *user);
+LMS7002M_API LMS7002M_t *LMS7002M_create(LMS7002M_spi_transact_t transact, void *handle);
 
 /*!
  * Destroy an instance of the LMS7002M driver.
@@ -70,6 +70,24 @@ LMS7002M_API LMS7002M_t *LMS7002M_create(LMS7002M_spi_transact_t transact, void 
  * \param self an instance of the LMS7002M driver
  */
 LMS7002M_API void LMS7002M_destroy(LMS7002M_t *self);
+
+/*!
+ * Perform a SPI write transaction on the given device.
+ * This call can be used directly to access SPI registers,
+ * rather than indirectly through the high level driver calls.
+ * \param addr the 16 bit register address
+ * \param value the 16 bit register value
+ */
+LMS7002M_API void LMS7002M_spi_write(LMS7002M_t *self, const int addr, const int value);
+
+/*!
+ * Perform a SPI read transaction on the given device.
+ * This call can be used directly to access SPI registers,
+ * rather than indirectly through the high level driver calls.
+ * \param addr the 16 bit register address
+ * \return the 16 bit register value
+ */
+LMS7002M_API int LMS7002M_spi_read(LMS7002M_t *self, const int addr);
 
 #ifdef __cplusplus
 }
