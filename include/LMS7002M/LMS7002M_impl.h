@@ -13,6 +13,7 @@
 #pragma once
 #include <stdlib.h>
 #include <LMS7002M/LMS7002M.h>
+#include <LMS7002M/LMS7002M_regs.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -26,6 +27,7 @@ struct LMS7002M_struct
 {
     LMS7002M_spi_transact_t spi_transact;
     void *spi_transact_handle;
+    LMS7002M_regs_t regs;
 };
 
 /***********************************************************************
@@ -36,6 +38,7 @@ LMS7002M_API LMS7002M_t *LMS7002M_create(LMS7002M_spi_transact_t transact, void 
     LMS7002M_t *self = malloc(sizeof(LMS7002M_t));
     self->spi_transact = transact;
     self->spi_transact_handle = handle;
+    LMS7002M_regs_init(&self->regs);
 }
 
 LMS7002M_API void LMS7002M_destroy(LMS7002M_t *self)
@@ -56,6 +59,34 @@ LMS7002M_API int LMS7002M_spi_read(LMS7002M_t *self, const int addr)
 {
     uint32_t data = (((uint32_t)addr) << 16);
     return self->spi_transact(self->spi_transact_handle, data, true/*readback*/) & 0xffff;
+}
+
+LMS7002M_API void LMS7002M_regs_spi_write(LMS7002M_t *self, const int addr)
+{
+    LMS7002M_spi_write(self, addr, LMS7002M_regs_get(&self->regs, addr));
+}
+
+LMS7002M_API void LMS7002M_regs_spi_read(LMS7002M_t *self, const int addr)
+{
+    LMS7002M_regs_set(&self->regs, addr, LMS7002M_spi_read(self, addr));
+}
+
+/***********************************************************************
+ * Reset and power down mode
+ **********************************************************************/
+LMS7002M_API void LMS7002M_reset(LMS7002M_t *self)
+{
+    LMS7002M_spi_write(self, 0x0020, 0x0);
+    LMS7002M_regs_spi_write(self, 0x0020);
+}
+
+LMS7002M_API void LMS7002M_power_down(LMS7002M_t *self)
+{
+    self->regs.reg_0x0020_rxen_a = 0;
+    self->regs.reg_0x0020_rxen_b = 0;
+    self->regs.reg_0x0020_txen_a = 0;
+    self->regs.reg_0x0020_txen_b = 0;
+    LMS7002M_regs_spi_write(self, 0x0020);
 }
 
 #ifdef __cplusplus

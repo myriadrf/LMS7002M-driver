@@ -65,7 +65,7 @@ LMS7002M_API LMS7002M_t *LMS7002M_create(LMS7002M_spi_transact_t transact, void 
  * Destroy an instance of the LMS7002M driver.
  * This call simply fees the instance data,
  * it does not shutdown or have any effects on the chip.
- * Use the LMS7002M_powerdown(...) call before destroy().
+ * Use the LMS7002M_power_down(...) call before destroy().
  *
  * \param self an instance of the LMS7002M driver
  */
@@ -75,6 +75,7 @@ LMS7002M_API void LMS7002M_destroy(LMS7002M_t *self);
  * Perform a SPI write transaction on the given device.
  * This call can be used directly to access SPI registers,
  * rather than indirectly through the high level driver calls.
+ * \param self an instance of the LMS7002M driver
  * \param addr the 16 bit register address
  * \param value the 16 bit register value
  */
@@ -84,10 +85,39 @@ LMS7002M_API void LMS7002M_spi_write(LMS7002M_t *self, const int addr, const int
  * Perform a SPI read transaction on the given device.
  * This call can be used directly to access SPI registers,
  * rather than indirectly through the high level driver calls.
+ * \param self an instance of the LMS7002M driver
  * \param addr the 16 bit register address
  * \return the 16 bit register value
  */
 LMS7002M_API int LMS7002M_spi_read(LMS7002M_t *self, const int addr);
+
+/*!
+ * Write a spi register using values from the regs structure.
+ * \param self an instance of the LMS7002M driver
+ * \param addr the 16 bit register address
+ */
+LMS7002M_API void LMS7002M_regs_spi_write(LMS7002M_t *self, const int addr);
+
+/*!
+ * Read a spi register, filling in the fields in the regs structure.
+ * \param self an instance of the LMS7002M driver
+ * \param addr the 16 bit register address
+ */
+LMS7002M_API void LMS7002M_regs_spi_read(LMS7002M_t *self, const int addr);
+
+/*!
+ * Perform all soft and hard resets available.
+ * Call this first to put the LMS7002M into a known state.
+ * \param self an instance of the LMS7002M driver
+ */
+LMS7002M_API void LMS7002M_reset(LMS7002M_t *self);
+
+/*!
+ * Put all available hardware into disable/power-down mode.
+ * Call this last before destroying the LMS7002M instance.
+ * \param self an instance of the LMS7002M driver
+ */
+LMS7002M_API void LMS7002M_power_down(LMS7002M_t *self);
 
 #ifdef __cplusplus
 }

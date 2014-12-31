@@ -1,5 +1,49 @@
 [
 {
+    "addr" : "0x0020",
+    "fields" : {
+        "LRST_TX_B" : {"bits":"15"},
+        "MRST_TX_B" : {"bits":"14"},
+        "LRST_TX_A" : {"bits":"13"},
+        "MRST_TX_A" : {"bits":"12"},
+        "LRST_RX_B" : {"bits":"11"},
+        "MRST_RX_B" : {"bits":"10"},
+        "LRST_RX_A" : {"bits":"9"},
+        "MRST_RX_A" : {"bits":"8"},
+        "SRST_RXFIFO" : {"bits":"7"},
+        "SRST_TXFIFO" : {"bits":"6"},
+        "RXEN_B" : {"bits":"5"},
+        "RXEN_A" : {"bits":"4"},
+        "TXEN_B" : {"bits":"3"},
+        "TXEN_A" : {"bits":"2"},
+        "MAC" : {"bits":"1:0"}
+    },
+    "default": "11111111 11111111"
+},
+{
+    "addr" : "0x0021",
+    "fields" : {
+        "TX_CLK_PE" : {"bits":"11"},
+        "RX_CLK_PE" : {"bits":"10"},
+        "SDA_PE" : {"bits":"9"},
+        "SDA_DS" : {"bits":"8"},
+        "SCL_PE" : {"bits":"7"},
+        "SCL_DS" : {"bits":"6"},
+        "SDIO_DS" : {"bits":"5"},
+        "SDIO_PE" : {"bits":"4"},
+        "SDO_PE" : {"bits":"3"},
+        "SCLK_PE" : {"bits":"2"},
+        "SEN_PE" : {"bits":"1"},
+        "SPIMODE" : {"bits":"0",
+            "options":{
+                "3wire":0,
+                "4wire":1
+            }
+        }
+    },
+    "default": "00001110 10011111"
+},
+{
     "addr" : "0x002F",
     "fields" : {
         "VER" : {"bits":"15:11"},
