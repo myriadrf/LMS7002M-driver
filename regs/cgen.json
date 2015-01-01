@@ -1,0 +1,96 @@
+[
+{
+    "addr" : "0x0086",
+    "fields" : {
+        "SPDUP_VCO_CGEN" : {"bits":"15"},
+        "RESET_N_CGEN" : {"bits":"14"},
+        "EN_ADCCLKH_CLKGN" : {"bits":"11"},
+        "EN_COARSE_CKLGEN" : {"bits":"10"},
+        "EN_INTONLY_SDM_CGEN" : {"bits":"9"},
+        "EN_SDM_CLK_CGEN" : {"bits":"8"},
+        "PD_CP_CGEN" : {"bits":"6"},
+        "PD_FDIV_FB_CGEN" : {"bits":"5"},
+        "PD_FDIV_O_CGEN" : {"bits":"4"},
+        "PD_SDM_CGEN" : {"bits":"3"},
+        "PD_VCO_CGEN" : {"bits":"2"},
+        "PD_VCO_COMP_CGE" : {"bits":"1"},
+        "EN_G_CGEN" : {"bits":"0"}
+    },
+    "default": "01001001 00000101"
+},
+{
+    "addr" : "0x0087",
+    "fields" : {
+        "FRAC_SDM_CGEN" : {"bits":"15:0"}
+    },
+    "default": "00000100 00000000"
+},
+{
+    "addr" : "0x0088",
+    "fields" : {
+        "INT_SDM_CGEN" : {"bits":"13:4"},
+        "FRAC_SDM_CGEN" : {"bits":"3:0"}
+    },
+    "default": "00000111 10000000"
+},
+{
+    "addr" : "0x0089",
+    "fields" : {
+        "REV_SDMCLK_CGEN" : {"bits":"15"},
+        "SEL_SDMCLK_CGEN" : {"bits":"14"},
+        "SX_DITHER_EN_CGEN" : {"bits":"13"},
+        "CLKH_OV_CLKL_CGEN" : {"bits":"12:11"},
+        "DIV_OUTCH_CGEN" : {"bits":"10:3"},
+        "TST_CGEN" : {"bits":"2:0",
+            "options":{
+                "disabled":0,
+                "tstdo":1,
+                "vco_tune_50_kohm":2,
+                "vco_tune":3,
+                "PFD_UP":5
+            }
+        }
+    },
+    "default": "00000000 00100000"
+},
+{
+    "addr" : "0x008A",
+    "fields" : {
+        "REV_CLKDAC_CGEN" : {"bits":"14"},
+        "REV_CLKADC_CGEN" : {"bits":"13"},
+        "REVPH_PFD_CGEN" : {"bits":"12"},
+        "IOFFSET_CP_CGEN" : {"bits":"11:16"},
+        "IPULSE_CP_CGEN" : {"bits":"5:0"}
+    },
+    "default": "00000101 00010100"
+},
+{
+    "addr" : "0x0089B",
+    "fields" : {
+        "ICT_VCO_CGEN" : {"bits":"13:9"},
+        "CSW_VCO_CGEN" : {"bits":"8:1"},
+        "COARSE_START_CGEN" : {"bits":"0"}
+    },
+    "default": "00011001 00000000"
+},
+{
+    "addr" : "0x008C",
+    "fields" : {
+        "COARSE_STEPDONE_CGEN" : {"bits":"15"},
+        "COARSEPLL_COMPO_CGEN" : {"bits":"14"},
+        "VCO_CMPHO_CGEN" : {"bits":"13"},
+        "VCO_CMPLO_CGEN" : {"bits":"12"},
+        "CP2_CGEN" : {"bits":"11:8"},
+        "CP3_CGEN" : {"bits":"7:4"},
+        "CZ_CGEN" : {"bits":"3:0"}
+    },
+    "default": "00000110 01111011"
+},
+{
+    "addr" : "0x008D",
+    "fields" : {
+        "RESRV_CGN" : {"bits":"2:0"}
+    },
+    "default": "00000000 00000000"
+}
+]

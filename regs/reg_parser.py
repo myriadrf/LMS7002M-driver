@@ -127,7 +127,10 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr)
 """
 
 if __name__ == '__main__':
-    regs = json.loads(open(sys.argv[1]).read())
+    regs = list()
+    for arg in sys.argv[1:]:
+        regs.extend(json.loads(open(arg).read()))
+    regs = sorted(regs, key=lambda x: eval(x['addr']))
 
     code = str(Template(TMPL, dict(
         regs=regs,
