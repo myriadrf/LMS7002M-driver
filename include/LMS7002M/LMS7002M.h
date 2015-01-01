@@ -13,6 +13,7 @@
 #pragma once
 #include <stdint.h>
 #include <stdbool.h>
+#include <LMS7002M/LMS7002M_regs.h>
 
 /*!
  * API export macro to declare linkage for driver functions:
@@ -104,6 +105,15 @@ LMS7002M_API void LMS7002M_regs_spi_write(LMS7002M_t *self, const int addr);
  * \param addr the 16 bit register address
  */
 LMS7002M_API void LMS7002M_regs_spi_read(LMS7002M_t *self, const int addr);
+
+/*!
+ * Get access to the registers structure and unpacked fields.
+ * Use LMS7002M_regs_spi_write()/LMS7002M_regs_spi_read()
+ * to sync the fields in this structure with the device.
+ * \param self an instance of the LMS7002M driver
+ * \return the pointer to the unpacked LMS7002M fields
+ */
+LMS7002M_API LMS7002M_regs_t *LMS7002M_regs(LMS7002M_t *self);
 
 /*!
  * Perform all soft and hard resets available.

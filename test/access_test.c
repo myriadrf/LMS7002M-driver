@@ -39,28 +39,26 @@ int main(int argc, char **argv)
     if (handle == NULL) return EXIT_FAILURE;
 
     //create and test lms....
+    printf("Create LMS7002M instance\n");
     LMS7002M_t *lms = LMS7002M_create(spidev_interface_transact, handle);
+    if (lms == NULL) return EXIT_FAILURE;
+    LMS7002M_reset(lms);
 
-    LMS7002M_spi_write(lms, 0x20, 0x0000); //reset
-    LMS7002M_spi_write(lms, 0x20, 0xFFFF); //reset clear
-    LMS7002M_spi_write(lms, 0x21, 0x0E9F); //default, sets 4 wire mode
+    //set 4-wire spi mode
+    LMS7002M_regs(lms)->reg_0x0021_spimode = REG_0X0021_SPIMODE_4WIRE;
+    LMS7002M_regs_spi_write(lms, 0x0021);
 
-    for (int addr = 0x20; addr <= 0x2f; addr++)
-    {
-        printf("reg[0x%x]=0x%x\n", addr, LMS7002M_spi_read(lms, addr));
-    }
+    //read info register
+    LMS7002M_regs_spi_read(lms, 0x002f);
+    printf("rev 0x%x\n", LMS7002M_regs(lms)->reg_0x002f_rev);
+    printf("ver 0x%x\n", LMS7002M_regs(lms)->reg_0x002f_ver);
 
-    {
-        uint32_t info = LMS7002M_spi_read(lms, 0x2f);
-        int ver = (info >> 11) & 0x1f;
-        int rev = (info >> 6) & 0x1f;
-        int mask = (info >> 0) & 0x3f;
-        printf("ver=%d, rev=%d, mask=%d\n", ver, rev, mask);
-    }
-
+    //power down and clean up
+    LMS7002M_power_down(lms);
     LMS7002M_destroy(lms);
 
     spidev_interface_close(handle);
 
+    printf("Done!\n");
     return EXIT_SUCCESS;
 }

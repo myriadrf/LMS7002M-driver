@@ -27,6 +27,7 @@ static inline void LMS7002M_regs_set(LMS7002M_regs_t *regs, const int addr, cons
 //! get the value of the register specified by the fields at the given address
 static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr);
 
+//! enumerated values for some registers
 #define REG_0X0021_SPIMODE_3WIRE 0
 #define REG_0X0021_SPIMODE_4WIRE 1
 

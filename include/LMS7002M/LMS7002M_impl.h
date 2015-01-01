@@ -13,7 +13,6 @@
 #pragma once
 #include <stdlib.h>
 #include <LMS7002M/LMS7002M.h>
-#include <LMS7002M/LMS7002M_regs.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -35,10 +34,12 @@ struct LMS7002M_struct
  **********************************************************************/
 LMS7002M_API LMS7002M_t *LMS7002M_create(LMS7002M_spi_transact_t transact, void *handle)
 {
-    LMS7002M_t *self = malloc(sizeof(LMS7002M_t));
+    LMS7002M_t *self = (LMS7002M_t *)malloc(sizeof(LMS7002M_t));
+    if (self == NULL) return NULL;
     self->spi_transact = transact;
     self->spi_transact_handle = handle;
     LMS7002M_regs_init(&self->regs);
+    return self;
 }
 
 LMS7002M_API void LMS7002M_destroy(LMS7002M_t *self)
@@ -69,6 +70,11 @@ LMS7002M_API void LMS7002M_regs_spi_write(LMS7002M_t *self, const int addr)
 LMS7002M_API void LMS7002M_regs_spi_read(LMS7002M_t *self, const int addr)
 {
     LMS7002M_regs_set(&self->regs, addr, LMS7002M_spi_read(self, addr));
+}
+
+LMS7002M_API LMS7002M_regs_t *LMS7002M_regs(LMS7002M_t *self)
+{
+    return &self->regs;
 }
 
 /***********************************************************************

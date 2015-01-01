@@ -1,12 +1,14 @@
-IDIR =../include
 CC=gcc
-CFLAGS=-I$(IDIR) -std=c99 -I../interfaces
+CFLAGS= \
+	-std=c99 \
+	-I$(CURDIR)/../include \
+	-I$(CURDIR)/../interfaces
 
 LIBS=-lm
 
 DEPS = \
-	$(wildcard $(IDIR)/LMS7002M/*.h) \
-	$(wildcard ../interfaces/*.h)
+	$(wildcard $(CURDIR)/../include/LMS7002M/*.h) \
+	$(wildcard $(CURDIR)/../interfaces/*.h)
 
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
