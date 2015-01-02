@@ -13,7 +13,7 @@
         "PD_FDIV_O_CGEN" : {"bits":"4"},
         "PD_SDM_CGEN" : {"bits":"3"},
         "PD_VCO_CGEN" : {"bits":"2"},
-        "PD_VCO_COMP_CGE" : {"bits":"1"},
+        "PD_VCO_COMP_CGEN" : {"bits":"1"},
         "EN_G_CGEN" : {"bits":"0"}
     },
     "default": "01001001 00000101"
@@ -37,7 +37,7 @@
     "addr" : "0x0089",
     "fields" : {
         "REV_SDMCLK_CGEN" : {"bits":"15"},
-        "SEL_SDMCLK_CGEN" : {"bits":"14"},
+        "SEL_SDMCLK_CGEN" : {"bits":"14", "options":{"CLK_DIV":0, "CLK_REF":1}},
         "SX_DITHER_EN_CGEN" : {"bits":"13"},
         "CLKH_OV_CLKL_CGEN" : {"bits":"12:11"},
         "DIV_OUTCH_CGEN" : {"bits":"10:3"},
@@ -65,7 +65,7 @@
     "default": "00000101 00010100"
 },
 {
-    "addr" : "0x0089B",
+    "addr" : "0x008B",
     "fields" : {
         "ICT_VCO_CGEN" : {"bits":"13:9"},
         "CSW_VCO_CGEN" : {"bits":"8:1"},

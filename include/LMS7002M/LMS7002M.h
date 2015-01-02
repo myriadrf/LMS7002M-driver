@@ -129,6 +129,18 @@ LMS7002M_API void LMS7002M_reset(LMS7002M_t *self);
  */
 LMS7002M_API void LMS7002M_power_down(LMS7002M_t *self);
 
+/*!
+ * Configure the ADC clock rate given the reference and the desired ADC rate.
+ * This is a helper function that may make certain non-ideal assumptions,
+ * for example this calculation will always make use of fractional-N tuning.
+ * Also, this function does not directly set the clock muxing (see CGEN section).
+ * \param self an instance of the LMS7002M driver
+ * \param fref the reference clock frequency in Hz
+ * \param fadc the desired ADC clock frequency in Hz
+ * \return 0 for success or error code on failure
+ */
+LMS7002M_API int LMS7002M_set_adc_clock(LMS7002M_t *self, const double fref, const double fadc);
+
 #ifdef __cplusplus
 }
 #endif
