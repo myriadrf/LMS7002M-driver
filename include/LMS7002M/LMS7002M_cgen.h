@@ -18,12 +18,33 @@
 extern "C" {
 #endif
 
-LMS7002M_API int LMS7002M_set_adc_clock(LMS7002M_t *self, const double fref, const double fadc)
+LMS7002M_API int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, const double fout)
 {
-    //The equation: fref * N = fvco / fdiv
-    //TODO calculate these...
-    int fdiv = 0;
+    //The equations:
+    // fref * N = fvco
+    // fvco / fdiv = fout
+    // fref * N = fout * fdiv
+    int fdiv = 2;
     double Ndiv = 0;
+    double fvco = 0;
+
+    //calculation loop to find dividers that are possible
+    while (true)
+    {
+        Ndiv = fout*fdiv/fref;
+        fvco = fout*fdiv;
+
+        //check dividers and vco in range...
+        if (fdiv > 512) return -1;
+        if (Ndiv < 4) continue;
+        if (Ndiv > 512) return -1;
+        //these boundaries observed from the EVB7 GUI
+        if (fvco < 2.6e9) continue;
+        if (fvco > 2.7e9) continue;
+
+        //failed to find a good value, try the next even divider
+        fdiv += 2;
+    }
 
     //configure and enable synthesizer
     self->regs.reg_0x0086_en_intonly_sdm_cgen = 0; //support frac-N
