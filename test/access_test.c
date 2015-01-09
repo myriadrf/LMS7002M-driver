@@ -15,6 +15,8 @@
 
 #include "spidev_interface.h"
 #include "sysfs_gpio_interface.h"
+#include "xilinx_user_gpio.h"
+#include "xilinx_user_mem.h"
 
 /*
  * for testing with gpio...
@@ -23,6 +25,10 @@
 #define SCLK_MIO 12
 #define SEN_MIO 13
 */
+#define RESET_EMIO 54
+
+#define FPGA_REGS 0x43C00000
+#define FPGA_REG_RB_SENTINEL 0
 
 int main(int argc, char **argv)
 {
@@ -34,6 +40,21 @@ int main(int argc, char **argv)
         printf("Usage %s /dev/spidevXXXXXX\n", argv[0]);
         return EXIT_FAILURE;
     }
+
+    //map FPGA registers
+    void *regs = xumem_map_phys(FPGA_REGS, 1024);
+    if (regs == NULL)
+    {
+        printf("failed to map registers\n");
+        return EXIT_FAILURE;
+    }
+    printf("Read sentinel 0x%x\n", xumem_read32(regs, FPGA_REG_RB_SENTINEL));
+
+    //perform reset
+    gpio_export(RESET_EMIO);
+    gpio_set_dir(RESET_EMIO, 1);
+    gpio_set_value(RESET_EMIO, 0);
+    gpio_set_value(RESET_EMIO, 1);
 
     void *handle = spidev_interface_open(argv[1]);
     if (handle == NULL) return EXIT_FAILURE;
