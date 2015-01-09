@@ -25,10 +25,29 @@
 #define SCLK_MIO 12
 #define SEN_MIO 13
 */
-#define RESET_EMIO 54
+
+#define EMIO_OFFSET 54
+#define RESET_EMIO    (EMIO_OFFSET+0)
+#define DIG_RST_EMIO  (EMIO_OFFSET+1)
+#define RXEN_EMIO     (EMIO_OFFSET+2)
+#define TXEN_EMIO     (EMIO_OFFSET+3)
+#define DIO_DIR_CTRL1_EMIO   (EMIO_OFFSET+4)
+#define DIO_DIR_CTRL2_EMIO   (EMIO_OFFSET+5)
+#define IQSEL1_DIR_EMIO      (EMIO_OFFSET+6)
+#define IQSEL2_DIR_EMIO      (EMIO_OFFSET+7)
 
 #define FPGA_REGS 0x43C00000
-#define FPGA_REG_RB_SENTINEL 0
+
+#define FPGA_REG_RD_SENTINEL 0 //readback a known value
+#define FPGA_REG_RD_RX_CLKS 8 //sanity check clock counter
+#define FPGA_REG_RD_TX_CLKS 12 //sanity check clock counter
+#define FPGA_REG_RD_DATA_A 20 //RXA data for loopback test
+#define FPGA_REG_RD_DATA_B 24 //RXB data for loopback test
+
+#define FPGA_REG_WR_RX_DUAL_CH 0 //0 for SDR mode, 1 for DDR mode
+#define FPGA_REG_WR_TX_DUAL_CH 4 //0 for SDR mode, 1 for DDR mode
+#define FPGA_REG_WR_DATA_A 20 //TXA data for loopback test
+#define FPGA_REG_WR_DATA_B 24 //TXB data for loopback test
 
 int main(int argc, char **argv)
 {
@@ -48,7 +67,7 @@ int main(int argc, char **argv)
         printf("failed to map registers\n");
         return EXIT_FAILURE;
     }
-    printf("Read sentinel 0x%x\n", xumem_read32(regs, FPGA_REG_RB_SENTINEL));
+    printf("Read sentinel 0x%x\n", xumem_read32(regs, FPGA_REG_RD_SENTINEL));
 
     //perform reset
     gpio_export(RESET_EMIO);
@@ -73,6 +92,12 @@ int main(int argc, char **argv)
     LMS7002M_regs_spi_read(lms, 0x002f);
     printf("rev 0x%x\n", LMS7002M_regs(lms)->reg_0x002f_rev);
     printf("ver 0x%x\n", LMS7002M_regs(lms)->reg_0x002f_ver);
+
+    //turn the clocks on
+    LMS7002M_set_data_clock(lms, 61.44e6/2, 61e6);
+
+    printf("FPGA_REG_RD_RX_CLKS = 0x%x\n", xumem_read32(regs, FPGA_REG_RD_RX_CLKS));
+    printf("FPGA_REG_RD_TX_CLKS = 0x%x\n", xumem_read32(regs, FPGA_REG_RD_TX_CLKS));
 
     //power down and clean up
     LMS7002M_power_down(lms);

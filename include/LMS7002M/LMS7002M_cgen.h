@@ -24,15 +24,19 @@ LMS7002M_API int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, co
     // fref * N = fvco
     // fvco / fdiv = fout
     // fref * N = fout * fdiv
-    int fdiv = 2;
+    int fdiv = 0;
     double Ndiv = 0;
     double fvco = 0;
 
     //calculation loop to find dividers that are possible
     while (true)
     {
+        //try the next even divider
+        fdiv += 2;
+
         Ndiv = fout*fdiv/fref;
         fvco = fout*fdiv;
+        //printf("fdiv = %d, fvco = %f MHz\n", fdiv, fvco/1e6);
 
         //check dividers and vco in range...
         if (fdiv > 512) return -1;
@@ -42,8 +46,7 @@ LMS7002M_API int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, co
         if (fvco < 2.6e9) continue;
         if (fvco > 2.7e9) continue;
 
-        //failed to find a good value, try the next even divider
-        fdiv += 2;
+        break; //its good
     }
 
     //configure and enable synthesizer
