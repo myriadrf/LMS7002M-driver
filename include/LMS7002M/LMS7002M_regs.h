@@ -30,6 +30,14 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr);
 //! enumerated values for some registers
 #define REG_0X0021_SPIMODE_3WIRE 0
 #define REG_0X0021_SPIMODE_4WIRE 1
+#define REG_0X002B_MCLK1SRC_TXTSPCLKA_DIV 0
+#define REG_0X002B_MCLK1SRC_RXTSPCLKA_DIV 1
+#define REG_0X002B_MCLK1SRC_TXTSPCLKA 2
+#define REG_0X002B_MCLK1SRC_RXTSPCLKA 3
+#define REG_0X002B_MCLK2SRC_TXTSPCLKA_DIV 0
+#define REG_0X002B_MCLK2SRC_RXTSPCLKA_DIV 1
+#define REG_0X002B_MCLK2SRC_TXTSPCLKA 2
+#define REG_0X002B_MCLK2SRC_RXTSPCLKA 3
 #define REG_0X0089_SEL_SDMCLK_CGEN_CLK_DIV 0
 #define REG_0X0089_SEL_SDMCLK_CGEN_CLK_REF 1
 #define REG_0X0089_TST_CGEN_DISABLED 0
@@ -67,9 +75,26 @@ struct LMS7002M_regs_struct
     int reg_0x0021_sen_pe;
     int reg_0x0021_spimode;
     int reg_0x0021_tx_clk_pe;
+    int reg_0x002b_fclk1_inv;
+    int reg_0x002b_fclk2_inv;
+    int reg_0x002b_mclk1dly;
+    int reg_0x002b_mclk1src;
+    int reg_0x002b_mclk2dly;
+    int reg_0x002b_mclk2src;
+    int reg_0x002b_rxdiven;
+    int reg_0x002b_txdiven;
     int reg_0x002f_mask;
     int reg_0x002f_rev;
     int reg_0x002f_ver;
+    int reg_0x0085_byp_xbuf_rx;
+    int reg_0x0085_byp_xbuf_tx;
+    int reg_0x0085_en_g_xbuf;
+    int reg_0x0085_en_out2_xbuf_tx;
+    int reg_0x0085_en_tbufin_xbuf_rx;
+    int reg_0x0085_pd_xbuf_rx;
+    int reg_0x0085_pd_xbuf_tx;
+    int reg_0x0085_slfb_xbuf_rx;
+    int reg_0x0085_slfb_xbuf_tx;
     int reg_0x0086_en_adcclkh_clkgn;
     int reg_0x0086_en_coarse_cklgen;
     int reg_0x0086_en_g_cgen;
@@ -118,7 +143,9 @@ static inline void LMS7002M_regs_init(LMS7002M_regs_t *regs)
 {
     LMS7002M_regs_set(regs, 0x0020, 0xffff);
     LMS7002M_regs_set(regs, 0x0021, 0xe9f);
+    LMS7002M_regs_set(regs, 0x002B, 0x10);
     LMS7002M_regs_set(regs, 0x002F, 0x3840);
+    LMS7002M_regs_set(regs, 0x0085, 0x1);
     LMS7002M_regs_set(regs, 0x0086, 0x4905);
     LMS7002M_regs_set(regs, 0x0087, 0x400);
     LMS7002M_regs_set(regs, 0x0088, 0x780);
@@ -166,11 +193,36 @@ static inline void LMS7002M_regs_set(LMS7002M_regs_t *regs, const int addr, cons
         regs->reg_0x0021_tx_clk_pe = (value >> 11) & 0x1;
         return;
     }
+    if (addr == 0x002B)
+    {
+        regs->reg_0x002b_fclk1_inv = (value >> 14) & 0x1;
+        regs->reg_0x002b_fclk2_inv = (value >> 15) & 0x1;
+        regs->reg_0x002b_mclk1dly = (value >> 10) & 0x3;
+        regs->reg_0x002b_mclk1src = (value >> 2) & 0x3;
+        regs->reg_0x002b_mclk2dly = (value >> 12) & 0x3;
+        regs->reg_0x002b_mclk2src = (value >> 4) & 0x3;
+        regs->reg_0x002b_rxdiven = (value >> 0) & 0x1;
+        regs->reg_0x002b_txdiven = (value >> 1) & 0x1;
+        return;
+    }
     if (addr == 0x002F)
     {
         regs->reg_0x002f_mask = (value >> 0) & 0x3f;
         regs->reg_0x002f_rev = (value >> 6) & 0x1f;
         regs->reg_0x002f_ver = (value >> 11) & 0x1f;
+        return;
+    }
+    if (addr == 0x0085)
+    {
+        regs->reg_0x0085_byp_xbuf_rx = (value >> 6) & 0x1;
+        regs->reg_0x0085_byp_xbuf_tx = (value >> 5) & 0x1;
+        regs->reg_0x0085_en_g_xbuf = (value >> 0) & 0x1;
+        regs->reg_0x0085_en_out2_xbuf_tx = (value >> 4) & 0x1;
+        regs->reg_0x0085_en_tbufin_xbuf_rx = (value >> 3) & 0x1;
+        regs->reg_0x0085_pd_xbuf_rx = (value >> 2) & 0x1;
+        regs->reg_0x0085_pd_xbuf_tx = (value >> 1) & 0x1;
+        regs->reg_0x0085_slfb_xbuf_rx = (value >> 8) & 0x1;
+        regs->reg_0x0085_slfb_xbuf_tx = (value >> 7) & 0x1;
         return;
     }
     if (addr == 0x0086)
@@ -281,11 +333,34 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr)
         value |= (regs->reg_0x0021_spimode & 0x1) << 0;
         value |= (regs->reg_0x0021_tx_clk_pe & 0x1) << 11;
     }
+    if (addr == 0x002B)
+    {
+        value |= (regs->reg_0x002b_fclk1_inv & 0x1) << 14;
+        value |= (regs->reg_0x002b_fclk2_inv & 0x1) << 15;
+        value |= (regs->reg_0x002b_mclk1dly & 0x3) << 10;
+        value |= (regs->reg_0x002b_mclk1src & 0x3) << 2;
+        value |= (regs->reg_0x002b_mclk2dly & 0x3) << 12;
+        value |= (regs->reg_0x002b_mclk2src & 0x3) << 4;
+        value |= (regs->reg_0x002b_rxdiven & 0x1) << 0;
+        value |= (regs->reg_0x002b_txdiven & 0x1) << 1;
+    }
     if (addr == 0x002F)
     {
         value |= (regs->reg_0x002f_mask & 0x3f) << 0;
         value |= (regs->reg_0x002f_rev & 0x1f) << 6;
         value |= (regs->reg_0x002f_ver & 0x1f) << 11;
+    }
+    if (addr == 0x0085)
+    {
+        value |= (regs->reg_0x0085_byp_xbuf_rx & 0x1) << 6;
+        value |= (regs->reg_0x0085_byp_xbuf_tx & 0x1) << 5;
+        value |= (regs->reg_0x0085_en_g_xbuf & 0x1) << 0;
+        value |= (regs->reg_0x0085_en_out2_xbuf_tx & 0x1) << 4;
+        value |= (regs->reg_0x0085_en_tbufin_xbuf_rx & 0x1) << 3;
+        value |= (regs->reg_0x0085_pd_xbuf_rx & 0x1) << 2;
+        value |= (regs->reg_0x0085_pd_xbuf_tx & 0x1) << 1;
+        value |= (regs->reg_0x0085_slfb_xbuf_rx & 0x1) << 8;
+        value |= (regs->reg_0x0085_slfb_xbuf_tx & 0x1) << 7;
     }
     if (addr == 0x0086)
     {

@@ -1,0 +1,17 @@
+[
+{
+    "addr" : "0x0085",
+    "fields" : {
+        "SLFB_XBUF_RX" : {"bits":"8"},
+        "SLFB_XBUF_TX" : {"bits":"7"},
+        "BYP_XBUF_RX" : {"bits":"6"},
+        "BYP_XBUF_TX" : {"bits":"5"},
+        "EN_OUT2_XBUF_TX" : {"bits":"4"},
+        "EN_TBUFIN_XBUF_RX" : {"bits":"3"},
+        "PD_XBUF_RX" : {"bits":"2"},
+        "PD_XBUF_TX" : {"bits":"1"},
+        "EN_G_XBUF" : {"bits":"0"}
+    },
+    "default": "00000000 00000001"
+}
+]

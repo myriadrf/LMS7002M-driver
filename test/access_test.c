@@ -93,8 +93,18 @@ int main(int argc, char **argv)
     printf("rev 0x%x\n", LMS7002M_regs(lms)->reg_0x002f_rev);
     printf("ver 0x%x\n", LMS7002M_regs(lms)->reg_0x002f_ver);
 
+    //setup xbuf
+    //LMS7002M_regs(lms)->reg_0x0085_byp_xbuf_rx = 1;
+    //LMS7002M_regs(lms)->reg_0x0085_byp_xbuf_tx = 1;
+    //LMS7002M_regs_spi_write(lms, 0x0085);
+
     //turn the clocks on
     LMS7002M_set_data_clock(lms, 61.44e6/2, 61e6);
+
+    //lml clock mux
+    LMS7002M_regs(lms)->reg_0x002b_mclk1src = REG_0X002B_MCLK1SRC_TXTSPCLKA;
+    LMS7002M_regs(lms)->reg_0x002b_mclk2src = REG_0X002B_MCLK2SRC_RXTSPCLKA;
+    LMS7002M_regs_spi_write(lms, 0x002B);
 
     printf("FPGA_REG_RD_RX_CLKS = 0x%x\n", xumem_read32(regs, FPGA_REG_RD_RX_CLKS));
     printf("FPGA_REG_RD_TX_CLKS = 0x%x\n", xumem_read32(regs, FPGA_REG_RD_TX_CLKS));

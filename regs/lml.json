@@ -44,6 +44,34 @@
     "default": "00001110 10011111"
 },
 {
+    "addr" : "0x002B",
+    "fields" : {
+        "FCLK2_INV" : {"bits":"15"},
+        "FCLK1_INV" : {"bits":"14"},
+        "MCLK2DLY" : {"bits":"13:12"},
+        "MCLK1DLY" : {"bits":"11:10"},
+        "MCLK2SRC" : {"bits":"5:4",
+            "options":{
+                "RxTSPCLKA":3,
+                "TxTSPCLKA":2,
+                "RxTSPCLKA_DIV":1,
+                "TxTSPCLKA_DIV":0
+            }
+        },
+        "MCLK1SRC" : {"bits":"3:2",
+            "options":{
+                "RxTSPCLKA":3,
+                "TxTSPCLKA":2,
+                "RxTSPCLKA_DIV":1,
+                "TxTSPCLKA_DIV":0
+            }
+        },
+        "TXDIVEN" : {"bits":"1"},
+        "RXDIVEN" : {"bits":"0"}
+    },
+    "default" : "00000000 00010000"
+},
+{
     "addr" : "0x002F",
     "fields" : {
         "VER" : {"bits":"15:11"},
