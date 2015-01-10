@@ -44,6 +44,96 @@
     "default": "00001110 10011111"
 },
 {
+    "addr" : "0x0023",
+    "fields" : {
+        "DIQDIRCTR2" : {"bits":"15"},
+        "DIQDIR2" : {"bits":"14"},
+        "DIQDIRCTR1" : {"bits":"13"},
+        "DIQDIR1" : {"bits":"12"},
+        "ENABLEDIRCTR2" : {"bits":"11"},
+        "ENABLEDIR2" : {"bits":"10"},
+        "ENABLEDIRCTR1" : {"bits":"9"},
+        "ENABLEDIR1" : {"bits":"8"},
+        "MOD_EN" : {"bits":"6"},
+        "LML_FIDM2" : {"bits":"5"},
+        "LML_TXNRXIQ2" : {"bits":"4"},
+        "LML_MODE2" : {"bits":"3",
+            "options":{
+                "TRXIQ":0,
+                "JESD207":1
+            }
+        },
+        "LML_FIDM1" : {"bits":"2"},
+        "LML_TXNRXIQ1" : {"bits":"1",
+            "options":{
+                "RXIQ":0,
+                "TXIQ":1
+            }
+        },
+        "LML_MODE1" : {"bits":"0",
+            "options":{
+                "TRXIQ":0,
+                "JESD207":1
+            }
+        }
+    },
+    "default": "01010101 01011001"
+},
+{
+    "addr" : "0x002A",
+    "fields" : {
+        "RX_MUX" : {"bits":"11:10",
+            "options":{
+                "RxTSPCLK":0,
+                "TxFIFO":1,
+                "LFSR":2,
+                "LFSR_":3
+            }
+        },
+        "TX_MUX" : {"bits":"9:8",
+            "options":{
+                "RxTSP":2,
+                "RxTSP_":3,
+                "PORT2":1,
+                "PORT1":0
+            }
+        },
+        "TXRDCLK_MUX" : {"bits":"7:6",
+            "options":{
+                "TxTSPCLK":2,
+                "TxTSPCLK_":3,
+                "FCLK2":1,
+                "FCLK1":0
+            }
+        },
+        "TXWRCLK_MUX" : {"bits":"5:4",
+            "options":{
+                "RxTSPCLK":2,
+                "RxTSPCLK_":3,
+                "FCLK2":1,
+                "FCLK1":0
+            }
+        },
+        "RXRDCLK_MUX" : {"bits":"3:2",
+            "options":{
+                "FCLK2":3,
+                "FCLK1":2,
+                "MCLK2":1,
+                "MCLK1":0
+            }
+        },
+        "RXWRCLK_MUX" : {"bits":"1:0",
+            "options":{
+                "RxTSPCLK":2,
+                "RxTSPCLK_":3,
+                "FCLK2":1,
+                "FCLK1":0
+            }
+        }
+    },
+    "default" : "00000000 10000110"
+},
+{
     "addr" : "0x002B",
     "fields" : {
         "FCLK2_INV" : {"bits":"15"},

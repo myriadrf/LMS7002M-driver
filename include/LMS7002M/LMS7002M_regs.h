@@ -30,6 +30,36 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr);
 //! enumerated values for some registers
 #define REG_0X0021_SPIMODE_3WIRE 0
 #define REG_0X0021_SPIMODE_4WIRE 1
+#define REG_0X0023_LML_MODE1_TRXIQ 0
+#define REG_0X0023_LML_MODE1_JESD207 1
+#define REG_0X0023_LML_MODE2_TRXIQ 0
+#define REG_0X0023_LML_MODE2_JESD207 1
+#define REG_0X0023_LML_TXNRXIQ1_TXIQ 1
+#define REG_0X0023_LML_TXNRXIQ1_RXIQ 0
+#define REG_0X002A_RXRDCLK_MUX_MCLK1 0
+#define REG_0X002A_RXRDCLK_MUX_FCLK2 3
+#define REG_0X002A_RXRDCLK_MUX_FCLK1 2
+#define REG_0X002A_RXRDCLK_MUX_MCLK2 1
+#define REG_0X002A_RXWRCLK_MUX_RXTSPCLK_ 3
+#define REG_0X002A_RXWRCLK_MUX_RXTSPCLK 2
+#define REG_0X002A_RXWRCLK_MUX_FCLK1 0
+#define REG_0X002A_RXWRCLK_MUX_FCLK2 1
+#define REG_0X002A_RX_MUX_TXFIFO 1
+#define REG_0X002A_RX_MUX_LFSR 2
+#define REG_0X002A_RX_MUX_RXTSPCLK 0
+#define REG_0X002A_RX_MUX_LFSR_ 3
+#define REG_0X002A_TXRDCLK_MUX_TXTSPCLK_ 3
+#define REG_0X002A_TXRDCLK_MUX_FCLK2 1
+#define REG_0X002A_TXRDCLK_MUX_FCLK1 0
+#define REG_0X002A_TXRDCLK_MUX_TXTSPCLK 2
+#define REG_0X002A_TXWRCLK_MUX_RXTSPCLK_ 3
+#define REG_0X002A_TXWRCLK_MUX_RXTSPCLK 2
+#define REG_0X002A_TXWRCLK_MUX_FCLK1 0
+#define REG_0X002A_TXWRCLK_MUX_FCLK2 1
+#define REG_0X002A_TX_MUX_RXTSP_ 3
+#define REG_0X002A_TX_MUX_PORT2 1
+#define REG_0X002A_TX_MUX_RXTSP 2
+#define REG_0X002A_TX_MUX_PORT1 0
 #define REG_0X002B_MCLK1SRC_TXTSPCLKA_DIV 0
 #define REG_0X002B_MCLK1SRC_RXTSPCLKA_DIV 1
 #define REG_0X002B_MCLK1SRC_TXTSPCLKA 2
@@ -75,6 +105,27 @@ struct LMS7002M_regs_struct
     int reg_0x0021_sen_pe;
     int reg_0x0021_spimode;
     int reg_0x0021_tx_clk_pe;
+    int reg_0x0023_diqdir1;
+    int reg_0x0023_diqdir2;
+    int reg_0x0023_diqdirctr1;
+    int reg_0x0023_diqdirctr2;
+    int reg_0x0023_enabledir1;
+    int reg_0x0023_enabledir2;
+    int reg_0x0023_enabledirctr1;
+    int reg_0x0023_enabledirctr2;
+    int reg_0x0023_lml_fidm1;
+    int reg_0x0023_lml_fidm2;
+    int reg_0x0023_lml_mode1;
+    int reg_0x0023_lml_mode2;
+    int reg_0x0023_lml_txnrxiq1;
+    int reg_0x0023_lml_txnrxiq2;
+    int reg_0x0023_mod_en;
+    int reg_0x002a_rxrdclk_mux;
+    int reg_0x002a_rxwrclk_mux;
+    int reg_0x002a_rx_mux;
+    int reg_0x002a_txrdclk_mux;
+    int reg_0x002a_txwrclk_mux;
+    int reg_0x002a_tx_mux;
     int reg_0x002b_fclk1_inv;
     int reg_0x002b_fclk2_inv;
     int reg_0x002b_mclk1dly;
@@ -143,6 +194,8 @@ static inline void LMS7002M_regs_init(LMS7002M_regs_t *regs)
 {
     LMS7002M_regs_set(regs, 0x0020, 0xffff);
     LMS7002M_regs_set(regs, 0x0021, 0xe9f);
+    LMS7002M_regs_set(regs, 0x0023, 0x5559);
+    LMS7002M_regs_set(regs, 0x002A, 0x86);
     LMS7002M_regs_set(regs, 0x002B, 0x10);
     LMS7002M_regs_set(regs, 0x002F, 0x3840);
     LMS7002M_regs_set(regs, 0x0085, 0x1);
@@ -191,6 +244,35 @@ static inline void LMS7002M_regs_set(LMS7002M_regs_t *regs, const int addr, cons
         regs->reg_0x0021_sen_pe = (value >> 1) & 0x1;
         regs->reg_0x0021_spimode = (value >> 0) & 0x1;
         regs->reg_0x0021_tx_clk_pe = (value >> 11) & 0x1;
+        return;
+    }
+    if (addr == 0x0023)
+    {
+        regs->reg_0x0023_diqdir1 = (value >> 12) & 0x1;
+        regs->reg_0x0023_diqdir2 = (value >> 14) & 0x1;
+        regs->reg_0x0023_diqdirctr1 = (value >> 13) & 0x1;
+        regs->reg_0x0023_diqdirctr2 = (value >> 15) & 0x1;
+        regs->reg_0x0023_enabledir1 = (value >> 8) & 0x1;
+        regs->reg_0x0023_enabledir2 = (value >> 10) & 0x1;
+        regs->reg_0x0023_enabledirctr1 = (value >> 9) & 0x1;
+        regs->reg_0x0023_enabledirctr2 = (value >> 11) & 0x1;
+        regs->reg_0x0023_lml_fidm1 = (value >> 2) & 0x1;
+        regs->reg_0x0023_lml_fidm2 = (value >> 5) & 0x1;
+        regs->reg_0x0023_lml_mode1 = (value >> 0) & 0x1;
+        regs->reg_0x0023_lml_mode2 = (value >> 3) & 0x1;
+        regs->reg_0x0023_lml_txnrxiq1 = (value >> 1) & 0x1;
+        regs->reg_0x0023_lml_txnrxiq2 = (value >> 4) & 0x1;
+        regs->reg_0x0023_mod_en = (value >> 6) & 0x1;
+        return;
+    }
+    if (addr == 0x002A)
+    {
+        regs->reg_0x002a_rxrdclk_mux = (value >> 2) & 0x3;
+        regs->reg_0x002a_rxwrclk_mux = (value >> 0) & 0x3;
+        regs->reg_0x002a_rx_mux = (value >> 10) & 0x3;
+        regs->reg_0x002a_txrdclk_mux = (value >> 6) & 0x3;
+        regs->reg_0x002a_txwrclk_mux = (value >> 4) & 0x3;
+        regs->reg_0x002a_tx_mux = (value >> 8) & 0x3;
         return;
     }
     if (addr == 0x002B)
@@ -332,6 +414,33 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr)
         value |= (regs->reg_0x0021_sen_pe & 0x1) << 1;
         value |= (regs->reg_0x0021_spimode & 0x1) << 0;
         value |= (regs->reg_0x0021_tx_clk_pe & 0x1) << 11;
+    }
+    if (addr == 0x0023)
+    {
+        value |= (regs->reg_0x0023_diqdir1 & 0x1) << 12;
+        value |= (regs->reg_0x0023_diqdir2 & 0x1) << 14;
+        value |= (regs->reg_0x0023_diqdirctr1 & 0x1) << 13;
+        value |= (regs->reg_0x0023_diqdirctr2 & 0x1) << 15;
+        value |= (regs->reg_0x0023_enabledir1 & 0x1) << 8;
+        value |= (regs->reg_0x0023_enabledir2 & 0x1) << 10;
+        value |= (regs->reg_0x0023_enabledirctr1 & 0x1) << 9;
+        value |= (regs->reg_0x0023_enabledirctr2 & 0x1) << 11;
+        value |= (regs->reg_0x0023_lml_fidm1 & 0x1) << 2;
+        value |= (regs->reg_0x0023_lml_fidm2 & 0x1) << 5;
+        value |= (regs->reg_0x0023_lml_mode1 & 0x1) << 0;
+        value |= (regs->reg_0x0023_lml_mode2 & 0x1) << 3;
+        value |= (regs->reg_0x0023_lml_txnrxiq1 & 0x1) << 1;
+        value |= (regs->reg_0x0023_lml_txnrxiq2 & 0x1) << 4;
+        value |= (regs->reg_0x0023_mod_en & 0x1) << 6;
+    }
+    if (addr == 0x002A)
+    {
+        value |= (regs->reg_0x002a_rxrdclk_mux & 0x3) << 2;
+        value |= (regs->reg_0x002a_rxwrclk_mux & 0x3) << 0;
+        value |= (regs->reg_0x002a_rx_mux & 0x3) << 10;
+        value |= (regs->reg_0x002a_txrdclk_mux & 0x3) << 6;
+        value |= (regs->reg_0x002a_txwrclk_mux & 0x3) << 4;
+        value |= (regs->reg_0x002a_tx_mux & 0x3) << 8;
     }
     if (addr == 0x002B)
     {

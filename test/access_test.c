@@ -36,6 +36,15 @@
 #define IQSEL1_DIR_EMIO      (EMIO_OFFSET+6)
 #define IQSEL2_DIR_EMIO      (EMIO_OFFSET+7)
 
+#define SET_EMIO_OUT_LVL(emio, lvl) \
+    gpio_export(emio); \
+    gpio_set_dir(emio, 1); \
+    gpio_set_value(emio, lvl)
+
+#define CLEANUP_EMIO(emio) \
+    gpio_set_dir(emio, 0); \
+    gpio_unexport(emio)
+
 #define FPGA_REGS 0x43C00000
 
 #define FPGA_REG_RD_SENTINEL 0 //readback a known value
@@ -70,10 +79,8 @@ int main(int argc, char **argv)
     printf("Read sentinel 0x%x\n", xumem_read32(regs, FPGA_REG_RD_SENTINEL));
 
     //perform reset
-    gpio_export(RESET_EMIO);
-    gpio_set_dir(RESET_EMIO, 1);
-    gpio_set_value(RESET_EMIO, 0);
-    gpio_set_value(RESET_EMIO, 1);
+    SET_EMIO_OUT_LVL(RESET_EMIO, 0);
+    SET_EMIO_OUT_LVL(RESET_EMIO, 1);
 
     void *handle = spidev_interface_open(argv[1]);
     if (handle == NULL) return EXIT_FAILURE;
@@ -101,17 +108,53 @@ int main(int argc, char **argv)
     //turn the clocks on
     LMS7002M_set_data_clock(lms, 61.44e6/2, 61e6);
 
+    //lml data config
+    LMS7002M_regs(lms)->reg_0x0023_lml_mode1 = REG_0X0023_LML_MODE1_TRXIQ;
+    LMS7002M_regs(lms)->reg_0x0023_lml_mode2 = REG_0X0023_LML_MODE2_TRXIQ;
+    LMS7002M_regs_spi_write(lms, 0x0023);
+
+    //lml digital loopback
+    LMS7002M_regs(lms)->reg_0x002a_tx_mux = REG_0X002A_TX_MUX_PORT1;
+    LMS7002M_regs(lms)->reg_0x002a_rx_mux = REG_0X002A_RX_MUX_TXFIFO;
+    //LMS7002M_regs(lms)->reg_0x002a_rx_mux = REG_0X002A_RX_MUX_LFSR;
+    LMS7002M_regs(lms)->reg_0x002a_rxrdclk_mux = REG_0X002A_RXRDCLK_MUX_FCLK2;
+    LMS7002M_regs(lms)->reg_0x002a_rxwrclk_mux = REG_0X002A_RXWRCLK_MUX_FCLK2;
+    LMS7002M_regs(lms)->reg_0x002a_txrdclk_mux = REG_0X002A_TXRDCLK_MUX_FCLK1;
+    LMS7002M_regs(lms)->reg_0x002a_txwrclk_mux = REG_0X002A_TXWRCLK_MUX_FCLK1;
+    LMS7002M_regs_spi_write(lms, 0x002A);
+
     //lml clock mux
     LMS7002M_regs(lms)->reg_0x002b_mclk1src = REG_0X002B_MCLK1SRC_TXTSPCLKA;
     LMS7002M_regs(lms)->reg_0x002b_mclk2src = REG_0X002B_MCLK2SRC_RXTSPCLKA;
     LMS7002M_regs_spi_write(lms, 0x002B);
 
+    //readback clock counters, are they alive?
     printf("FPGA_REG_RD_RX_CLKS = 0x%x\n", xumem_read32(regs, FPGA_REG_RD_RX_CLKS));
     printf("FPGA_REG_RD_TX_CLKS = 0x%x\n", xumem_read32(regs, FPGA_REG_RD_TX_CLKS));
+
+    //port output enables
+    SET_EMIO_OUT_LVL(DIO_DIR_CTRL1_EMIO, 0); //0 means A on the level shifter is output (mixup on CTL1 vs 2)
+    SET_EMIO_OUT_LVL(DIO_DIR_CTRL2_EMIO, 1);
+    SET_EMIO_OUT_LVL(IQSEL1_DIR_EMIO, 1);
+    SET_EMIO_OUT_LVL(IQSEL2_DIR_EMIO, 0); //0 means A on the level shifter is output
+
+    //try out the loopback
+    xumem_write32(regs, FPGA_REG_WR_DATA_A, 0xAAAABBBB);
+    xumem_write32(regs, FPGA_REG_WR_DATA_B, 0xCCCCDDDD);
+    sleep(1);
+    printf("FPGA_REG_RD_DATA_A = 0x%x\n", xumem_read32(regs, FPGA_REG_RD_DATA_A));
+    printf("FPGA_REG_RD_DATA_B = 0x%x\n", xumem_read32(regs, FPGA_REG_RD_DATA_B));
 
     //power down and clean up
     LMS7002M_power_down(lms);
     LMS7002M_destroy(lms);
+
+    //back to inputs
+    CLEANUP_EMIO(RESET_EMIO);
+    CLEANUP_EMIO(DIO_DIR_CTRL1_EMIO);
+    CLEANUP_EMIO(DIO_DIR_CTRL2_EMIO);
+    CLEANUP_EMIO(IQSEL1_DIR_EMIO);
+    CLEANUP_EMIO(IQSEL2_DIR_EMIO);
 
     spidev_interface_close(handle);
 
