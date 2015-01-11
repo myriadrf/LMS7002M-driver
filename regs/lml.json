@@ -47,16 +47,41 @@
     "addr" : "0x0023",
     "fields" : {
         "DIQDIRCTR2" : {"bits":"15"},
-        "DIQDIR2" : {"bits":"14"},
+        "DIQDIR2" : {"bits":"14",
+            "options":{
+                "Output":0,
+                "Input":1
+            }
+        },
         "DIQDIRCTR1" : {"bits":"13"},
-        "DIQDIR1" : {"bits":"12"},
+        "DIQDIR1" : {"bits":"12",
+            "options":{
+                "Output":0,
+                "Input":1
+            }
+        },
         "ENABLEDIRCTR2" : {"bits":"11"},
-        "ENABLEDIR2" : {"bits":"10"},
+        "ENABLEDIR2" : {"bits":"10",
+            "options":{
+                "Output":0,
+                "Input":1
+            }
+        },
         "ENABLEDIRCTR1" : {"bits":"9"},
-        "ENABLEDIR1" : {"bits":"8"},
+        "ENABLEDIR1" : {"bits":"8",
+            "options":{
+                "Output":0,
+                "Input":1
+            }
+        },
         "MOD_EN" : {"bits":"6"},
         "LML_FIDM2" : {"bits":"5"},
-        "LML_TXNRXIQ2" : {"bits":"4"},
+        "LML_TXNRXIQ2" : {"bits":"4",
+            "options":{
+                "RXIQ":0,
+                "TXIQ":1
+            }
+        },
         "LML_MODE2" : {"bits":"3",
             "options":{
                 "TRXIQ":0,
@@ -160,6 +185,14 @@
         "RXDIVEN" : {"bits":"0"}
     },
     "default" : "00000000 00010000"
+},
+{
+    "addr" : "0x002C",
+    "fields" : {
+        "TXTSPCLK_DIV" : {"bits":"15:8"},
+        "RXTSPCLK_DIV" : {"bits":"7:0"}
+    },
+    "default": "11111111 11111111"
 },
 {
     "addr" : "0x002F",
