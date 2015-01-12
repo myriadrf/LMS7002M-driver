@@ -58,6 +58,14 @@
 #define FPGA_REG_WR_DATA_A 20 //TXA data for loopback test
 #define FPGA_REG_WR_DATA_B 24 //TXB data for loopback test
 
+static inline double estimate_clock_rate(void *regs, int offset)
+{
+    uint32_t t0 = xumem_read32(regs, offset);
+    sleep(1);
+    uint32_t t1 = xumem_read32(regs, offset);
+    return ((double)(t1 - t0));
+}
+
 int main(int argc, char **argv)
 {
     printf("=========================================================\n");
@@ -117,31 +125,34 @@ int main(int argc, char **argv)
     LMS7002M_regs(lms)->reg_0x002a_tx_mux = REG_0X002A_TX_MUX_PORT1;
     LMS7002M_regs(lms)->reg_0x002a_rx_mux = REG_0X002A_RX_MUX_TXFIFO;
     //LMS7002M_regs(lms)->reg_0x002a_rx_mux = REG_0X002A_RX_MUX_LFSR;
-    LMS7002M_regs(lms)->reg_0x002a_rxrdclk_mux = REG_0X002A_RXRDCLK_MUX_FCLK2;
-    LMS7002M_regs(lms)->reg_0x002a_rxwrclk_mux = REG_0X002A_RXWRCLK_MUX_FCLK2;
+    LMS7002M_regs(lms)->reg_0x002a_rxrdclk_mux = REG_0X002A_RXRDCLK_MUX_FCLK1;
+    LMS7002M_regs(lms)->reg_0x002a_rxwrclk_mux = REG_0X002A_RXWRCLK_MUX_FCLK1;
     LMS7002M_regs(lms)->reg_0x002a_txrdclk_mux = REG_0X002A_TXRDCLK_MUX_FCLK1;
     LMS7002M_regs(lms)->reg_0x002a_txwrclk_mux = REG_0X002A_TXWRCLK_MUX_FCLK1;
     LMS7002M_regs_spi_write(lms, 0x002A);
 
     //lml clock mux
-    LMS7002M_regs(lms)->reg_0x002b_mclk1src = REG_0X002B_MCLK1SRC_TXTSPCLKA;
-    LMS7002M_regs(lms)->reg_0x002b_mclk2src = REG_0X002B_MCLK2SRC_RXTSPCLKA;
+    //LMS7002M_regs(lms)->reg_0x002b_mclk1src = REG_0X002B_MCLK1SRC_TXTSPCLKA;
+    //LMS7002M_regs(lms)->reg_0x002b_mclk2src = REG_0X002B_MCLK2SRC_RXTSPCLKA;
+    LMS7002M_regs(lms)->reg_0x002b_txdiven = 1;
+    LMS7002M_regs(lms)->reg_0x002b_rxdiven = 1;
     LMS7002M_regs_spi_write(lms, 0x002B);
 
+    LMS7002M_regs(lms)->reg_0x002c_rxtspclk_div = 0; //2x
+    LMS7002M_regs(lms)->reg_0x002c_txtspclk_div = 3; //8x
+    LMS7002M_regs_spi_write(lms, 0x002C);
+
     //readback clock counters, are they alive?
-    printf("FPGA_REG_RD_RX_CLKS = 0x%x\n", xumem_read32(regs, FPGA_REG_RD_RX_CLKS));
-    printf("FPGA_REG_RD_TX_CLKS = 0x%x\n", xumem_read32(regs, FPGA_REG_RD_TX_CLKS));
+    printf("RX CLK RATE %f MHz\n", estimate_clock_rate(regs, FPGA_REG_RD_RX_CLKS)/1e6);
+    printf("TX CLK RATE %f MHz\n", estimate_clock_rate(regs, FPGA_REG_RD_TX_CLKS)/1e6);
 
     //port output enables
-    SET_EMIO_OUT_LVL(DIO_DIR_CTRL1_EMIO, 0); //0 means A on the level shifter is output (mixup on CTL1 vs 2)
-    SET_EMIO_OUT_LVL(DIO_DIR_CTRL2_EMIO, 1);
-    SET_EMIO_OUT_LVL(IQSEL1_DIR_EMIO, 1);
-    SET_EMIO_OUT_LVL(IQSEL2_DIR_EMIO, 0); //0 means A on the level shifter is output
+    SET_EMIO_OUT_LVL(RXEN_EMIO, 1);
+    SET_EMIO_OUT_LVL(TXEN_EMIO, 1);
 
     //try out the loopback
-    xumem_write32(regs, FPGA_REG_WR_DATA_A, 0xAAAABBBB);
-    xumem_write32(regs, FPGA_REG_WR_DATA_B, 0xCCCCDDDD);
-    sleep(1);
+    xumem_write32(regs, FPGA_REG_WR_DATA_A, 0);
+    xumem_write32(regs, FPGA_REG_WR_DATA_B, 0);
     printf("FPGA_REG_RD_DATA_A = 0x%x\n", xumem_read32(regs, FPGA_REG_RD_DATA_A));
     printf("FPGA_REG_RD_DATA_B = 0x%x\n", xumem_read32(regs, FPGA_REG_RD_DATA_B));
 
@@ -151,10 +162,8 @@ int main(int argc, char **argv)
 
     //back to inputs
     CLEANUP_EMIO(RESET_EMIO);
-    CLEANUP_EMIO(DIO_DIR_CTRL1_EMIO);
-    CLEANUP_EMIO(DIO_DIR_CTRL2_EMIO);
-    CLEANUP_EMIO(IQSEL1_DIR_EMIO);
-    CLEANUP_EMIO(IQSEL2_DIR_EMIO);
+    CLEANUP_EMIO(RXEN_EMIO);
+    CLEANUP_EMIO(TXEN_EMIO);
 
     spidev_interface_close(handle);
 
