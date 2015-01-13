@@ -36,8 +36,18 @@ LMS7002M_API void LMS7002M_power_down(LMS7002M_t *self)
 LMS7002M_API void LMS7002M_configure_lml_port(LMS7002M_t *self, const int portNo, const int direction, const int mclkDiv)
 {
     //set TRXIQ on both ports
-    if (portNo == LMS_PORT1) self->regs.reg_0x0023_lml_mode1 = REG_0X0023_LML_MODE1_TRXIQ;
-    if (portNo == LMS_PORT2) self->regs.reg_0x0023_lml_mode2 = REG_0X0023_LML_MODE2_TRXIQ;
+    if (portNo == LMS_PORT1)
+    {
+        self->regs.reg_0x0023_lml_mode1 = REG_0X0023_LML_MODE1_TRXIQ;
+        self->regs.reg_0x0023_lml_txnrxiq1 = (direction==LMS_TX)?
+            REG_0X0023_LML_TXNRXIQ1_RXIQ:REG_0X0023_LML_TXNRXIQ1_TXIQ; //WARNING: reversed due to data sheet bug
+    }
+    if (portNo == LMS_PORT2)
+    {
+        self->regs.reg_0x0023_lml_mode2 = REG_0X0023_LML_MODE2_TRXIQ;
+        self->regs.reg_0x0023_lml_txnrxiq2 = (direction==LMS_TX)?
+            REG_0X0023_LML_TXNRXIQ2_RXIQ:REG_0X0023_LML_TXNRXIQ2_TXIQ; //WARNING: reversed due to data sheet bug
+    }
 
     //set the FIFO rd and wr clock muxes based on direction
     if (direction == LMS_TX)
