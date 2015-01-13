@@ -109,7 +109,7 @@
     "fields" : {
         "RX_MUX" : {"bits":"11:10",
             "options":{
-                "RxTSPCLK":0,
+                "RxTSP":0,
                 "TxFIFO":1,
                 "LFSR":2,
                 "LFSR_":3

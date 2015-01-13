@@ -108,39 +108,12 @@ int main(int argc, char **argv)
     printf("rev 0x%x\n", LMS7002M_regs(lms)->reg_0x002f_rev);
     printf("ver 0x%x\n", LMS7002M_regs(lms)->reg_0x002f_ver);
 
-    //setup xbuf
-    //LMS7002M_regs(lms)->reg_0x0085_byp_xbuf_rx = 1;
-    //LMS7002M_regs(lms)->reg_0x0085_byp_xbuf_tx = 1;
-    //LMS7002M_regs_spi_write(lms, 0x0085);
-
     //turn the clocks on
     LMS7002M_set_data_clock(lms, 61.44e6/2, 61e6);
 
-    //lml data config
-    LMS7002M_regs(lms)->reg_0x0023_lml_mode1 = REG_0X0023_LML_MODE1_TRXIQ;
-    LMS7002M_regs(lms)->reg_0x0023_lml_mode2 = REG_0X0023_LML_MODE2_TRXIQ;
-    LMS7002M_regs_spi_write(lms, 0x0023);
-
-    //lml digital loopback
-    LMS7002M_regs(lms)->reg_0x002a_tx_mux = REG_0X002A_TX_MUX_PORT1;
-    LMS7002M_regs(lms)->reg_0x002a_rx_mux = REG_0X002A_RX_MUX_TXFIFO;
-    //LMS7002M_regs(lms)->reg_0x002a_rx_mux = REG_0X002A_RX_MUX_LFSR;
-    LMS7002M_regs(lms)->reg_0x002a_rxrdclk_mux = REG_0X002A_RXRDCLK_MUX_FCLK1;
-    LMS7002M_regs(lms)->reg_0x002a_rxwrclk_mux = REG_0X002A_RXWRCLK_MUX_FCLK1;
-    LMS7002M_regs(lms)->reg_0x002a_txrdclk_mux = REG_0X002A_TXRDCLK_MUX_FCLK1;
-    LMS7002M_regs(lms)->reg_0x002a_txwrclk_mux = REG_0X002A_TXWRCLK_MUX_FCLK1;
-    LMS7002M_regs_spi_write(lms, 0x002A);
-
-    //lml clock mux
-    //LMS7002M_regs(lms)->reg_0x002b_mclk1src = REG_0X002B_MCLK1SRC_TXTSPCLKA;
-    //LMS7002M_regs(lms)->reg_0x002b_mclk2src = REG_0X002B_MCLK2SRC_RXTSPCLKA;
-    LMS7002M_regs(lms)->reg_0x002b_txdiven = 1;
-    LMS7002M_regs(lms)->reg_0x002b_rxdiven = 1;
-    LMS7002M_regs_spi_write(lms, 0x002B);
-
-    LMS7002M_regs(lms)->reg_0x002c_rxtspclk_div = 0; //2x
-    LMS7002M_regs(lms)->reg_0x002c_txtspclk_div = 3; //8x
-    LMS7002M_regs_spi_write(lms, 0x002C);
+    //configure data port directions and data clock rates
+    LMS7002M_configure_lml_port(lms, LMS_PORT1, LMS_TX, 4);
+    LMS7002M_configure_lml_port(lms, LMS_PORT2, LMS_RX, 1);
 
     //readback clock counters, are they alive?
     printf("RX CLK RATE %f MHz\n", estimate_clock_rate(regs, FPGA_REG_RD_RX_CLKS)/1e6);
@@ -151,8 +124,13 @@ int main(int argc, char **argv)
     SET_EMIO_OUT_LVL(TXEN_EMIO, 1);
 
     //try out the loopback
-    xumem_write32(regs, FPGA_REG_WR_DATA_A, 0);
-    xumem_write32(regs, FPGA_REG_WR_DATA_B, 0);
+    LMS7002M_regs(lms)->reg_0x002a_rx_mux = REG_0X002A_RX_MUX_TXFIFO;
+    //LMS7002M_regs(lms)->reg_0x002a_rx_mux = REG_0X002A_RX_MUX_LFSR;
+    LMS7002M_regs_spi_read(lms, 0x002a);
+
+    xumem_write32(regs, FPGA_REG_WR_DATA_A, ~0);
+    xumem_write32(regs, FPGA_REG_WR_DATA_B, ~0);
+    sleep(1);
     printf("FPGA_REG_RD_DATA_A = 0x%x\n", xumem_read32(regs, FPGA_REG_RD_DATA_A));
     printf("FPGA_REG_RD_DATA_B = 0x%x\n", xumem_read32(regs, FPGA_REG_RD_DATA_B));
 

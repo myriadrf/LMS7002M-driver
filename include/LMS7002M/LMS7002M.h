@@ -24,6 +24,14 @@
 #define LMS7002M_API static inline
 #endif
 
+//! direction constants
+#define LMS_TX 1
+#define LMS_RX 2
+
+//! port number constants
+#define LMS_PORT1 1
+#define LMS_PORT2 2
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -128,6 +136,22 @@ LMS7002M_API void LMS7002M_reset(LMS7002M_t *self);
  * \param self an instance of the LMS7002M driver
  */
 LMS7002M_API void LMS7002M_power_down(LMS7002M_t *self);
+
+/*!
+ * Configure the muxing and clocking on a lime light port.
+ * This sets the data mode and direction for the DIQ pins,
+ * and selects the appropriate clock and stream muxes.
+ * This call is not compatible with JESD207 operation.
+ *
+ * The mclkDiv must be 1 for no divider, or an even value.
+ * Odd divider values besides 1 (bypass) are not allowed.
+ *
+ * \param self an instance of the LMS7002M driver
+ * \param portNo the lime light data port 1 or 2
+ * \param direction the direction LMS_TX or LMS_RX
+ * \param mclkDiv the output clock divider ratio
+ */
+LMS7002M_API void LMS7002M_configure_lml_port(LMS7002M_t *self, const int portNo, const int direction, const int mclkDiv);
 
 /*!
  * Configure the ADC/DAC clocking given the reference and the desired rate.
