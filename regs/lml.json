@@ -105,6 +105,34 @@
     "default": "01010101 01011001"
 },
 {
+    "addr" : "0x0024",
+    "fields" : {
+        "LML1_S3S" : {"bits":"15:14", "options":{"BQ":3, "BI":2, "AQ":1, "AI":0}},
+        "LML1_S2S" : {"bits":"13:12", "options":{"BQ":3, "BI":2, "AQ":1, "AI":0}},
+        "LML1_S1S" : {"bits":"11:10", "options":{"BQ":3, "BI":2, "AQ":1, "AI":0}},
+        "LML1_S0S" : {"bits":"9:8", "options":{"BQ":3, "BI":2, "AQ":1, "AI":0}},
+        "LML1_BQP" : {"bits":"7:6"},
+        "LML1_BIP" : {"bits":"5:4"},
+        "LML1_AQP" : {"bits":"3:2"},
+        "LML1_AIP" : {"bits":"1:0"}
+    },
+    "default": "11100100 11100100"
+},
+{
+    "addr" : "0x0027",
+    "fields" : {
+        "LML2_S3S" : {"bits":"15:14", "options":{"BQ":3, "BI":2, "AQ":1, "AI":0}},
+        "LML2_S2S" : {"bits":"13:12", "options":{"BQ":3, "BI":2, "AQ":1, "AI":0}},
+        "LML2_S1S" : {"bits":"11:10", "options":{"BQ":3, "BI":2, "AQ":1, "AI":0}},
+        "LML2_S0S" : {"bits":"9:8", "options":{"BQ":3, "BI":2, "AQ":1, "AI":0}},
+        "LML2_BQP" : {"bits":"7:6"},
+        "LML2_BIP" : {"bits":"5:4"},
+        "LML2_AQP" : {"bits":"3:2"},
+        "LML2_AIP" : {"bits":"1:0"}
+    },
+    "default": "11100100 11100100"
+},
+{
     "addr" : "0x002A",
     "fields" : {
         "RX_MUX" : {"bits":"11:10",

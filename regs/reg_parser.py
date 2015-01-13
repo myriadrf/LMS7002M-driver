@@ -35,6 +35,9 @@ def get_shift_mask(reg, field_name):
         return low, mask
     return int(bits), "0x1"
 
+def sorted_field_keys(reg):
+    return reversed(sorted(reg['fields'].keys(), key=lambda x: map(int, reg['fields'][x]['bits'].split(':'))[0]))
+
 TMPL="""
 ///
 /// \\file LMS7002M/LMS7002M_regs.h
@@ -66,7 +69,7 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr);
 
 //! enumerated values for some registers
 #for $reg in $regs
-#for $field_name in sorted($reg.fields.keys()):
+#for $field_name in $sorted_field_keys($reg):
 #if $get_options($reg, $field_name)
 #for $k,$v in $get_options($reg, $field_name)
 \#define $k $v
@@ -78,7 +81,7 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr);
 struct LMS7002M_regs_struct
 {
     #for $reg in $regs
-    #for $field_name in sorted($reg.fields.keys()):
+    #for $field_name in $sorted_field_keys($reg):
     int $get_name($reg, $field_name);
     #end for
     #end for
@@ -100,7 +103,7 @@ static inline void LMS7002M_regs_set(LMS7002M_regs_t *regs, const int addr, cons
     #for $reg in $regs
     if (addr == $reg.addr)
     {
-        #for $field_name in sorted($reg.fields.keys())
+        #for $field_name in $sorted_field_keys($reg)
         #set $shift, $mask = $get_shift_mask($reg, $field_name)
         regs->$get_name($reg, $field_name) = (value >> $shift) & $mask;
         #end for
@@ -115,7 +118,7 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr)
     #for $reg in $regs
     if (addr == $reg.addr)
     {
-        #for $field_name in sorted($reg.fields.keys())
+        #for $field_name in $sorted_field_keys($reg)
         #set $shift, $mask = $get_shift_mask($reg, $field_name)
         value |= (regs->$get_name($reg, $field_name) & $mask) << $shift;
         #end for
@@ -138,6 +141,7 @@ if __name__ == '__main__':
         get_default=get_default,
         get_options=get_options,
         get_shift_mask=get_shift_mask,
+        sorted_field_keys=sorted_field_keys,
     )))
 
     print code
