@@ -49,16 +49,20 @@ LMS7002M_API void LMS7002M_configure_lml_port(LMS7002M_t *self, const int portNo
             REG_0X0023_LML_TXNRXIQ2_RXIQ:REG_0X0023_LML_TXNRXIQ2_TXIQ; //WARNING: reversed due to data sheet bug
     }
 
+    //delayed mclk is used for RX read clock -- needs small delay set
+    self->regs.reg_0x002b_mclk2dly = 1; //1X delay
+    self->regs.reg_0x002b_mclk1dly = 1; //1X delay
+
     //set the FIFO rd and wr clock muxes based on direction
     if (direction == LMS_TX)
     {
-        self->regs.reg_0x002a_txrdclk_mux = (portNo==LMS_PORT1)?REG_0X002A_TXRDCLK_MUX_FCLK1:REG_0X002A_TXRDCLK_MUX_FCLK2;
+        self->regs.reg_0x002a_txrdclk_mux = REG_0X002A_TXRDCLK_MUX_TXTSPCLK;
         self->regs.reg_0x002a_txwrclk_mux = (portNo==LMS_PORT1)?REG_0X002A_TXWRCLK_MUX_FCLK1:REG_0X002A_TXWRCLK_MUX_FCLK2;
     }
     if (direction == LMS_RX)
     {
-        self->regs.reg_0x002a_rxrdclk_mux = (portNo==LMS_PORT1)?REG_0X002A_RXRDCLK_MUX_FCLK1:REG_0X002A_RXRDCLK_MUX_FCLK2;
-        self->regs.reg_0x002a_rxwrclk_mux = (portNo==LMS_PORT1)?REG_0X002A_RXWRCLK_MUX_FCLK1:REG_0X002A_RXWRCLK_MUX_FCLK2;
+        self->regs.reg_0x002a_rxrdclk_mux = (portNo==LMS_PORT1)?REG_0X002A_RXRDCLK_MUX_MCLK1:REG_0X002A_RXRDCLK_MUX_MCLK2;
+        self->regs.reg_0x002a_rxwrclk_mux = REG_0X002A_RXWRCLK_MUX_RXTSPCLK;
     }
 
     //data stream muxes
