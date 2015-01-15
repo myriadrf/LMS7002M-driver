@@ -31,6 +31,13 @@ typedef enum
     LMS_RX = 2,
 } LMS7002M_dir_t;
 
+//! channel constants
+typedef enum
+{
+    LMS_CHA = 'A',
+    LMS_CHB = 'B',
+} LMS7002M_chan_t;
+
 //! port number constants
 typedef enum
 {
@@ -86,6 +93,10 @@ LMS7002M_API LMS7002M_t *LMS7002M_create(LMS7002M_spi_transact_t transact, void 
  */
 LMS7002M_API void LMS7002M_destroy(LMS7002M_t *self);
 
+//=====================================================================//
+//============================ SPI section ============================//
+//=====================================================================//
+
 /*!
  * Perform a SPI write transaction on the given device.
  * This call can be used directly to access SPI registers,
@@ -114,6 +125,15 @@ LMS7002M_API int LMS7002M_spi_read(LMS7002M_t *self, const int addr);
 LMS7002M_API void LMS7002M_regs_spi_write(LMS7002M_t *self, const int addr);
 
 /*!
+ * When we have RX/TX identical registers based on the same table.
+ * Use this call to specify a distinct actual address and lookup addr.
+ * \param self an instance of the LMS7002M driver
+ * \param addr the 16 bit register address to write over SPI
+ * \param regAddr the 16 bit register address to lookup in regs
+ */
+LMS7002M_API void LMS7002M_regs_spi_write2(LMS7002M_t *self, const int addr, const int regAddr);
+
+/*!
  * Read a spi register, filling in the fields in the regs structure.
  * \param self an instance of the LMS7002M driver
  * \param addr the 16 bit register address
@@ -128,6 +148,10 @@ LMS7002M_API void LMS7002M_regs_spi_read(LMS7002M_t *self, const int addr);
  * \return the pointer to the unpacked LMS7002M fields
  */
 LMS7002M_API LMS7002M_regs_t *LMS7002M_regs(LMS7002M_t *self);
+
+//=====================================================================//
+//============================ LML section ============================//
+//=====================================================================//
 
 /*!
  * Perform all soft and hard resets available.
@@ -176,6 +200,15 @@ LMS7002M_API void LMS7002M_invert_fclk(LMS7002M_t *self, const bool invert);
 LMS7002M_API void LMS7002M_setup_digital_loopback(LMS7002M_t *self);
 
 /*!
+ * Set the MAC mux for channel A/B shadow registers.
+ * This call does not incur a register write if the value is unchanged.
+ * This call is mostly used internally by other calls that have to set the MAC.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ */
+LMS7002M_API void LMS7002M_set_mac(LMS7002M_t *self, const LMS7002M_chan_t channel);
+
+/*!
  * Configure the ADC/DAC clocking given the reference and the desired rate.
  * This is a helper function that may make certain non-ideal assumptions,
  * for example this calculation will always make use of fractional-N tuning.
@@ -186,6 +219,21 @@ LMS7002M_API void LMS7002M_setup_digital_loopback(LMS7002M_t *self);
  * \return 0 for success or error code on failure
  */
 LMS7002M_API int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, const double fout);
+
+//=====================================================================//
+//============================ NCO section ============================//
+//=====================================================================//
+
+/*!
+ * Set the frequency for the specified NCO.
+ * Note: there is a size 16 table for every NCO, we are just using entry 0.
+ * Math: freqHz = freqRel * sampleRate
+ * \param self an instance of the LMS7002M driver
+ * \param direction the direction LMS_TX or LMS_RX
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param freqRel a fractional frequency in (-0.5, 0.5)
+ */
+LMS7002M_API void LMS7002M_set_nco_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, const LMS7002M_chan_t channel, const double freqRel);
 
 #ifdef __cplusplus
 }

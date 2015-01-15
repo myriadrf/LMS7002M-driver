@@ -28,6 +28,10 @@ static inline void LMS7002M_regs_set(LMS7002M_regs_t *regs, const int addr, cons
 static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr);
 
 //! enumerated values for some registers
+#define REG_0X0020_MAC_CHAB 3
+#define REG_0X0020_MAC_CHA 1
+#define REG_0X0020_MAC_CHB 2
+#define REG_0X0020_MAC_NONE 0
 #define REG_0X0021_SPIMODE_3WIRE 0
 #define REG_0X0021_SPIMODE_4WIRE 1
 #define REG_0X0023_DIQDIR2_OUTPUT 0
@@ -117,6 +121,8 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr);
 #define REG_0X0089_TST_CGEN_VCO_TUNE 3
 #define REG_0X0089_TST_CGEN_VCO_TUNE_50_KOHM 2
 #define REG_0X0089_TST_CGEN_TSTDO 1
+#define REG_0X0240_MODE_PHO 1
+#define REG_0X0240_MODE_FCW 0
 
 struct LMS7002M_regs_struct
 {
@@ -244,6 +250,12 @@ struct LMS7002M_regs_struct
     int reg_0x008c_cp3_cgen;
     int reg_0x008c_cz_cgen;
     int reg_0x008d_resrv_cgn;
+    int reg_0x0240_dthbit;
+    int reg_0x0240_sel;
+    int reg_0x0240_mode;
+    int reg_0x0241_pho;
+    int reg_0x0242_fcw0_hi;
+    int reg_0x0243_fcw0_lo;
 };
 
 /***********************************************************************
@@ -270,6 +282,10 @@ static inline void LMS7002M_regs_init(LMS7002M_regs_t *regs)
     LMS7002M_regs_set(regs, 0x008B, 0x1900);
     LMS7002M_regs_set(regs, 0x008C, 0x67b);
     LMS7002M_regs_set(regs, 0x008D, 0x0);
+    LMS7002M_regs_set(regs, 0x0240, 0x20);
+    LMS7002M_regs_set(regs, 0x0241, 0x0);
+    LMS7002M_regs_set(regs, 0x0242, 0x0);
+    LMS7002M_regs_set(regs, 0x0243, 0x0);
 }
 
 static inline void LMS7002M_regs_set(LMS7002M_regs_t *regs, const int addr, const int value)
@@ -470,6 +486,28 @@ static inline void LMS7002M_regs_set(LMS7002M_regs_t *regs, const int addr, cons
         regs->reg_0x008d_resrv_cgn = (value >> 0) & 0x7;
         return;
     }
+    if (addr == 0x0240)
+    {
+        regs->reg_0x0240_dthbit = (value >> 5) & 0xf;
+        regs->reg_0x0240_sel = (value >> 1) & 0xf;
+        regs->reg_0x0240_mode = (value >> 0) & 0x1;
+        return;
+    }
+    if (addr == 0x0241)
+    {
+        regs->reg_0x0241_pho = (value >> 0) & 0xffff;
+        return;
+    }
+    if (addr == 0x0242)
+    {
+        regs->reg_0x0242_fcw0_hi = (value >> 0) & 0xffff;
+        return;
+    }
+    if (addr == 0x0243)
+    {
+        regs->reg_0x0243_fcw0_lo = (value >> 0) & 0xffff;
+        return;
+    }
 }
 
 static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr)
@@ -652,6 +690,24 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr)
     if (addr == 0x008D)
     {
         value |= (regs->reg_0x008d_resrv_cgn & 0x7) << 0;
+    }
+    if (addr == 0x0240)
+    {
+        value |= (regs->reg_0x0240_dthbit & 0xf) << 5;
+        value |= (regs->reg_0x0240_sel & 0xf) << 1;
+        value |= (regs->reg_0x0240_mode & 0x1) << 0;
+    }
+    if (addr == 0x0241)
+    {
+        value |= (regs->reg_0x0241_pho & 0xffff) << 0;
+    }
+    if (addr == 0x0242)
+    {
+        value |= (regs->reg_0x0242_fcw0_hi & 0xffff) << 0;
+    }
+    if (addr == 0x0243)
+    {
+        value |= (regs->reg_0x0243_fcw0_lo & 0xffff) << 0;
     }
     return value;
 }

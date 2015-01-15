@@ -16,7 +16,7 @@
         "RXEN_A" : {"bits":"4"},
         "TXEN_B" : {"bits":"3"},
         "TXEN_A" : {"bits":"2"},
-        "MAC" : {"bits":"1:0"}
+        "MAC" : {"bits":"1:0", "options":{"CHAB":3, "CHA":1, "CHB":2, "NONE":0}}
     },
     "default": "11111111 11111111"
 },

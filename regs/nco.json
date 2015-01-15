@@ -1,0 +1,32 @@
+[
+{
+    "addr" : "0x0240",
+    "fields" : {
+        "DTHBIT" : {"bits":"8:5"},
+        "SEL" : {"bits":"4:1"},
+        "MODE" : {"bits":"0", "options":{"PHO":1, "FCW":0}}
+    },
+    "default": "00000000 00100000"
+},
+{
+    "addr" : "0x0241",
+    "fields" : {
+        "PHO" : {"bits":"15:0"}
+    },
+    "default": "00000000 00000000"
+},
+{
+    "addr" : "0x0242",
+    "fields" : {
+        "FCW0_HI" : {"bits":"15:0"}
+    },
+    "default": "00000000 00000000"
+},
+{
+    "addr" : "0x0243",
+    "fields" : {
+        "FCW0_LO" : {"bits":"15:0"}
+    },
+    "default": "00000000 00000000"
+}
+]

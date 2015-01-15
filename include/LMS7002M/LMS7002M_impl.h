@@ -69,6 +69,11 @@ LMS7002M_API void LMS7002M_regs_spi_write(LMS7002M_t *self, const int addr)
     LMS7002M_spi_write(self, addr, LMS7002M_regs_get(&self->regs, addr));
 }
 
+LMS7002M_API void LMS7002M_regs_spi_write2(LMS7002M_t *self, const int addr, const int regAddr)
+{
+    LMS7002M_spi_write(self, addr, LMS7002M_regs_get(&self->regs, regAddr));
+}
+
 LMS7002M_API void LMS7002M_regs_spi_read(LMS7002M_t *self, const int addr)
 {
     LMS7002M_regs_set(&self->regs, addr, LMS7002M_spi_read(self, addr));
@@ -88,3 +93,4 @@ LMS7002M_API LMS7002M_regs_t *LMS7002M_regs(LMS7002M_t *self)
  **********************************************************************/
 #include <LMS7002M/LMS7002M_lml.h>
 #include <LMS7002M/LMS7002M_cgen.h>
+#include <LMS7002M/LMS7002M_nco.h>
