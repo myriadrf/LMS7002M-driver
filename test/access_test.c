@@ -53,8 +53,7 @@
 #define FPGA_REG_RD_DATA_A 20 //RXA data for loopback test
 #define FPGA_REG_RD_DATA_B 24 //RXB data for loopback test
 
-#define FPGA_REG_WR_RX_DUAL_CH 0 //0 for SDR mode, 1 for DDR mode
-#define FPGA_REG_WR_TX_DUAL_CH 4 //0 for SDR mode, 1 for DDR mode
+#define FPGA_REG_WR_RX_STORE_OK 8 //can register RX samples (for test)
 #define FPGA_REG_WR_DATA_A 20 //TXA data for loopback test
 #define FPGA_REG_WR_DATA_B 24 //TXB data for loopback test
 
@@ -112,8 +111,10 @@ int main(int argc, char **argv)
     LMS7002M_set_data_clock(lms, 61.44e6/2, 61e6);
 
     //configure data port directions and data clock rates
-    LMS7002M_configure_lml_port(lms, LMS_PORT1, LMS_TX, 4);
+    LMS7002M_configure_lml_port(lms, LMS_PORT1, LMS_TX, 2);
     LMS7002M_configure_lml_port(lms, LMS_PORT2, LMS_RX, 1);
+    LMS7002M_invert_fclk(lms, true); //makes it read in I, Q
+    LMS7002M_setup_digital_loopback(lms);
 
     //readback clock counters, are they alive?
     printf("RX CLK RATE %f MHz\n", estimate_clock_rate(regs, FPGA_REG_RD_RX_CLKS)/1e6);
@@ -123,13 +124,11 @@ int main(int argc, char **argv)
     SET_EMIO_OUT_LVL(RXEN_EMIO, 1);
     SET_EMIO_OUT_LVL(TXEN_EMIO, 1);
 
-    //try out the loopback
-    LMS7002M_regs(lms)->reg_0x002a_rx_mux = REG_0X002A_RX_MUX_TXFIFO;
-    //LMS7002M_regs(lms)->reg_0x002a_rx_mux = REG_0X002A_RX_MUX_LFSR;
-    LMS7002M_regs_spi_read(lms, 0x002a);
-
-    xumem_write32(regs, FPGA_REG_WR_DATA_A, ~0);
-    xumem_write32(regs, FPGA_REG_WR_DATA_B, ~0);
+    xumem_write32(regs, FPGA_REG_WR_DATA_A, 0xAAAABBBB);
+    xumem_write32(regs, FPGA_REG_WR_DATA_B, 0xCCCCDDDD);
+    xumem_write32(regs, FPGA_REG_WR_RX_STORE_OK, 1);
+    sleep(1);
+    xumem_write32(regs, FPGA_REG_WR_RX_STORE_OK, 0);
     sleep(1);
     printf("FPGA_REG_RD_DATA_A = 0x%x\n", xumem_read32(regs, FPGA_REG_RD_DATA_A));
     printf("FPGA_REG_RD_DATA_B = 0x%x\n", xumem_read32(regs, FPGA_REG_RD_DATA_B));

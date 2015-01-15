@@ -25,12 +25,18 @@
 #endif
 
 //! direction constants
-#define LMS_TX 1
-#define LMS_RX 2
+typedef enum
+{
+    LMS_TX = 1,
+    LMS_RX = 2,
+} LMS7002M_dir_t;
 
 //! port number constants
-#define LMS_PORT1 1
-#define LMS_PORT2 2
+typedef enum
+{
+    LMS_PORT1 = 1,
+    LMS_PORT2 = 2,
+} LMS7002M_port_t;
 
 #ifdef __cplusplus
 extern "C" {
@@ -151,7 +157,23 @@ LMS7002M_API void LMS7002M_power_down(LMS7002M_t *self);
  * \param direction the direction LMS_TX or LMS_RX
  * \param mclkDiv the output clock divider ratio
  */
-LMS7002M_API void LMS7002M_configure_lml_port(LMS7002M_t *self, const int portNo, const int direction, const int mclkDiv);
+LMS7002M_API void LMS7002M_configure_lml_port(LMS7002M_t *self, const LMS7002M_port_t portNo, const LMS7002M_dir_t direction, const int mclkDiv);
+
+/*!
+ * Invert the feedback clock used with the transmit pins.
+ * This call inverts both FCLK1 and FCLK2 (only one of which is used).
+ * \param self an instance of the LMS7002M driver
+ * \param invert true to invert the clock
+ */
+LMS7002M_API void LMS7002M_invert_fclk(LMS7002M_t *self, const bool invert);
+
+/*!
+ * Enable digital loopback inside the lime light.
+ * This call also applies the tx fifo write clock to the rx fifo.
+ * To undo the effect of this loopback, call LMS7002M_configure_lml_port().
+ * \param self an instance of the LMS7002M driver
+ */
+LMS7002M_API void LMS7002M_setup_digital_loopback(LMS7002M_t *self);
 
 /*!
  * Configure the ADC/DAC clocking given the reference and the desired rate.
