@@ -1,3 +1,60 @@
 [
-
+{
+    "addr" : "0x0105",
+    "fields" : {
+        "STATPULSE_TBB" : {"bits":"15"},
+        "LOOPB_TBB" : {"bits":"14:12"},
+        "PD_LPFH_TBB" : {"bits":"4"},
+        "PD_LPFIAMP_TBB" : {"bits":"3"},
+        "PD_LPFLAD_TBB" : {"bits":"2"},
+        "PD_LPFS5_TBB" : {"bits":"1"},
+        "EN_G_TBB" : {"bits":"0"}
+    },
+    "default": "00000000 00000111"
+},
+{
+    "addr" : "0x0106",
+    "fields" : {
+        "ICT_LPFS5_F_TBB" : {"bits":"14:10"},
+        "ICT_LPFS5_PT_TBB" : {"bits":"9:5"},
+        "ICT_LPF_H_PT_TBB" : {"bits":"4:0"}
+    },
+    "default": "00110001 10001100"
+},
+{
+    "addr" : "0x0107",
+    "fields" : {
+        "ICT_LPFH_F_TBB" : {"bits":"14:10"},
+        "ICT_LPFLAD_F_TBB" : {"bits":"9:5"},
+        "ICT_LPFLAD_PT_TBB" : {"bits":"4:0"}
+    },
+    "default": "00110001 10001100"
+},
+{
+    "addr" : "0x0108",
+    "fields" : {
+        "CG_IAMP_TBB" : {"bits":"15:10"},
+        "ICT_IAMP_FRP_TBB" : {"bits":"9:5"},
+        "ICT_IAMP_GG_FRP_TBB" : {"bits":"4:0"}
+    },
+    "default": "10010101 10001100"
+},
+{
+    "addr" : "0x0109",
+    "fields" : {
+        "RCAL_LPFH_TBB" : {"bits":"15:8"},
+        "RCAL_LPFLAD_TBB" : {"bits":"7:0"}
+    },
+    "default": "01100001 11000001"
+},
+{
+    "addr" : "0x010A",
+    "fields" : {
+        "TSTIN_TBB" : {"bits":"15:14"},
+        "BYPLADDER_TBB" : {"bits":"13"},
+        "CCAL_LPFLAD_TBB" : {"bits":"12:8"},
+        "RCAL_LPFS5_TBB" : {"bits":"7:0"}
+    },
+    "default": "00010000 01001100"
+}
 ]

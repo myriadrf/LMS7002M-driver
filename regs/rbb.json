@@ -1,3 +1,65 @@
 [
-
+{
+    "addr" : "0x0115",
+    "fields" : {
+        "EN_LB_LPFH_RBB" : {"bits":"15"},
+        "EN_LB_LPFL_RBB" : {"bits":"14"},
+        "PD_LPFH_RBB" : {"bits":"3"},
+        "PD_LPFL_RBB" : {"bits":"2"},
+        "PD_PGA_RBB" : {"bits":"1"},
+        "EN_G_RBB" : {"bits":"0"}
+    },
+    "default": "00000000 00001001"
+},
+{
+    "addr" : "0x0116",
+    "fields" : {
+        "R_CTL_LPF_RBB" : {"bits":"15:11"},
+        "RCC_CTL_LPFH_RBB" : {"bits":"10:8"},
+        "C_CTL_LPFH_RBB" : {"bits":"7:0"}
+    },
+    "default": "10000001 00000000"
+},
+{
+    "addr" : "0x0117",
+    "fields" : {
+        "RCC_CTL_LPFL_RBB" : {"bits":"13:11"},
+        "C_CTL_LPFL_RBB" : {"bits":"10:0"}
+    },
+    "default": "00101000 00001100"
+},
+{
+    "addr" : "0x0118",
+    "fields" : {
+        "INPUT_CTL_PGA_RBB" : {"bits":"15:3"},
+        "ICT_LPF_IN_RBB" : {"bits":"9:5"},
+        "ICT_LPF_OUT_RBB" : {"bits":"4:0"}
+    },
+    "default": "00000001 10001100"
+},
+{
+    "addr" : "0x0119",
+    "fields" : {
+        "OSW_PGA_RBB" : {"bits":"15"},
+        "ICT_PGA_OUT_RBB" : {"bits":"14:10"},
+        "ICT_PGA_IN_RBB" : {"bits":"9:5"},
+        "G_PGA_RBB" : {"bits":"4:0"}
+    },
+    "default": "00011000 11001011"
+},
+{
+    "addr" : "0x011A",
+    "fields" : {
+        "RCC_CTL_PGA_RBB" : {"bits":"13:9"},
+        "C_CTL_PGA_RBB" : {"bits":"7:0"}
+    },
+    "default": "00101110 00000010"
+},
+{
+    "addr" : "0x011B",
+    "fields" : {
+        "RESRV_RBB" : {"bits":"6:0"}
+    },
+    "default": "00000000 00000000"
+}
 ]

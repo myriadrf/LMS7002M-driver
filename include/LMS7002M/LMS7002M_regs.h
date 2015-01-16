@@ -316,6 +316,28 @@ struct LMS7002M_regs_struct
     int reg_0x0103_lobiasp_txx_trf;
     int reg_0x0104_cdc_i_trf;
     int reg_0x0104_cdc_q_trf;
+    int reg_0x0105_statpulse_tbb;
+    int reg_0x0105_loopb_tbb;
+    int reg_0x0105_pd_lpfh_tbb;
+    int reg_0x0105_pd_lpfiamp_tbb;
+    int reg_0x0105_pd_lpflad_tbb;
+    int reg_0x0105_pd_lpfs5_tbb;
+    int reg_0x0105_en_g_tbb;
+    int reg_0x0106_ict_lpfs5_f_tbb;
+    int reg_0x0106_ict_lpfs5_pt_tbb;
+    int reg_0x0106_ict_lpf_h_pt_tbb;
+    int reg_0x0107_ict_lpfh_f_tbb;
+    int reg_0x0107_ict_lpflad_f_tbb;
+    int reg_0x0107_ict_lpflad_pt_tbb;
+    int reg_0x0108_cg_iamp_tbb;
+    int reg_0x0108_ict_iamp_frp_tbb;
+    int reg_0x0108_ict_iamp_gg_frp_tbb;
+    int reg_0x0109_rcal_lpfh_tbb;
+    int reg_0x0109_rcal_lpflad_tbb;
+    int reg_0x010a_tstin_tbb;
+    int reg_0x010a_bypladder_tbb;
+    int reg_0x010a_ccal_lpflad_tbb;
+    int reg_0x010a_rcal_lpfs5_tbb;
     int reg_0x010c_cdc_i_rfe;
     int reg_0x010c_cdc_q_rfe;
     int reg_0x010c_pd_lna_rfe;
@@ -350,6 +372,27 @@ struct LMS7002M_regs_struct
     int reg_0x0113_g_tia_rfe;
     int reg_0x0114_rcomp_tia_rfe;
     int reg_0x0114_rfb_tia_rfe;
+    int reg_0x0115_en_lb_lpfh_rbb;
+    int reg_0x0115_en_lb_lpfl_rbb;
+    int reg_0x0115_pd_lpfh_rbb;
+    int reg_0x0115_pd_lpfl_rbb;
+    int reg_0x0115_pd_pga_rbb;
+    int reg_0x0115_en_g_rbb;
+    int reg_0x0116_r_ctl_lpf_rbb;
+    int reg_0x0116_rcc_ctl_lpfh_rbb;
+    int reg_0x0116_c_ctl_lpfh_rbb;
+    int reg_0x0117_rcc_ctl_lpfl_rbb;
+    int reg_0x0117_c_ctl_lpfl_rbb;
+    int reg_0x0118_input_ctl_pga_rbb;
+    int reg_0x0118_ict_lpf_in_rbb;
+    int reg_0x0118_ict_lpf_out_rbb;
+    int reg_0x0119_osw_pga_rbb;
+    int reg_0x0119_ict_pga_out_rbb;
+    int reg_0x0119_ict_pga_in_rbb;
+    int reg_0x0119_g_pga_rbb;
+    int reg_0x011a_rcc_ctl_pga_rbb;
+    int reg_0x011a_c_ctl_pga_rbb;
+    int reg_0x011b_resrv_rbb;
     int reg_0x0200_tsgfc;
     int reg_0x0200_tsgfcw;
     int reg_0x0200_tsgdcldq;
@@ -456,6 +499,12 @@ static inline void LMS7002M_regs_init(LMS7002M_regs_t *regs)
     LMS7002M_regs_set(regs, 0x0102, 0x3180);
     LMS7002M_regs_set(regs, 0x0103, 0xa12);
     LMS7002M_regs_set(regs, 0x0104, 0x88);
+    LMS7002M_regs_set(regs, 0x0105, 0x7);
+    LMS7002M_regs_set(regs, 0x0106, 0x318c);
+    LMS7002M_regs_set(regs, 0x0107, 0x318c);
+    LMS7002M_regs_set(regs, 0x0108, 0x958c);
+    LMS7002M_regs_set(regs, 0x0109, 0x61c1);
+    LMS7002M_regs_set(regs, 0x010A, 0x104c);
     LMS7002M_regs_set(regs, 0x010C, 0x88fd);
     LMS7002M_regs_set(regs, 0x010D, 0x9e);
     LMS7002M_regs_set(regs, 0x010E, 0x2040);
@@ -465,6 +514,13 @@ static inline void LMS7002M_regs_init(LMS7002M_regs_t *regs)
     LMS7002M_regs_set(regs, 0x0112, 0xc0e6);
     LMS7002M_regs_set(regs, 0x0113, 0x3c3);
     LMS7002M_regs_set(regs, 0x0114, 0x8d);
+    LMS7002M_regs_set(regs, 0x0115, 0x9);
+    LMS7002M_regs_set(regs, 0x0116, 0x8100);
+    LMS7002M_regs_set(regs, 0x0117, 0x280c);
+    LMS7002M_regs_set(regs, 0x0118, 0x18c);
+    LMS7002M_regs_set(regs, 0x0119, 0x18cb);
+    LMS7002M_regs_set(regs, 0x011A, 0x2e02);
+    LMS7002M_regs_set(regs, 0x011B, 0x0);
     LMS7002M_regs_set(regs, 0x0200, 0x81);
     LMS7002M_regs_set(regs, 0x0201, 0x7ff);
     LMS7002M_regs_set(regs, 0x0202, 0x7ff);
@@ -734,6 +790,52 @@ static inline void LMS7002M_regs_set(LMS7002M_regs_t *regs, const int addr, cons
         regs->reg_0x0104_cdc_q_trf = (value >> 0) & 0xf;
         return;
     }
+    if (addr == 0x0105)
+    {
+        regs->reg_0x0105_statpulse_tbb = (value >> 15) & 0x1;
+        regs->reg_0x0105_loopb_tbb = (value >> 12) & 0x7;
+        regs->reg_0x0105_pd_lpfh_tbb = (value >> 4) & 0x1;
+        regs->reg_0x0105_pd_lpfiamp_tbb = (value >> 3) & 0x1;
+        regs->reg_0x0105_pd_lpflad_tbb = (value >> 2) & 0x1;
+        regs->reg_0x0105_pd_lpfs5_tbb = (value >> 1) & 0x1;
+        regs->reg_0x0105_en_g_tbb = (value >> 0) & 0x1;
+        return;
+    }
+    if (addr == 0x0106)
+    {
+        regs->reg_0x0106_ict_lpfs5_f_tbb = (value >> 10) & 0x1f;
+        regs->reg_0x0106_ict_lpfs5_pt_tbb = (value >> 5) & 0x1f;
+        regs->reg_0x0106_ict_lpf_h_pt_tbb = (value >> 0) & 0x1f;
+        return;
+    }
+    if (addr == 0x0107)
+    {
+        regs->reg_0x0107_ict_lpfh_f_tbb = (value >> 10) & 0x1f;
+        regs->reg_0x0107_ict_lpflad_f_tbb = (value >> 5) & 0x1f;
+        regs->reg_0x0107_ict_lpflad_pt_tbb = (value >> 0) & 0x1f;
+        return;
+    }
+    if (addr == 0x0108)
+    {
+        regs->reg_0x0108_cg_iamp_tbb = (value >> 10) & 0x3f;
+        regs->reg_0x0108_ict_iamp_frp_tbb = (value >> 5) & 0x1f;
+        regs->reg_0x0108_ict_iamp_gg_frp_tbb = (value >> 0) & 0x1f;
+        return;
+    }
+    if (addr == 0x0109)
+    {
+        regs->reg_0x0109_rcal_lpfh_tbb = (value >> 8) & 0xff;
+        regs->reg_0x0109_rcal_lpflad_tbb = (value >> 0) & 0xff;
+        return;
+    }
+    if (addr == 0x010A)
+    {
+        regs->reg_0x010a_tstin_tbb = (value >> 14) & 0x3;
+        regs->reg_0x010a_bypladder_tbb = (value >> 13) & 0x1;
+        regs->reg_0x010a_ccal_lpflad_tbb = (value >> 8) & 0x1f;
+        regs->reg_0x010a_rcal_lpfs5_tbb = (value >> 0) & 0xff;
+        return;
+    }
     if (addr == 0x010C)
     {
         regs->reg_0x010c_cdc_i_rfe = (value >> 12) & 0xf;
@@ -802,6 +904,55 @@ static inline void LMS7002M_regs_set(LMS7002M_regs_t *regs, const int addr, cons
     {
         regs->reg_0x0114_rcomp_tia_rfe = (value >> 5) & 0xf;
         regs->reg_0x0114_rfb_tia_rfe = (value >> 0) & 0x1f;
+        return;
+    }
+    if (addr == 0x0115)
+    {
+        regs->reg_0x0115_en_lb_lpfh_rbb = (value >> 15) & 0x1;
+        regs->reg_0x0115_en_lb_lpfl_rbb = (value >> 14) & 0x1;
+        regs->reg_0x0115_pd_lpfh_rbb = (value >> 3) & 0x1;
+        regs->reg_0x0115_pd_lpfl_rbb = (value >> 2) & 0x1;
+        regs->reg_0x0115_pd_pga_rbb = (value >> 1) & 0x1;
+        regs->reg_0x0115_en_g_rbb = (value >> 0) & 0x1;
+        return;
+    }
+    if (addr == 0x0116)
+    {
+        regs->reg_0x0116_r_ctl_lpf_rbb = (value >> 11) & 0x1f;
+        regs->reg_0x0116_rcc_ctl_lpfh_rbb = (value >> 8) & 0x7;
+        regs->reg_0x0116_c_ctl_lpfh_rbb = (value >> 0) & 0xff;
+        return;
+    }
+    if (addr == 0x0117)
+    {
+        regs->reg_0x0117_rcc_ctl_lpfl_rbb = (value >> 11) & 0x7;
+        regs->reg_0x0117_c_ctl_lpfl_rbb = (value >> 0) & 0x7ff;
+        return;
+    }
+    if (addr == 0x0118)
+    {
+        regs->reg_0x0118_input_ctl_pga_rbb = (value >> 3) & 0x1fff;
+        regs->reg_0x0118_ict_lpf_in_rbb = (value >> 5) & 0x1f;
+        regs->reg_0x0118_ict_lpf_out_rbb = (value >> 0) & 0x1f;
+        return;
+    }
+    if (addr == 0x0119)
+    {
+        regs->reg_0x0119_osw_pga_rbb = (value >> 15) & 0x1;
+        regs->reg_0x0119_ict_pga_out_rbb = (value >> 10) & 0x1f;
+        regs->reg_0x0119_ict_pga_in_rbb = (value >> 5) & 0x1f;
+        regs->reg_0x0119_g_pga_rbb = (value >> 0) & 0x1f;
+        return;
+    }
+    if (addr == 0x011A)
+    {
+        regs->reg_0x011a_rcc_ctl_pga_rbb = (value >> 9) & 0x1f;
+        regs->reg_0x011a_c_ctl_pga_rbb = (value >> 0) & 0xff;
+        return;
+    }
+    if (addr == 0x011B)
+    {
+        regs->reg_0x011b_resrv_rbb = (value >> 0) & 0x7f;
         return;
     }
     if (addr == 0x0200)
@@ -1204,6 +1355,46 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr)
         value |= (regs->reg_0x0104_cdc_i_trf & 0xf) << 4;
         value |= (regs->reg_0x0104_cdc_q_trf & 0xf) << 0;
     }
+    if (addr == 0x0105)
+    {
+        value |= (regs->reg_0x0105_statpulse_tbb & 0x1) << 15;
+        value |= (regs->reg_0x0105_loopb_tbb & 0x7) << 12;
+        value |= (regs->reg_0x0105_pd_lpfh_tbb & 0x1) << 4;
+        value |= (regs->reg_0x0105_pd_lpfiamp_tbb & 0x1) << 3;
+        value |= (regs->reg_0x0105_pd_lpflad_tbb & 0x1) << 2;
+        value |= (regs->reg_0x0105_pd_lpfs5_tbb & 0x1) << 1;
+        value |= (regs->reg_0x0105_en_g_tbb & 0x1) << 0;
+    }
+    if (addr == 0x0106)
+    {
+        value |= (regs->reg_0x0106_ict_lpfs5_f_tbb & 0x1f) << 10;
+        value |= (regs->reg_0x0106_ict_lpfs5_pt_tbb & 0x1f) << 5;
+        value |= (regs->reg_0x0106_ict_lpf_h_pt_tbb & 0x1f) << 0;
+    }
+    if (addr == 0x0107)
+    {
+        value |= (regs->reg_0x0107_ict_lpfh_f_tbb & 0x1f) << 10;
+        value |= (regs->reg_0x0107_ict_lpflad_f_tbb & 0x1f) << 5;
+        value |= (regs->reg_0x0107_ict_lpflad_pt_tbb & 0x1f) << 0;
+    }
+    if (addr == 0x0108)
+    {
+        value |= (regs->reg_0x0108_cg_iamp_tbb & 0x3f) << 10;
+        value |= (regs->reg_0x0108_ict_iamp_frp_tbb & 0x1f) << 5;
+        value |= (regs->reg_0x0108_ict_iamp_gg_frp_tbb & 0x1f) << 0;
+    }
+    if (addr == 0x0109)
+    {
+        value |= (regs->reg_0x0109_rcal_lpfh_tbb & 0xff) << 8;
+        value |= (regs->reg_0x0109_rcal_lpflad_tbb & 0xff) << 0;
+    }
+    if (addr == 0x010A)
+    {
+        value |= (regs->reg_0x010a_tstin_tbb & 0x3) << 14;
+        value |= (regs->reg_0x010a_bypladder_tbb & 0x1) << 13;
+        value |= (regs->reg_0x010a_ccal_lpflad_tbb & 0x1f) << 8;
+        value |= (regs->reg_0x010a_rcal_lpfs5_tbb & 0xff) << 0;
+    }
     if (addr == 0x010C)
     {
         value |= (regs->reg_0x010c_cdc_i_rfe & 0xf) << 12;
@@ -1264,6 +1455,48 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr)
     {
         value |= (regs->reg_0x0114_rcomp_tia_rfe & 0xf) << 5;
         value |= (regs->reg_0x0114_rfb_tia_rfe & 0x1f) << 0;
+    }
+    if (addr == 0x0115)
+    {
+        value |= (regs->reg_0x0115_en_lb_lpfh_rbb & 0x1) << 15;
+        value |= (regs->reg_0x0115_en_lb_lpfl_rbb & 0x1) << 14;
+        value |= (regs->reg_0x0115_pd_lpfh_rbb & 0x1) << 3;
+        value |= (regs->reg_0x0115_pd_lpfl_rbb & 0x1) << 2;
+        value |= (regs->reg_0x0115_pd_pga_rbb & 0x1) << 1;
+        value |= (regs->reg_0x0115_en_g_rbb & 0x1) << 0;
+    }
+    if (addr == 0x0116)
+    {
+        value |= (regs->reg_0x0116_r_ctl_lpf_rbb & 0x1f) << 11;
+        value |= (regs->reg_0x0116_rcc_ctl_lpfh_rbb & 0x7) << 8;
+        value |= (regs->reg_0x0116_c_ctl_lpfh_rbb & 0xff) << 0;
+    }
+    if (addr == 0x0117)
+    {
+        value |= (regs->reg_0x0117_rcc_ctl_lpfl_rbb & 0x7) << 11;
+        value |= (regs->reg_0x0117_c_ctl_lpfl_rbb & 0x7ff) << 0;
+    }
+    if (addr == 0x0118)
+    {
+        value |= (regs->reg_0x0118_input_ctl_pga_rbb & 0x1fff) << 3;
+        value |= (regs->reg_0x0118_ict_lpf_in_rbb & 0x1f) << 5;
+        value |= (regs->reg_0x0118_ict_lpf_out_rbb & 0x1f) << 0;
+    }
+    if (addr == 0x0119)
+    {
+        value |= (regs->reg_0x0119_osw_pga_rbb & 0x1) << 15;
+        value |= (regs->reg_0x0119_ict_pga_out_rbb & 0x1f) << 10;
+        value |= (regs->reg_0x0119_ict_pga_in_rbb & 0x1f) << 5;
+        value |= (regs->reg_0x0119_g_pga_rbb & 0x1f) << 0;
+    }
+    if (addr == 0x011A)
+    {
+        value |= (regs->reg_0x011a_rcc_ctl_pga_rbb & 0x1f) << 9;
+        value |= (regs->reg_0x011a_c_ctl_pga_rbb & 0xff) << 0;
+    }
+    if (addr == 0x011B)
+    {
+        value |= (regs->reg_0x011b_resrv_rbb & 0x7f) << 0;
     }
     if (addr == 0x0200)
     {
