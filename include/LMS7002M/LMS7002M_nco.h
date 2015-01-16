@@ -20,7 +20,7 @@ extern "C" {
 
 LMS7002M_API void LMS7002M_set_nco_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, const LMS7002M_chan_t channel, const double freqRel)
 {
-    LMS7002M_set_mac(self, channel);
+    LMS7002M_set_mac_ch(self, channel);
 
     self->regs.reg_0x0240_sel = 0; //table entry 0 will be used
     self->regs.reg_0x0240_mode = REG_0X0240_MODE_FCW;

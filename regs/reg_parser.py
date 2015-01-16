@@ -23,7 +23,7 @@ def get_default(reg):
 def get_options(reg, field_name):
     field = reg['fields'][field_name]
     if 'options' in field:
-        return [(('%s_%s'%(get_name(reg, field_name), k)).upper(), v) for k,v in field['options'].iteritems()]
+        return [(('%s_%s'%(get_name(reg, field_name), k)).upper(), v) for k,v in sorted(field['options'].iteritems(), key=lambda x:x[1])]
     return None
 
 def get_shift_mask(reg, field_name):

@@ -1,0 +1,18 @@
+[
+{
+    "addr" : "0x0082",
+    "fields" : {
+        "ISEL_DAC_AFE" : {"bits":"15:13"},
+        "MODE_INTERLEAVE_AFE" : {"bits":"12", "options":{"2ADCS":0, "INTERLEAVED":1}},
+        "MUX_AFE_1" : {"bits":"11:10", "options":{"MUXOFF":0, "PDET_1":1, "BIAS_TOP":2, "RSSI1":3}},
+        "MUX_AFE_2" : {"bits":"9:8", "options":{"MUXOFF":0, "PDET_2":1, "RSSI1":2, "RSSI2":3}},
+        "PD_AFE" : {"bits":"5"},
+        "PD_RX_AFE1" : {"bits":"4"},
+        "PD_RX_AFE2" : {"bits":"3"},
+        "PD_TX_AFE1" : {"bits":"2"},
+        "PD_TX_AFE2" : {"bits":"1"},
+        "EN_G_AFE" : {"bits":"0"}
+    },
+    "default": "10000000 00001011"
+}
+]

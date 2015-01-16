@@ -215,7 +215,17 @@ LMS7002M_API void LMS7002M_setup_digital_loopback(LMS7002M_t *self);
  * \param self an instance of the LMS7002M driver
  * \param channel the channel LMS_CHA or LMS_CHB
  */
-LMS7002M_API void LMS7002M_set_mac(LMS7002M_t *self, const LMS7002M_chan_t channel);
+LMS7002M_API void LMS7002M_set_mac_ch(LMS7002M_t *self, const LMS7002M_chan_t channel);
+
+/*!
+ * Set the MAC mux for direction TX/RX shadow registers.
+ * For SXT and SXR, MAX is used for direction and not channel control.
+ * This call does not incur a register write if the value is unchanged.
+ * This call is mostly used internally by other calls that have to set the MAC.
+ * \param self an instance of the LMS7002M driver
+ * \param direction the direction LMS_TX or LMS_RX
+ */
+LMS7002M_API void LMS7002M_set_mac_dir(LMS7002M_t *self, const LMS7002M_dir_t direction);
 
 //=====================================================================//
 // CGEN (clock generation)

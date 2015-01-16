@@ -1,0 +1,103 @@
+[
+{
+    "addr" : "0x011C",
+    "fields" : {
+        "RESET_N" : {"bits":"15"},
+        "SPDUP_VCO" : {"bits":"14"},
+        "BYPLDO_VCO" : {"bits":"13"},
+        "EN_COARSEPLL" : {"bits":"12"},
+        "CURLIM_VCO" : {"bits":"11"},
+        "EN_DIV2_DIVPROG" : {"bits":"10"},
+        "EN_INTONLY_SDM" : {"bits":"9"},
+        "EN_SDM_CLK" : {"bits":"8"},
+        "PD_FBDIV" : {"bits":"7"},
+        "PD_LOCH_T2RBUF" : {"bits":"6"},
+        "PD_CP" : {"bits":"5"},
+        "PD_FDIV" : {"bits":"4"},
+        "PD_SDM" : {"bits":"3"},
+        "PD_VCO_COMP" : {"bits":"2"},
+        "PD_VCO" : {"bits":"1"},
+        "EN_G" : {"bits":"0"}
+    },
+    "default": "10101101 01000011"
+},
+{
+    "addr" : "0x011D",
+    "fields" : {
+        "FRAC_SDM" : {"bits":"15:0"}
+    },
+    "default": "00000100 00000000"
+},
+{
+    "addr" : "0x011E",
+    "fields" : {
+        "INT_SDM" : {"bits":"13:4"},
+        "FRAC_SDM" : {"bits":"3:0"}
+    },
+    "default": "00000111 10000000"
+},
+{
+    "addr" : "0x011F",
+    "fields" : {
+        "PW_DIV2_LOCH" : {"bits":"14:12"},
+        "PW_DIV4_LOCH" : {"bits":"11:9"},
+        "DIV_LOCH" : {"bits":"8:6"},
+        "TST_SX" : {"bits":"5:3"},
+        "SEL_SDMCLK" : {"bits":"2", "options":{"CLK_DIV":0, "CLK_REF":1}},
+        "SX_DITHER_EN" : {"bits":"1"},
+        "REV_SDMCLK" : {"bits":"0"}
+    },
+    "default": "00110110 01000000"
+},
+{
+    "addr" : "0x0120",
+    "fields" : {
+        "VDIV_VCO" : {"bits":"15:8"},
+        "ICT_VCO" : {"bits":"7:0"}
+    },
+    "default": "10111001 10000000"
+},
+{
+    "addr" : "0x0121",
+    "fields" : {
+        "RSEL_LDO_VCO" : {"bits":"15:11"},
+        "CSW_VCO" : {"bits":"10:3"},
+        "SEL_VCO" : {"bits":"2:1", "options":{"VCOL":0, "VCOM":1, "VCOH":2}},
+        "COARSE_START" : {"bits":"0"}
+    },
+    "default": "10000100 00000100"
+},
+{
+    "addr" : "0x0122",
+    "fields" : {
+        "REVPH_PFD" : {"bits":"12"},
+        "IOFFSET_CP" : {"bits":"11:16"},
+        "IPULSE_CP" : {"bits":"5:0"}
+    },
+    "default": "00000101 00010100"
+},
+{
+    "addr" : "0x0123",
+    "fields" : {
+        "COARSE_STEPDONE" : {"bits":"15"},
+        "COARSEPLL_COMPO" : {"bits":"14"},
+        "VCO_CMPHO" : {"bits":"13"},
+        "VCO_CMPLO" : {"bits":"12"},
+        "CP2_PLL" : {"bits":"11:8"},
+        "CP3_PLL" : {"bits":"7:4"},
+        "CZ" : {"bits":"3:0"}
+    },
+    "default": "00000110 01111011"
+},
+{
+    "addr" : "0x0124",
+    "fields" : {
+        "EN_DIR" : {"bits":"4"},
+        "EN_DIR_RBB" : {"bits":"3"},
+        "EN_DIR_RFE" : {"bits":"2"},
+        "EN_DIR_TBB" : {"bits":"1"},
+        "EN_DIR_TRF" : {"bits":"0"}
+    },
+    "default": "00000000 00000000"
+}
+]
