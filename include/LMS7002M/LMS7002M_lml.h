@@ -18,6 +18,13 @@
 extern "C" {
 #endif
 
+LMS7002M_API void LMS7002M_set_spi_mode(LMS7002M_t *self, const int numWires)
+{
+    if (numWires == 3) self->regs.reg_0x0021_spimode = REG_0X0021_SPIMODE_3WIRE;
+    if (numWires == 4) self->regs.reg_0x0021_spimode = REG_0X0021_SPIMODE_4WIRE;
+    LMS7002M_regs_spi_write(self, 0x0021);
+}
+
 LMS7002M_API void LMS7002M_reset(LMS7002M_t *self)
 {
     LMS7002M_spi_write(self, 0x0020, 0x0);

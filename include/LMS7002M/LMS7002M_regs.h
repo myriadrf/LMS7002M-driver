@@ -121,6 +121,14 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr);
 #define REG_0X0089_TST_CGEN_VCO_TUNE 3
 #define REG_0X0089_TST_CGEN_VCO_TUNE_50_KOHM 2
 #define REG_0X0089_TST_CGEN_TSTDO 1
+#define REG_0X0100_EN_NEXTTX_TRF_SISO 0
+#define REG_0X0100_EN_NEXTTX_TRF_MIMO 1
+#define REG_0X010D_SEL_PATH_RFE_LNAH 1
+#define REG_0X010D_SEL_PATH_RFE_NONE 0
+#define REG_0X010D_SEL_PATH_RFE_LNAL 2
+#define REG_0X010D_SEL_PATH_RFE_LNAW 3
+#define REG_0X010D_EN_NEXTRX_RFE_SISO 0
+#define REG_0X010D_EN_NEXTRX_RFE_MIMO 1
 #define REG_0X0200_TSGFC_NEG6DB 0
 #define REG_0X0200_TSGFC_FS 1
 #define REG_0X0200_TSGFCW_DIV4 2
@@ -285,6 +293,63 @@ struct LMS7002M_regs_struct
     int reg_0x008c_cp3_cgen;
     int reg_0x008c_cz_cgen;
     int reg_0x008d_resrv_cgn;
+    int reg_0x0100_en_lowbwlomx_tmx_trf;
+    int reg_0x0100_en_nexttx_trf;
+    int reg_0x0100_en_amphf_pdet_trf;
+    int reg_0x0100_loadr_pdet_trf;
+    int reg_0x0100_pd_pdet_trf;
+    int reg_0x0100_pd_tlobuf_trf;
+    int reg_0x0100_pd_txpad_trf;
+    int reg_0x0100_en_g_trf;
+    int reg_0x0101_f_txpad_trf;
+    int reg_0x0101_l_loopb_txpad_trf;
+    int reg_0x0101_loss_lin_txpad_trf;
+    int reg_0x0101_loss_main_txpad_trf;
+    int reg_0x0101_en_loopb_txpad_trf;
+    int reg_0x0102_gcas_gndref_txpad_trf;
+    int reg_0x0102_ict_lin_txpad_trf;
+    int reg_0x0102_ict_main_txpad_trf;
+    int reg_0x0102_vgcas_txpad_trf;
+    int reg_0x0103_sel_band1_trf;
+    int reg_0x0103_sel_band2_trf;
+    int reg_0x0103_lobiasn_txm_trf;
+    int reg_0x0103_lobiasp_txx_trf;
+    int reg_0x0104_cdc_i_trf;
+    int reg_0x0104_cdc_q_trf;
+    int reg_0x010c_cdc_i_rfe;
+    int reg_0x010c_cdc_q_rfe;
+    int reg_0x010c_pd_lna_rfe;
+    int reg_0x010c_pd_rloopb_1_rfe;
+    int reg_0x010c_pd_rloopb_2_rfe;
+    int reg_0x010c_pd_mxlobuf_rfe;
+    int reg_0x010c_pd_qgen_rfe;
+    int reg_0x010c_pd_rssi_rfe;
+    int reg_0x010c_pd_tia_rfe;
+    int reg_0x010c_en_g_rfe;
+    int reg_0x010d_sel_path_rfe;
+    int reg_0x010d_en_dcoff_rxfe_rfe;
+    int reg_0x010d_en_inshsw_lb1_rfe;
+    int reg_0x010d_en_inshsw_lb2_rfe;
+    int reg_0x010d_en_inshsw_l_rfe;
+    int reg_0x010d_en_inshsw_w_rfe;
+    int reg_0x010d_en_nextrx_rfe;
+    int reg_0x010e_dcoffi_rfe;
+    int reg_0x010e_dcoffq_rfe;
+    int reg_0x010f_ict_loopb_rfe;
+    int reg_0x010f_ict_tiamain_rfe;
+    int reg_0x010f_ict_tiaout_rfe;
+    int reg_0x0110_ict_lnacmo_rfe;
+    int reg_0x0110_ict_lna_rfe;
+    int reg_0x0110_ict_lodc_rfe;
+    int reg_0x0111_cap_rxmxo_rfe;
+    int reg_0x0111_cgsin_lna_rfe;
+    int reg_0x0112_ccomp_tia_rfe;
+    int reg_0x0112_cfb_tia_rfe;
+    int reg_0x0113_g_lna_rfe;
+    int reg_0x0113_g_rxloopb_rfe;
+    int reg_0x0113_g_tia_rfe;
+    int reg_0x0114_rcomp_tia_rfe;
+    int reg_0x0114_rfb_tia_rfe;
     int reg_0x0200_tsgfc;
     int reg_0x0200_tsgfcw;
     int reg_0x0200_tsgdcldq;
@@ -386,6 +451,20 @@ static inline void LMS7002M_regs_init(LMS7002M_regs_t *regs)
     LMS7002M_regs_set(regs, 0x008B, 0x1900);
     LMS7002M_regs_set(regs, 0x008C, 0x67b);
     LMS7002M_regs_set(regs, 0x008D, 0x0);
+    LMS7002M_regs_set(regs, 0x0100, 0x3409);
+    LMS7002M_regs_set(regs, 0x0101, 0x7800);
+    LMS7002M_regs_set(regs, 0x0102, 0x3180);
+    LMS7002M_regs_set(regs, 0x0103, 0xa12);
+    LMS7002M_regs_set(regs, 0x0104, 0x88);
+    LMS7002M_regs_set(regs, 0x010C, 0x88fd);
+    LMS7002M_regs_set(regs, 0x010D, 0x9e);
+    LMS7002M_regs_set(regs, 0x010E, 0x2040);
+    LMS7002M_regs_set(regs, 0x010F, 0x318c);
+    LMS7002M_regs_set(regs, 0x0110, 0x994);
+    LMS7002M_regs_set(regs, 0x0111, 0x83);
+    LMS7002M_regs_set(regs, 0x0112, 0xc0e6);
+    LMS7002M_regs_set(regs, 0x0113, 0x3c3);
+    LMS7002M_regs_set(regs, 0x0114, 0x8d);
     LMS7002M_regs_set(regs, 0x0200, 0x81);
     LMS7002M_regs_set(regs, 0x0201, 0x7ff);
     LMS7002M_regs_set(regs, 0x0202, 0x7ff);
@@ -610,6 +689,119 @@ static inline void LMS7002M_regs_set(LMS7002M_regs_t *regs, const int addr, cons
     if (addr == 0x008D)
     {
         regs->reg_0x008d_resrv_cgn = (value >> 0) & 0x7;
+        return;
+    }
+    if (addr == 0x0100)
+    {
+        regs->reg_0x0100_en_lowbwlomx_tmx_trf = (value >> 15) & 0x1;
+        regs->reg_0x0100_en_nexttx_trf = (value >> 14) & 0x1;
+        regs->reg_0x0100_en_amphf_pdet_trf = (value >> 12) & 0x3;
+        regs->reg_0x0100_loadr_pdet_trf = (value >> 10) & 0x3;
+        regs->reg_0x0100_pd_pdet_trf = (value >> 3) & 0x1;
+        regs->reg_0x0100_pd_tlobuf_trf = (value >> 2) & 0x1;
+        regs->reg_0x0100_pd_txpad_trf = (value >> 1) & 0x1;
+        regs->reg_0x0100_en_g_trf = (value >> 0) & 0x1;
+        return;
+    }
+    if (addr == 0x0101)
+    {
+        regs->reg_0x0101_f_txpad_trf = (value >> 13) & 0x7;
+        regs->reg_0x0101_l_loopb_txpad_trf = (value >> 11) & 0x3;
+        regs->reg_0x0101_loss_lin_txpad_trf = (value >> 6) & 0x1f;
+        regs->reg_0x0101_loss_main_txpad_trf = (value >> 1) & 0x1f;
+        regs->reg_0x0101_en_loopb_txpad_trf = (value >> 0) & 0x1;
+        return;
+    }
+    if (addr == 0x0102)
+    {
+        regs->reg_0x0102_gcas_gndref_txpad_trf = (value >> 15) & 0x1;
+        regs->reg_0x0102_ict_lin_txpad_trf = (value >> 10) & 0x1f;
+        regs->reg_0x0102_ict_main_txpad_trf = (value >> 5) & 0x1f;
+        regs->reg_0x0102_vgcas_txpad_trf = (value >> 0) & 0x1f;
+        return;
+    }
+    if (addr == 0x0103)
+    {
+        regs->reg_0x0103_sel_band1_trf = (value >> 11) & 0x1;
+        regs->reg_0x0103_sel_band2_trf = (value >> 10) & 0x1;
+        regs->reg_0x0103_lobiasn_txm_trf = (value >> 5) & 0x1f;
+        regs->reg_0x0103_lobiasp_txx_trf = (value >> 0) & 0x1f;
+        return;
+    }
+    if (addr == 0x0104)
+    {
+        regs->reg_0x0104_cdc_i_trf = (value >> 4) & 0xf;
+        regs->reg_0x0104_cdc_q_trf = (value >> 0) & 0xf;
+        return;
+    }
+    if (addr == 0x010C)
+    {
+        regs->reg_0x010c_cdc_i_rfe = (value >> 12) & 0xf;
+        regs->reg_0x010c_cdc_q_rfe = (value >> 8) & 0xf;
+        regs->reg_0x010c_pd_lna_rfe = (value >> 7) & 0x1;
+        regs->reg_0x010c_pd_rloopb_1_rfe = (value >> 6) & 0x1;
+        regs->reg_0x010c_pd_rloopb_2_rfe = (value >> 5) & 0x1;
+        regs->reg_0x010c_pd_mxlobuf_rfe = (value >> 4) & 0x1;
+        regs->reg_0x010c_pd_qgen_rfe = (value >> 3) & 0x1;
+        regs->reg_0x010c_pd_rssi_rfe = (value >> 2) & 0x1;
+        regs->reg_0x010c_pd_tia_rfe = (value >> 1) & 0x1;
+        regs->reg_0x010c_en_g_rfe = (value >> 0) & 0x1;
+        return;
+    }
+    if (addr == 0x010D)
+    {
+        regs->reg_0x010d_sel_path_rfe = (value >> 7) & 0x3;
+        regs->reg_0x010d_en_dcoff_rxfe_rfe = (value >> 6) & 0x1;
+        regs->reg_0x010d_en_inshsw_lb1_rfe = (value >> 4) & 0x1;
+        regs->reg_0x010d_en_inshsw_lb2_rfe = (value >> 3) & 0x1;
+        regs->reg_0x010d_en_inshsw_l_rfe = (value >> 2) & 0x1;
+        regs->reg_0x010d_en_inshsw_w_rfe = (value >> 1) & 0x1;
+        regs->reg_0x010d_en_nextrx_rfe = (value >> 0) & 0x1;
+        return;
+    }
+    if (addr == 0x010E)
+    {
+        regs->reg_0x010e_dcoffi_rfe = (value >> 7) & 0x7f;
+        regs->reg_0x010e_dcoffq_rfe = (value >> 0) & 0x7f;
+        return;
+    }
+    if (addr == 0x010F)
+    {
+        regs->reg_0x010f_ict_loopb_rfe = (value >> 10) & 0x1f;
+        regs->reg_0x010f_ict_tiamain_rfe = (value >> 5) & 0x1f;
+        regs->reg_0x010f_ict_tiaout_rfe = (value >> 0) & 0x1f;
+        return;
+    }
+    if (addr == 0x0110)
+    {
+        regs->reg_0x0110_ict_lnacmo_rfe = (value >> 10) & 0x1f;
+        regs->reg_0x0110_ict_lna_rfe = (value >> 5) & 0x1f;
+        regs->reg_0x0110_ict_lodc_rfe = (value >> 0) & 0x1f;
+        return;
+    }
+    if (addr == 0x0111)
+    {
+        regs->reg_0x0111_cap_rxmxo_rfe = (value >> 5) & 0x1f;
+        regs->reg_0x0111_cgsin_lna_rfe = (value >> 0) & 0x1f;
+        return;
+    }
+    if (addr == 0x0112)
+    {
+        regs->reg_0x0112_ccomp_tia_rfe = (value >> 12) & 0xf;
+        regs->reg_0x0112_cfb_tia_rfe = (value >> 0) & 0xfff;
+        return;
+    }
+    if (addr == 0x0113)
+    {
+        regs->reg_0x0113_g_lna_rfe = (value >> 6) & 0xf;
+        regs->reg_0x0113_g_rxloopb_rfe = (value >> 2) & 0xf;
+        regs->reg_0x0113_g_tia_rfe = (value >> 0) & 0x3;
+        return;
+    }
+    if (addr == 0x0114)
+    {
+        regs->reg_0x0114_rcomp_tia_rfe = (value >> 5) & 0xf;
+        regs->reg_0x0114_rfb_tia_rfe = (value >> 0) & 0x1f;
         return;
     }
     if (addr == 0x0200)
@@ -973,6 +1165,105 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr)
     if (addr == 0x008D)
     {
         value |= (regs->reg_0x008d_resrv_cgn & 0x7) << 0;
+    }
+    if (addr == 0x0100)
+    {
+        value |= (regs->reg_0x0100_en_lowbwlomx_tmx_trf & 0x1) << 15;
+        value |= (regs->reg_0x0100_en_nexttx_trf & 0x1) << 14;
+        value |= (regs->reg_0x0100_en_amphf_pdet_trf & 0x3) << 12;
+        value |= (regs->reg_0x0100_loadr_pdet_trf & 0x3) << 10;
+        value |= (regs->reg_0x0100_pd_pdet_trf & 0x1) << 3;
+        value |= (regs->reg_0x0100_pd_tlobuf_trf & 0x1) << 2;
+        value |= (regs->reg_0x0100_pd_txpad_trf & 0x1) << 1;
+        value |= (regs->reg_0x0100_en_g_trf & 0x1) << 0;
+    }
+    if (addr == 0x0101)
+    {
+        value |= (regs->reg_0x0101_f_txpad_trf & 0x7) << 13;
+        value |= (regs->reg_0x0101_l_loopb_txpad_trf & 0x3) << 11;
+        value |= (regs->reg_0x0101_loss_lin_txpad_trf & 0x1f) << 6;
+        value |= (regs->reg_0x0101_loss_main_txpad_trf & 0x1f) << 1;
+        value |= (regs->reg_0x0101_en_loopb_txpad_trf & 0x1) << 0;
+    }
+    if (addr == 0x0102)
+    {
+        value |= (regs->reg_0x0102_gcas_gndref_txpad_trf & 0x1) << 15;
+        value |= (regs->reg_0x0102_ict_lin_txpad_trf & 0x1f) << 10;
+        value |= (regs->reg_0x0102_ict_main_txpad_trf & 0x1f) << 5;
+        value |= (regs->reg_0x0102_vgcas_txpad_trf & 0x1f) << 0;
+    }
+    if (addr == 0x0103)
+    {
+        value |= (regs->reg_0x0103_sel_band1_trf & 0x1) << 11;
+        value |= (regs->reg_0x0103_sel_band2_trf & 0x1) << 10;
+        value |= (regs->reg_0x0103_lobiasn_txm_trf & 0x1f) << 5;
+        value |= (regs->reg_0x0103_lobiasp_txx_trf & 0x1f) << 0;
+    }
+    if (addr == 0x0104)
+    {
+        value |= (regs->reg_0x0104_cdc_i_trf & 0xf) << 4;
+        value |= (regs->reg_0x0104_cdc_q_trf & 0xf) << 0;
+    }
+    if (addr == 0x010C)
+    {
+        value |= (regs->reg_0x010c_cdc_i_rfe & 0xf) << 12;
+        value |= (regs->reg_0x010c_cdc_q_rfe & 0xf) << 8;
+        value |= (regs->reg_0x010c_pd_lna_rfe & 0x1) << 7;
+        value |= (regs->reg_0x010c_pd_rloopb_1_rfe & 0x1) << 6;
+        value |= (regs->reg_0x010c_pd_rloopb_2_rfe & 0x1) << 5;
+        value |= (regs->reg_0x010c_pd_mxlobuf_rfe & 0x1) << 4;
+        value |= (regs->reg_0x010c_pd_qgen_rfe & 0x1) << 3;
+        value |= (regs->reg_0x010c_pd_rssi_rfe & 0x1) << 2;
+        value |= (regs->reg_0x010c_pd_tia_rfe & 0x1) << 1;
+        value |= (regs->reg_0x010c_en_g_rfe & 0x1) << 0;
+    }
+    if (addr == 0x010D)
+    {
+        value |= (regs->reg_0x010d_sel_path_rfe & 0x3) << 7;
+        value |= (regs->reg_0x010d_en_dcoff_rxfe_rfe & 0x1) << 6;
+        value |= (regs->reg_0x010d_en_inshsw_lb1_rfe & 0x1) << 4;
+        value |= (regs->reg_0x010d_en_inshsw_lb2_rfe & 0x1) << 3;
+        value |= (regs->reg_0x010d_en_inshsw_l_rfe & 0x1) << 2;
+        value |= (regs->reg_0x010d_en_inshsw_w_rfe & 0x1) << 1;
+        value |= (regs->reg_0x010d_en_nextrx_rfe & 0x1) << 0;
+    }
+    if (addr == 0x010E)
+    {
+        value |= (regs->reg_0x010e_dcoffi_rfe & 0x7f) << 7;
+        value |= (regs->reg_0x010e_dcoffq_rfe & 0x7f) << 0;
+    }
+    if (addr == 0x010F)
+    {
+        value |= (regs->reg_0x010f_ict_loopb_rfe & 0x1f) << 10;
+        value |= (regs->reg_0x010f_ict_tiamain_rfe & 0x1f) << 5;
+        value |= (regs->reg_0x010f_ict_tiaout_rfe & 0x1f) << 0;
+    }
+    if (addr == 0x0110)
+    {
+        value |= (regs->reg_0x0110_ict_lnacmo_rfe & 0x1f) << 10;
+        value |= (regs->reg_0x0110_ict_lna_rfe & 0x1f) << 5;
+        value |= (regs->reg_0x0110_ict_lodc_rfe & 0x1f) << 0;
+    }
+    if (addr == 0x0111)
+    {
+        value |= (regs->reg_0x0111_cap_rxmxo_rfe & 0x1f) << 5;
+        value |= (regs->reg_0x0111_cgsin_lna_rfe & 0x1f) << 0;
+    }
+    if (addr == 0x0112)
+    {
+        value |= (regs->reg_0x0112_ccomp_tia_rfe & 0xf) << 12;
+        value |= (regs->reg_0x0112_cfb_tia_rfe & 0xfff) << 0;
+    }
+    if (addr == 0x0113)
+    {
+        value |= (regs->reg_0x0113_g_lna_rfe & 0xf) << 6;
+        value |= (regs->reg_0x0113_g_rxloopb_rfe & 0xf) << 2;
+        value |= (regs->reg_0x0113_g_tia_rfe & 0x3) << 0;
+    }
+    if (addr == 0x0114)
+    {
+        value |= (regs->reg_0x0114_rcomp_tia_rfe & 0xf) << 5;
+        value |= (regs->reg_0x0114_rfb_tia_rfe & 0x1f) << 0;
     }
     if (addr == 0x0200)
     {

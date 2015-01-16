@@ -94,7 +94,7 @@ LMS7002M_API LMS7002M_t *LMS7002M_create(LMS7002M_spi_transact_t transact, void 
 LMS7002M_API void LMS7002M_destroy(LMS7002M_t *self);
 
 //=====================================================================//
-//============================ SPI section ============================//
+// SPI access section
 //=====================================================================//
 
 /*!
@@ -150,8 +150,17 @@ LMS7002M_API void LMS7002M_regs_spi_read(LMS7002M_t *self, const int addr);
 LMS7002M_API LMS7002M_regs_t *LMS7002M_regs(LMS7002M_t *self);
 
 //=====================================================================//
-//============================ LML section ============================//
+// LML (Lime light)
+// The input and output data ports and associated muxes.
 //=====================================================================//
+
+/*!
+ * Set the SPI mode (4-wire or 3-wire).
+ * We recommend that you set this before any additional communication.
+ * \param self an instance of the LMS7002M driver
+ * \param numWires the number 3 or the number 4
+ */
+LMS7002M_API void LMS7002M_set_spi_mode(LMS7002M_t *self, const int numWires);
 
 /*!
  * Perform all soft and hard resets available.
@@ -208,6 +217,10 @@ LMS7002M_API void LMS7002M_setup_digital_loopback(LMS7002M_t *self);
  */
 LMS7002M_API void LMS7002M_set_mac(LMS7002M_t *self, const LMS7002M_chan_t channel);
 
+//=====================================================================//
+// CGEN (clock generation)
+//=====================================================================//
+
 /*!
  * Configure the ADC/DAC clocking given the reference and the desired rate.
  * This is a helper function that may make certain non-ideal assumptions,
@@ -221,7 +234,8 @@ LMS7002M_API void LMS7002M_set_mac(LMS7002M_t *self, const LMS7002M_chan_t chann
 LMS7002M_API int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, const double fout);
 
 //=====================================================================//
-//============================ NCO section ============================//
+// NCO (numerically controlled oscillators)
+// Frequency offset generation in the DSP chain.
 //=====================================================================//
 
 /*!
@@ -234,6 +248,30 @@ LMS7002M_API int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, co
  * \param freqRel a fractional frequency in (-0.5, 0.5)
  */
 LMS7002M_API void LMS7002M_set_nco_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, const LMS7002M_chan_t channel, const double freqRel);
+
+//=====================================================================//
+// TxTSP (transmit DSP chain)
+//=====================================================================//
+
+//=====================================================================//
+// TBB (transmit baseband chain)
+//=====================================================================//
+
+//=====================================================================//
+// TRF (transmit RF frontend)
+//=====================================================================//
+
+//=====================================================================//
+// RxTSP (receive DSP chain)
+//=====================================================================//
+
+//=====================================================================//
+// RBB (receive baseband chain)
+//=====================================================================//
+
+//=====================================================================//
+// RFE (receive RF frontend)
+//=====================================================================//
 
 #ifdef __cplusplus
 }

@@ -1,0 +1,55 @@
+[
+{
+    "addr" : "0x0100",
+    "fields" : {
+        "EN_LOWBWLOMX_TMX_TRF" : {"bits":"15"},
+        "EN_NEXTTX_TRF" : {"bits":"14", "options":{"SISO":0, "MIMO":1}},
+        "EN_AMPHF_PDET_TRF" : {"bits":"13:12"},
+        "LOADR_PDET_TRF" : {"bits":"11:10"},
+        "PD_PDET_TRF" : {"bits":"3"},
+        "PD_TLOBUF_TRF" : {"bits":"2"},
+        "PD_TXPAD_TRF" : {"bits":"1"},
+        "EN_G_TRF" : {"bits":"0"}
+    },
+    "default": "00110100 00001001"
+},
+{
+    "addr" : "0x0101",
+    "fields" : {
+        "F_TXPAD_TRF" : {"bits":"15:13"},
+        "L_LOOPB_TXPAD_TRF" : {"bits":"12:11"},
+        "LOSS_LIN_TXPAD_TRF" : {"bits":"10:6"},
+        "LOSS_MAIN_TXPAD_TRF" : {"bits":"5:1"},
+        "EN_LOOPB_TXPAD_TRF" : {"bits":"0"}
+    },
+    "default": "01111000 00000000"
+},
+{
+    "addr" : "0x0102",
+    "fields" : {
+        "GCAS_GNDREF_TXPAD_TRF" : {"bits":"15"},
+        "ICT_LIN_TXPAD_TRF" : {"bits":"14:10"},
+        "ICT_MAIN_TXPAD_TRF" : {"bits":"9:5"},
+        "VGCAS_TXPAD_TRF" : {"bits":"4:0"}
+    },
+    "default": "00110001 10000000"
+},
+{
+    "addr" : "0x0103",
+    "fields" : {
+        "SEL_BAND1_TRF" : {"bits":"11"},
+        "SEL_BAND2_TRF" : {"bits":"10"},
+        "LOBIASN_TXM_TRF" : {"bits":"9:5"},
+        "LOBIASP_TXX_TRF" : {"bits":"4:0"}
+    },
+    "default": "00001010 00010010"
+},
+{
+    "addr" : "0x0104",
+    "fields" : {
+        "CDC_I_TRF" : {"bits":"7:4"},
+        "CDC_Q_TRF" : {"bits":"3:0"}
+    },
+    "default": "00000000 10001000"
+}
+]

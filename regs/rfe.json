@@ -1,0 +1,90 @@
+[
+{
+    "addr" : "0x010C",
+    "fields" : {
+        "CDC_I_RFE" : {"bits":"15:12"},
+        "CDC_Q_RFE" : {"bits":"11:8"},
+        "PD_LNA_RFE" : {"bits":"7"},
+        "PD_RLOOPB_1_RFE" : {"bits":"6"},
+        "PD_RLOOPB_2_RFE" : {"bits":"5"},
+        "PD_MXLOBUF_RFE" : {"bits":"4"},
+        "PD_QGEN_RFE" : {"bits":"3"},
+        "PD_RSSI_RFE" : {"bits":"2"},
+        "PD_TIA_RFE" : {"bits":"1"},
+        "EN_G_RFE" : {"bits":"0"}
+    },
+    "default": "10001000 11111101"
+},
+{
+    "addr" : "0x010D",
+    "fields" : {
+        "SEL_PATH_RFE" : {"bits":"8:7", "options":{"NONE":0, "LNAH":1, "LNAL":2, "LNAW":3}},
+        "EN_DCOFF_RXFE_RFE" : {"bits":"6"},
+        "EN_INSHSW_LB1_RFE" : {"bits":"4"},
+        "EN_INSHSW_LB2_RFE" : {"bits":"3"},
+        "EN_INSHSW_L_RFE" : {"bits":"2"},
+        "EN_INSHSW_W_RFE" : {"bits":"1"},
+        "EN_NEXTRX_RFE" : {"bits":"0", "options":{"SISO":0, "MIMO":1}}
+    },
+    "default": "00000000 10011110"
+},
+{
+    "addr" : "0x010E",
+    "fields" : {
+        "DCOFFI_RFE" : {"bits":"13:7"},
+        "DCOFFQ_RFE" : {"bits":"6:0"}
+    },
+    "default": "00100000 01000000"
+},
+{
+    "addr" : "0x010F",
+    "fields" : {
+        "ICT_LOOPB_RFE" : {"bits":"14:10"},
+        "ICT_TIAMAIN_RFE" : {"bits":"9:5"},
+        "ICT_TIAOUT_RFE" : {"bits":"4:0"}
+    },
+    "default": "00110001 10001100"
+},
+{
+    "addr" : "0x0110",
+    "fields" : {
+        "ICT_LNACMO_RFE" : {"bits":"14:10"},
+        "ICT_LNA_RFE" : {"bits":"9:5"},
+        "ICT_LODC_RFE" : {"bits":"4:0"}
+    },
+    "default": "00001001 10010100"
+},
+{
+    "addr" : "0x0111",
+    "fields" : {
+        "CAP_RXMXO_RFE" : {"bits":"9:5"},
+        "CGSIN_LNA_RFE" : {"bits":"4:0"}
+    },
+    "default": "00000000 10000011"
+},
+{
+    "addr" : "0x0112",
+    "fields" : {
+        "CCOMP_TIA_RFE" : {"bits":"15:12"},
+        "CFB_TIA_RFE" : {"bits":"11:0"}
+    },
+    "default": "11000000 11100110"
+},
+{
+    "addr" : "0x0113",
+    "fields" : {
+        "G_LNA_RFE" : {"bits":"9:6"},
+        "G_RXLOOPB_RFE" : {"bits":"5:2"},
+        "G_TIA_RFE" : {"bits":"1:0"}
+    },
+    "default": "00000011 11000011"
+},
+{
+    "addr" : "0x0114",
+    "fields" : {
+        "RCOMP_TIA_RFE" : {"bits":"8:5"},
+        "RFB_TIA_RFE" : {"bits":"4:0"}
+    },
+    "default": "00000000 10001101"
+}
+]

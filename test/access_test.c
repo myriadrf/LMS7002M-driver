@@ -96,11 +96,8 @@ int main(int argc, char **argv)
     printf("Create LMS7002M instance\n");
     LMS7002M_t *lms = LMS7002M_create(spidev_interface_transact, handle);
     if (lms == NULL) return EXIT_FAILURE;
+    LMS7002M_set_spi_mode(lms, 4); //set 4-wire spi mode first
     LMS7002M_reset(lms);
-
-    //set 4-wire spi mode
-    LMS7002M_regs(lms)->reg_0x0021_spimode = REG_0X0021_SPIMODE_4WIRE;
-    LMS7002M_regs_spi_write(lms, 0x0021);
 
     //read info register
     LMS7002M_regs_spi_read(lms, 0x002f);
