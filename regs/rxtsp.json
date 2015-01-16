@@ -1,0 +1,118 @@
+[
+{
+    "addr" : "0x0400",
+    "fields" : {
+        "CAPTURE" : {"bits":"9"},
+        "CAPSEL" : {"bits":"14:13", "options" : {"RSSI": 0, "ADCI_ADCQ": 1, "BSIGI_BSTATE": 2, "BSIGQ_BSTATE": 3}},
+        "TSGFC" : {"bits":"9", "options" : {"neg6db":0, "fs":1}},
+        "TSGFCW" : {"bits":"8:7", "options" : {"div8":1, "div4":2}},
+        "TSGDCLDQ" : {"bits":"6"},
+        "TSGDCLDI" : {"bits":"5"},
+        "TSGSWAPIQ" : {"bits":"4"},
+        "TSGMODE" : {"bits":"3", "options" : {"NCO":0, "DC":1}},
+        "INSEL" : {"bits":"2", "options" : {"LML":0, "TEST":1}},
+        "BSTART" : {"bits":"1"},
+        "EN" : {"bits":"0"}
+    },
+    "default": "00000000 10000001"
+},
+{
+    "addr" : "0x0401",
+    "fields" : {
+        "GCORRQ" : {"bits":"10:0"}
+    },
+    "default": "00000111 11111111"
+},
+{
+    "addr" : "0x0402",
+    "fields" : {
+        "GCORRI" : {"bits":"10:0"}
+    },
+    "default": "00000111 11111111"
+},
+{
+    "addr" : "0x0403",
+    "fields" : {
+        "HBI_OVR" : {"bits":"14:12", "options" : {"BYPASS":7}},
+        "IQCORR" : {"bits":"11:0"}
+    },
+    "default": "00000000 00000000"
+},
+{
+    "addr" : "0x0404",
+    "fields" : {
+        "DCCORR_AVG" : {"bits":"2:0"}
+    },
+    "default": "00000000 00000000"
+},
+{
+    "addr" : "0x0405",
+    "fields" : {
+        "GFIR1_L" : {"bits":"10:8"},
+        "GFIR1_N" : {"bits":"7:0"}
+    },
+    "default": "00000000 00000000"
+},
+{
+    "addr" : "0x0406",
+    "fields" : {
+        "GFIR2_L" : {"bits":"10:8"},
+        "GFIR2_N" : {"bits":"7:0"}
+    },
+    "default": "00000000 00000000"
+},
+{
+    "addr" : "0x0407",
+    "fields" : {
+        "GFIR3_L" : {"bits":"10:8"},
+        "GFIR3_N" : {"bits":"7:0"}
+    },
+    "default": "00000000 00000000"
+},
+{
+    "addr" : "0x0408",
+    "fields" : {
+        "AGC_K_LSB" : {"bits":"15:0"}
+    },
+    "default": "00000000 00000000"
+},
+{
+    "addr" : "0x0409",
+    "fields" : {
+        "AGC_ADESIRED" : {"bits":"15:4"},
+        "AGC_K_MSB" : {"bits":"1:0"}
+    },
+    "default": "00000000 00000000"
+},
+{
+    "addr" : "0x040A",
+    "fields" : {
+        "AGC_MODE" : {"bits":"13:12", "options" : {"AGC":0, "RSSI":1, "BYPASS":2}},
+        "AGC_AVG" : {"bits":"2:0"}
+    },
+    "default": "00000000 00000000"
+},
+{
+    "addr" : "0x040B",
+    "fields" : {
+        "DC_REG" : {"bits":"15:0"}
+    },
+    "default": "00000000 00000000"
+},
+{
+    "addr" : "0x040C",
+    "fields" : {
+        "CMIX_GAIN" : {"bits":"15:14", "options" : {"0db": 0, "pos6db" : 1, "neg6db" : 2}},
+        "CMIX_SC" : {"bits":"13", "options" : {"DOWNCONVERT": 1, "UPCONVERT" : 0}},
+        "CMIX_BYP" : {"bits":"8"},
+        "ISINC_BYP" : {"bits":"7"},
+        "GFIR3_BYP" : {"bits":"6"},
+        "GFIR2_BYP" : {"bits":"5"},
+        "GFIR1_BYP" : {"bits":"4"},
+        "DC_BYP" : {"bits":"3"},
+        "GC_BYP" : {"bits":"1"},
+        "PH_BYP" : {"bits":"0"}
+    },
+    "default": "00000000 00000000"
+}
+]
