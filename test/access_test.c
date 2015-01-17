@@ -91,6 +91,7 @@ int main(int argc, char **argv)
 
     void *handle = spidev_interface_open(argv[1]);
     if (handle == NULL) return EXIT_FAILURE;
+    int ret = 0;
 
     //create and test lms....
     printf("Create LMS7002M instance\n");
@@ -105,7 +106,12 @@ int main(int argc, char **argv)
     printf("ver 0x%x\n", LMS7002M_regs(lms)->reg_0x002f_ver);
 
     //turn the clocks on
-    LMS7002M_set_data_clock(lms, 61.44e6/2, 61e6);
+    ret = LMS7002M_set_data_clock(lms, 61.44e6/2, 61.44e6/2);
+    if (ret != 0)
+    {
+        printf("clock tune failure %d\n", ret);
+        return EXIT_FAILURE;
+    }
 
     //configure data port directions and data clock rates
     LMS7002M_configure_lml_port(lms, LMS_PORT1, LMS_TX, 2);

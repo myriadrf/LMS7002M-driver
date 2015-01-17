@@ -260,6 +260,23 @@ LMS7002M_API int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, co
 LMS7002M_API void LMS7002M_set_nco_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, const LMS7002M_chan_t channel, const double freqRel);
 
 //=====================================================================//
+// SXR and SXT (LO synthesizers)
+//=====================================================================//
+
+/*!
+ * The simplified tuning algorithm for the RX and TX local oscillators.
+ * Each oscillator is shared between both channels A and B.
+ * This is a helper function that may make certain non-ideal assumptions,
+ * for example this calculation will always make use of fractional-N tuning.
+ * \param self an instance of the LMS7002M driver
+ * \param direction the direction LMS_TX or LMS_RX
+ * \param fref the reference clock frequency in Hz
+ * \param fout the desired LO frequency in Hz
+ * \return 0 for success or error code on failure
+ */
+LMS7002M_API int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, const double fref, const double fout);
+
+//=====================================================================//
 // TxTSP (transmit DSP chain)
 //=====================================================================//
 
