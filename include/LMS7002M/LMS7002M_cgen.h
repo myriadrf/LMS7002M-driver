@@ -60,31 +60,20 @@ LMS7002M_API int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, co
     self->regs.reg_0x0086_pd_vco_cgen = 0; //enable
     self->regs.reg_0x0086_pd_vco_comp_cgen = 0; //enable
 
-    //program the N divider
-    const int Nint = (int)Ndiv;
-    const int Nfrac = (int)((Ndiv-Nint)*(1 << 20));
-    self->regs.reg_0x0087_frac_sdm_cgen = (Nfrac-1) & 0xffff; //lower 16 bits
-    self->regs.reg_0x0088_frac_sdm_cgen = (Nfrac-1) >> 16; //upper 4 bits
-    self->regs.reg_0x0088_int_sdm_cgen = Nint-1;
-    printf("fdiv = %d, Ndiv = %f, Nint = %d, Nfrac = %d, fvco = %f MHz\n", fdiv, Ndiv, Nint, Nfrac, fvco/1e6);
-
-    //program the feedback divider
-    self->regs.reg_0x0089_sel_sdmclk_cgen = REG_0X0089_SEL_SDMCLK_CGEN_CLK_DIV;
-    self->regs.reg_0x0089_div_outch_cgen = (fdiv/2)-1;
-
-    //write affected registers
-    LMS7002M_regs_spi_write(self, 0x0086);
-    LMS7002M_regs_spi_write(self, 0x0087);
-    LMS7002M_regs_spi_write(self, 0x0088);
-    LMS7002M_regs_spi_write(self, 0x0089);
-
     //coarse tuning algorithm
     self->regs.reg_0x0086_en_coarse_cklgen = 1;
     self->regs.reg_0x008b_coarse_start_cgen = 0;
     self->regs.reg_0x0086_en_intonly_sdm_cgen = 1;
     self->regs.reg_0x0086_spdup_vco_cgen = 1;
     self->regs.reg_0x008b_csw_vco_cgen = 0; //clear all 8 bits
+    self->regs.reg_0x0087_frac_sdm_cgen = 0;
+    self->regs.reg_0x0088_frac_sdm_cgen = 0;
+    int Nround = (int)(4*fvco/fref+0.5); //Nround=round(4*Fvco_des/Fref)
+    self->regs.reg_0x0088_int_sdm_cgen = Nround-4;
     LMS7002M_regs_spi_write(self, 0x0086);
+    LMS7002M_regs_spi_write(self, 0x0087);
+    LMS7002M_regs_spi_write(self, 0x0088);
+    LMS7002M_regs_spi_write(self, 0x0089);
     LMS7002M_regs_spi_write(self, 0x008B);
 
     //loop through all 8 bits
@@ -117,7 +106,23 @@ LMS7002M_API int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, co
     self->regs.reg_0x0086_en_coarse_cklgen = 0;
     self->regs.reg_0x0086_en_intonly_sdm_cgen = 0;
     self->regs.reg_0x0086_spdup_vco_cgen = 0;
+    self->regs.reg_0x0086_en_intonly_sdm_cgen = 0; //support frac-N
     LMS7002M_regs_spi_write(self, 0x0086);
+
+    //program the N divider
+    const int Nint = (int)Ndiv;
+    const int Nfrac = (int)((Ndiv-Nint)*(1 << 20));
+    self->regs.reg_0x0087_frac_sdm_cgen = (Nfrac-1) & 0xffff; //lower 16 bits
+    self->regs.reg_0x0088_frac_sdm_cgen = (Nfrac-1) >> 16; //upper 4 bits
+    self->regs.reg_0x0088_int_sdm_cgen = Nint-1;
+    //printf("fdiv = %d, Ndiv = %f, Nint = %d, Nfrac = %d, fvco = %f MHz\n", fdiv, Ndiv, Nint, Nfrac, fvco/1e6);
+    LMS7002M_regs_spi_write(self, 0x0087);
+    LMS7002M_regs_spi_write(self, 0x0088);
+
+    //program the feedback divider
+    self->regs.reg_0x0089_sel_sdmclk_cgen = REG_0X0089_SEL_SDMCLK_CGEN_CLK_DIV;
+    self->regs.reg_0x0089_div_outch_cgen = (fdiv/2)-1;
+    LMS7002M_regs_spi_write(self, 0x0089);
 
     return 0; //OK
 }
