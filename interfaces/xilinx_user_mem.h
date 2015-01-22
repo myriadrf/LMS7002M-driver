@@ -11,7 +11,7 @@
  * \param offset an offset in bytes to the register
  * \param val the new value of the register
  */
-static inline void xumem_write32(char *base, int offset, uint32_t val);
+static inline void xumem_write32(void *base, int offset, uint32_t val);
 
 /*!
  * Read a 32 bit register value.
@@ -19,7 +19,7 @@ static inline void xumem_write32(char *base, int offset, uint32_t val);
  * \param offset an offset in bytes to the register
  * \return the value of the register
  */
-static inline uint32_t xumem_read32(char *base, int offset);
+static inline uint32_t xumem_read32(void *base, int offset);
 
 /*!
  * Map a physical address range into userspace.
@@ -46,15 +46,15 @@ static inline int xumem_unmap_phys(void *base, const size_t size);
 #include <sys/mman.h> //mmap
 #include <unistd.h> //close
 
-static inline void xumem_write32(char *base, int offset, uint32_t val)
+static inline void xumem_write32(void *base, int offset, uint32_t val)
 {
-    volatile uint32_t *p = (volatile uint32_t *)(base + offset);
+    volatile uint32_t *p = (volatile uint32_t *)((char *)base + offset);
     *p = val;
 }
 
-static inline uint32_t xumem_read32(char *base, int offset)
+static inline uint32_t xumem_read32(void *base, int offset)
 {
-    volatile uint32_t *p = (volatile uint32_t *)(base + offset);
+    volatile uint32_t *p = (volatile uint32_t *)((char *)base + offset);
     return *p;
 }
 

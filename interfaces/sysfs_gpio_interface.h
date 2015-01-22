@@ -117,7 +117,7 @@ static inline uint32_t sysfs_gpio_interface_transact(void *handle, const uint32_
         gpio_set_value(config->sclk, 1);
 
         //read the data in
-        int val = 0;
+        unsigned int val = 0;
         if (readback) gpio_get_value(config->miso, &val);
         out |= (((uint32_t)val) << bit);
 

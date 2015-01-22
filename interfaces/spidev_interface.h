@@ -55,7 +55,7 @@ static inline void *spidev_interface_open(const char *path)
         perror("open spidev");
         return NULL;
     }
-    int *handle = malloc(sizeof(int));
+    int *handle = (int *)malloc(sizeof(int));
     *handle = fd;
     return handle;
 }
