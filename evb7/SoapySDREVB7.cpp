@@ -9,6 +9,7 @@
 
 #include <SoapySDR/Device.hpp>
 #include <SoapySDR/Registry.hpp>
+#include <SoapySDR/Logger.hpp>
 #include <pothos_zynq_dma_driver.h>
 #include <cstring>
 #include <cstdlib>
@@ -47,22 +48,26 @@
 #define FPGA_REG_RD_SENTINEL 0 //readback a known value
 #define FPGA_REG_RD_RX_CLKS 8 //sanity check clock counter
 #define FPGA_REG_RD_TX_CLKS 12 //sanity check clock counter
-#define FPGA_REG_RD_DATA_A 20 //RXA data for loopback test
-#define FPGA_REG_RD_DATA_B 24 //RXB data for loopback test
+#define FPGA_REG_RD_TIME_LO 16
+#define FPGA_REG_RD_TIME_HI 20
 
-#define FPGA_REG_WR_RX_STORE_OK 8 //can register RX samples (for test)
 #define FPGA_REG_WR_EXT_RST 12 //active high external reset
-#define FPGA_REG_WR_DATA_A 20 //TXA data for loopback test
-#define FPGA_REG_WR_DATA_B 24 //TXB data for loopback test
+#define FPGA_REG_WR_TIME_LO 16
+#define FPGA_REG_WR_TIME_HI 20
+#define FPGA_REG_WR_TIME_LATCH 24
 
 #define RX_DMA_INDEX 0
+#define TX_DMA_INDEX 1
 #define RX_FRAME_SIZE 1000 //buff size - hdrs
+#define TX_FRAME_SIZE 1000 //buff size - hdrs
 
 #define DATA_NUM_BUFFS 16
 #define DATA_BUFF_SIZE 4096
 
 #define CTRL_NUM_BUFFS 16
 #define CTRL_BUFF_SIZE 64
+
+#define EXT_REF_CLK (61.44e6/2)
 
 /***********************************************************************
  * Device interface
@@ -75,9 +80,12 @@ public:
         _spiHandle(NULL),
         _lms(NULL),
         _rx_data_dma(NULL),
-        _rx_ctrl_dma(NULL)
+        _rx_ctrl_dma(NULL),
+        _tx_data_dma(NULL),
+        _tx_stat_dma(NULL),
+        _masterClockRate(1.0e6)
     {
-        std::cout << "EVB7()\n";
+        SoapySDR::logf(SOAPY_SDR_INFO, "EVB7()");
         setvbuf(stdout, NULL, _IOLBF, 0);
 
         //map FPGA registers
@@ -86,7 +94,7 @@ public:
         {
             throw std::runtime_error("EVB7 fail to map registers");
         }
-        printf("Read sentinel 0x%x\n", xumem_read32(_regs, FPGA_REG_RD_SENTINEL));
+        SoapySDR::logf(SOAPY_SDR_INFO, "Read sentinel 0x%x\n", xumem_read32(_regs, FPGA_REG_RD_SENTINEL));
 
         //perform reset
         SET_EMIO_OUT_LVL(RESET_EMIO, 0);
@@ -104,27 +112,30 @@ public:
 
         //read info register
         LMS7002M_regs_spi_read(_lms, 0x002f);
-        printf("rev 0x%x\n", LMS7002M_regs(_lms)->reg_0x002f_rev);
-        printf("ver 0x%x\n", LMS7002M_regs(_lms)->reg_0x002f_ver);
+        SoapySDR::logf(SOAPY_SDR_INFO, "rev 0x%x", LMS7002M_regs(_lms)->reg_0x002f_rev);
+        SoapySDR::logf(SOAPY_SDR_INFO, "ver 0x%x", LMS7002M_regs(_lms)->reg_0x002f_ver);
 
         //turn the clocks on
-        int ret = LMS7002M_set_data_clock(_lms, 61.44e6/2, 61.44e6/2);
-        if (ret != 0) throw std::runtime_error("EVB7 fail LMS7002M_set_data_clock()");
+        this->setMasterClockRate(61.44e6/2);
 
         //configure data port directions and data clock rates
-        LMS7002M_configure_lml_port(_lms, LMS_PORT1, LMS_TX, 2);
+        LMS7002M_configure_lml_port(_lms, LMS_PORT1, LMS_TX, 1);
         LMS7002M_configure_lml_port(_lms, LMS_PORT2, LMS_RX, 8);
         LMS7002M_invert_fclk(_lms, true); //makes it read in I, Q
 
         //external reset now that clocks are on
-        xumem_write32(_regs, FPGA_REG_WR_EXT_RST, 1);
-        xumem_write32(_regs, FPGA_REG_WR_EXT_RST, 0);
+        this->writeRegister(FPGA_REG_WR_EXT_RST, 1);
+        this->writeRegister(FPGA_REG_WR_EXT_RST, 0);
 
-        printf("FPGA_REG_RD_RX_CLKS 0x%x\n", xumem_read32(_regs, FPGA_REG_RD_RX_CLKS));
-        printf("FPGA_REG_RD_RX_CLKS 0x%x\n", xumem_read32(_regs, FPGA_REG_RD_RX_CLKS));
+        SoapySDR::logf(SOAPY_SDR_INFO, "FPGA_REG_RD_RX_CLKS 0x%x", xumem_read32(_regs, FPGA_REG_RD_RX_CLKS));
+        SoapySDR::logf(SOAPY_SDR_INFO, "FPGA_REG_RD_RX_CLKS 0x%x", xumem_read32(_regs, FPGA_REG_RD_RX_CLKS));
 
-        printf("FPGA_REG_RD_TX_CLKS 0x%x\n", xumem_read32(_regs, FPGA_REG_RD_TX_CLKS));
-        printf("FPGA_REG_RD_TX_CLKS 0x%x\n", xumem_read32(_regs, FPGA_REG_RD_TX_CLKS));
+        SoapySDR::logf(SOAPY_SDR_INFO, "FPGA_REG_RD_TX_CLKS 0x%x", xumem_read32(_regs, FPGA_REG_RD_TX_CLKS));
+        SoapySDR::logf(SOAPY_SDR_INFO, "FPGA_REG_RD_TX_CLKS 0x%x", xumem_read32(_regs, FPGA_REG_RD_TX_CLKS));
+
+        //clear time
+        this->setHardwareTime(0, "");
+        SoapySDR::logf(SOAPY_SDR_INFO, "Time after clear 0x%x", this->getHardwareTime(""));
 
         //port output enables
         SET_EMIO_OUT_LVL(RXEN_EMIO, 1);
@@ -138,7 +149,16 @@ public:
         _rx_ctrl_dma = pzdud_create(RX_DMA_INDEX, PZDUD_MM2S);
         if (_rx_ctrl_dma == NULL) throw std::runtime_error("EVB7 fail create rx ctrl DMA");
         pzdud_reset(_rx_ctrl_dma);
-        std::cout << "EVB7() setup OK\n";
+
+        _tx_data_dma = pzdud_create(TX_DMA_INDEX, PZDUD_MM2S);
+        if (_tx_data_dma == NULL) throw std::runtime_error("EVB7 fail create tx data DMA");
+        pzdud_reset(_tx_data_dma);
+
+        _tx_stat_dma = pzdud_create(TX_DMA_INDEX, PZDUD_S2MM);
+        if (_tx_stat_dma == NULL) throw std::runtime_error("EVB7 fail create tx stat DMA");
+        pzdud_reset(_tx_stat_dma);
+
+        SoapySDR::logf(SOAPY_SDR_INFO, "EVB7() setup OK");
     }
 
     ~EVB7(void)
@@ -152,9 +172,16 @@ public:
         CLEANUP_EMIO(RXEN_EMIO);
         CLEANUP_EMIO(TXEN_EMIO);
 
+        //dma cleanup
         pzdud_destroy(_rx_data_dma);
         pzdud_destroy(_rx_ctrl_dma);
+        pzdud_destroy(_tx_data_dma);
+        pzdud_destroy(_tx_stat_dma);
+
+        //spi cleanup
         spidev_interface_close(_spiHandle);
+
+        //register unmap
         xumem_unmap_phys(_regs, FPGA_REGS_SIZE);
     }
 
@@ -174,9 +201,9 @@ public:
 /*******************************************************************
 * Channels API
 ******************************************************************/
-    size_t getNumChannels(const int direction) const
+    size_t getNumChannels(const int) const
     {
-        return (direction == SOAPY_SDR_TX)?0 : 1;
+        return 1; //eventually 2
     }
 
     bool getFullDuplex(const int, const size_t) const
@@ -245,7 +272,7 @@ public:
         ctrl_msg[1] = burstSize - 1;
         ctrl_msg[2] = time >> 32;
         ctrl_msg[3] = time & 0xffffffff;
-        for (size_t i = 0; i < 4; i++) printf("ctrl_msg[%d] = 0x%x\n", int(i), ctrl_msg[i]);
+        for (size_t i = 0; i < 4; i++) SoapySDR::logf(SOAPY_SDR_INFO, "ctrl_msg[%d] = 0x%x\n", int(i), ctrl_msg[i]);
 
         pzdud_release(_rx_ctrl_dma, handle, sizeof(uint32_t)*4);
         return 0;
@@ -264,8 +291,7 @@ public:
                 (flags & SOAPY_SDR_HAS_TIME) != 0, //timeFlag
                 (numElems) != 0, //burstFlag
                 (flags & SOAPY_SDR_END_BURST) == 0, //contFlag
-        //TODO time ticks != time ns
-                RX_FRAME_SIZE, numElems, timeNs);
+                RX_FRAME_SIZE, numElems, this->timeNsToTicks(timeNs));
         }
         return SOAPY_SDR_STREAM_ERROR;
     }
@@ -300,45 +326,36 @@ public:
         size_t len = 0;
         int ret = 0;
 
-        //try to acquire asap, then wait
+        //wait with timeout then acquire
+        ret = pzdud_wait(_rx_data_dma, timeoutUs);
+        if (ret != 0) return SOAPY_SDR_TIMEOUT;
         int handle = pzdud_acquire(_rx_data_dma, &len);
         if (handle == PZDUD_ERROR_CLAIMED) throw std::runtime_error("EVB7::readStream() all claimed");
-        if (handle < 0)
-        {
-            pzdud_wait(_rx_data_dma, timeoutUs);
 
-            //try to acquire again or timeout
-            handle = pzdud_acquire(_rx_data_dma, &len);
-            if (handle < 0) return SOAPY_SDR_TIMEOUT;
-        }
-
+        //extract header
         uint32_t *hdr = (uint32_t *)pzdud_addr(_rx_data_dma, handle);
-        static int cnt = 0;
-        //std::cout << cnt++ << " -- read " << len << std::endl;
-        //for (size_t i = 0; i < 4; i++) printf("hdr[%d] = 0x%x\n", int(i), hdr[i]);
-
         const size_t burstCount = hdr[1] + 1;
         const size_t frameSize = (hdr[0] & 0xffff) + 1;
         const size_t numSamples = (len - (sizeof(uint32_t)*4))/sizeof(uint32_t);
 
         flags = 0;
         if (((hdr[0] >> 31) & 0x1) != 0) flags |= SOAPY_SDR_HAS_TIME;
+        bool burstFlag = ((hdr[0] >> 28) & 0x1) != 0;
+        bool continuousFlag = ((hdr[0] >> 27) & 0x1) != 0;
 
-        if (((hdr[0] >> 28) & 0x1) != 0) //in burst
+        if (burstFlag) //in burst
         {
             if (burstCount == numSamples) flags |= SOAPY_SDR_END_BURST;
             else if (frameSize != numSamples) ret = SOAPY_SDR_OVERFLOW;
         }
-        else
+        else if (continuousFlag and frameSize != numSamples)
         {
-            //std::cout << "frameSize = " << frameSize << " numSamples = " << numSamples << std::endl;
-            if (frameSize != numSamples) ret = SOAPY_SDR_OVERFLOW;
-            if (frameSize != numSamples) std::cout << "O" << std::endl;
+            ret = SOAPY_SDR_OVERFLOW;
+            SoapySDR::log(SOAPY_SDR_TRACE, "O");
         }
 
         //gather time even if its not valid
-        //TODO time ticks != time ns
-        timeNs = (((uint64_t)hdr[2]) << 32) | hdr[3];
+        timeNs = this->ticksToTimeNs((((uint64_t)hdr[2]) << 32) | hdr[3]);
 
         pzdud_release(_rx_data_dma, handle, 0);
 
@@ -353,12 +370,124 @@ public:
         return ret;
     }
 
+
+    /*******************************************************************
+     * Antenna API
+     ******************************************************************/
+
+    /*******************************************************************
+     * Frontend corrections API
+     ******************************************************************/
+
+    /*******************************************************************
+     * Gain API
+     ******************************************************************/
+
+    /*******************************************************************
+     * Frequency API
+     ******************************************************************/
+
+    /*******************************************************************
+     * Sample Rate API
+     ******************************************************************/
+
+    /*******************************************************************
+     * Clocking API
+     ******************************************************************/
+    void setMasterClockRate(const double rate)
+    {
+        int ret = LMS7002M_set_data_clock(_lms, EXT_REF_CLK, rate);
+        SoapySDR::logf(SOAPY_SDR_ERROR, "LMS7002M_set_data_clock(%f MHz) -> %d", rate/1e6, ret);
+        if (ret != 0) throw std::runtime_error("EVB7 fail LMS7002M_set_data_clock()");
+        _masterClockRate = rate;
+    }
+
+    double getMasterClockRate(void) const
+    {
+        return _masterClockRate;
+    }
+
+    /*******************************************************************
+     * Time API
+     ******************************************************************/
+    long long ticksToTimeNs(const long long ticks) const
+    {
+        return ticks/(_masterClockRate/1e9);
+    }
+
+    long long timeNsToTicks(const long long timeNs) const
+    {
+        return timeNs/(1e9/_masterClockRate);
+    }
+
+    bool hasHardwareTime(const std::string &what) const
+    {
+        if (what.empty()) return true;
+        return EVB7::hasHardwareTime(what);
+    }
+
+    long long getHardwareTime(const std::string &) const
+    {
+        long long timeLo = this->readRegister(FPGA_REG_RD_TIME_LO);
+        long long timeHi = this->readRegister(FPGA_REG_RD_TIME_HI);
+        return this->ticksToTimeNs((timeHi << 32) | timeLo);
+    }
+
+    void setHardwareTime(const long long timeNs, const std::string &)
+    {
+        long long ticks = this->timeNsToTicks(timeNs);
+        this->writeRegister(FPGA_REG_WR_TIME_LO, ticks & 0xffffffff);
+        this->writeRegister(FPGA_REG_WR_TIME_HI, ticks >> 32);
+        this->writeRegister(FPGA_REG_WR_TIME_LATCH, 1);
+        this->writeRegister(FPGA_REG_WR_TIME_LATCH, 0);
+    }
+
+    /*******************************************************************
+     * Sensor API
+     ******************************************************************/
+
+    /*******************************************************************
+     * Register API
+     ******************************************************************/
+    void writeRegister(const unsigned addr, const unsigned value)
+    {
+        xumem_write32(_regs, addr, value);
+    }
+
+    unsigned readRegister(const unsigned addr) const
+    {
+        return xumem_read32(_regs, addr);
+    }
+
+    /*******************************************************************
+     * Settings API
+     ******************************************************************/
+
+    /*******************************************************************
+     * GPIO API
+     ******************************************************************/
+
+    /*******************************************************************
+     * I2C API
+     ******************************************************************/
+
+    /*******************************************************************
+     * SPI API
+     ******************************************************************/
+
+    /*******************************************************************
+     * UART API
+     ******************************************************************/
+
 private:
     void *_regs;
     void *_spiHandle;
     LMS7002M_t *_lms;
     pzdud_t *_rx_data_dma;
     pzdud_t *_rx_ctrl_dma;
+    pzdud_t *_tx_data_dma;
+    pzdud_t *_tx_stat_dma;
+    double _masterClockRate;
 };
 
 /***********************************************************************

@@ -26,3 +26,11 @@ These functions implement the hardware-dependent SPI register access routines.
 Use, modification and distribution is subject to the Apache License
 Version 2.0. (See accompanying file LICENSE-2.0.txt or copy at
 https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+## Project layout
+
+* regs/ - LMS7002M register map and register header generator
+* include/ - LMS7002M C driver interface and implementation
+* interfaces/ - example SPI interfaces for use in LMS7002M
+* evb7/ - example SoapySDR wrapper using the LMS7002M C driver
+* test/ - simple register access test using the LMS7002M C driver
