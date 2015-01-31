@@ -95,3 +95,4 @@ LMS7002M_API LMS7002M_regs_t *LMS7002M_regs(LMS7002M_t *self)
 #include <LMS7002M/LMS7002M_cgen.h>
 #include <LMS7002M/LMS7002M_nco.h>
 #include <LMS7002M/LMS7002M_sxx.h>
+#include <LMS7002M/LMS7002M_rxtsp.h>

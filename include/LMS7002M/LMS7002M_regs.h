@@ -172,7 +172,7 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr);
 #define REG_0X0400_TSGMODE_DC 1
 #define REG_0X0400_INSEL_LML 0
 #define REG_0X0400_INSEL_TEST 1
-#define REG_0X0403_HBI_OVR_BYPASS 7
+#define REG_0X0403_HBD_OVR_BYPASS 7
 #define REG_0X040A_AGC_MODE_AGC 0
 #define REG_0X040A_AGC_MODE_RSSI 1
 #define REG_0X040A_AGC_MODE_BYPASS 2
@@ -515,7 +515,7 @@ struct LMS7002M_regs_struct
     int reg_0x0400_en;
     int reg_0x0401_gcorrq;
     int reg_0x0402_gcorri;
-    int reg_0x0403_hbi_ovr;
+    int reg_0x0403_hbd_ovr;
     int reg_0x0403_iqcorr;
     int reg_0x0404_dccorr_avg;
     int reg_0x0405_gfir1_l;
@@ -533,7 +533,7 @@ struct LMS7002M_regs_struct
     int reg_0x040c_cmix_gain;
     int reg_0x040c_cmix_sc;
     int reg_0x040c_cmix_byp;
-    int reg_0x040c_isinc_byp;
+    int reg_0x040c_agc_byp;
     int reg_0x040c_gfir3_byp;
     int reg_0x040c_gfir2_byp;
     int reg_0x040c_gfir1_byp;
@@ -1250,7 +1250,7 @@ static inline void LMS7002M_regs_set(LMS7002M_regs_t *regs, const int addr, cons
     }
     if (addr == 0x0403)
     {
-        regs->reg_0x0403_hbi_ovr = (value >> 12) & 0x7;
+        regs->reg_0x0403_hbd_ovr = (value >> 12) & 0x7;
         regs->reg_0x0403_iqcorr = (value >> 0) & 0xfff;
         return;
     }
@@ -1303,12 +1303,12 @@ static inline void LMS7002M_regs_set(LMS7002M_regs_t *regs, const int addr, cons
     {
         regs->reg_0x040c_cmix_gain = (value >> 14) & 0x3;
         regs->reg_0x040c_cmix_sc = (value >> 13) & 0x1;
-        regs->reg_0x040c_cmix_byp = (value >> 8) & 0x1;
-        regs->reg_0x040c_isinc_byp = (value >> 7) & 0x1;
-        regs->reg_0x040c_gfir3_byp = (value >> 6) & 0x1;
-        regs->reg_0x040c_gfir2_byp = (value >> 5) & 0x1;
-        regs->reg_0x040c_gfir1_byp = (value >> 4) & 0x1;
-        regs->reg_0x040c_dc_byp = (value >> 3) & 0x1;
+        regs->reg_0x040c_cmix_byp = (value >> 7) & 0x1;
+        regs->reg_0x040c_agc_byp = (value >> 6) & 0x1;
+        regs->reg_0x040c_gfir3_byp = (value >> 5) & 0x1;
+        regs->reg_0x040c_gfir2_byp = (value >> 4) & 0x1;
+        regs->reg_0x040c_gfir1_byp = (value >> 3) & 0x1;
+        regs->reg_0x040c_dc_byp = (value >> 2) & 0x1;
         regs->reg_0x040c_gc_byp = (value >> 1) & 0x1;
         regs->reg_0x040c_ph_byp = (value >> 0) & 0x1;
         return;
@@ -1864,7 +1864,7 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr)
     }
     if (addr == 0x0403)
     {
-        value |= (regs->reg_0x0403_hbi_ovr & 0x7) << 12;
+        value |= (regs->reg_0x0403_hbd_ovr & 0x7) << 12;
         value |= (regs->reg_0x0403_iqcorr & 0xfff) << 0;
     }
     if (addr == 0x0404)
@@ -1908,12 +1908,12 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr)
     {
         value |= (regs->reg_0x040c_cmix_gain & 0x3) << 14;
         value |= (regs->reg_0x040c_cmix_sc & 0x1) << 13;
-        value |= (regs->reg_0x040c_cmix_byp & 0x1) << 8;
-        value |= (regs->reg_0x040c_isinc_byp & 0x1) << 7;
-        value |= (regs->reg_0x040c_gfir3_byp & 0x1) << 6;
-        value |= (regs->reg_0x040c_gfir2_byp & 0x1) << 5;
-        value |= (regs->reg_0x040c_gfir1_byp & 0x1) << 4;
-        value |= (regs->reg_0x040c_dc_byp & 0x1) << 3;
+        value |= (regs->reg_0x040c_cmix_byp & 0x1) << 7;
+        value |= (regs->reg_0x040c_agc_byp & 0x1) << 6;
+        value |= (regs->reg_0x040c_gfir3_byp & 0x1) << 5;
+        value |= (regs->reg_0x040c_gfir2_byp & 0x1) << 4;
+        value |= (regs->reg_0x040c_gfir1_byp & 0x1) << 3;
+        value |= (regs->reg_0x040c_dc_byp & 0x1) << 2;
         value |= (regs->reg_0x040c_gc_byp & 0x1) << 1;
         value |= (regs->reg_0x040c_ph_byp & 0x1) << 0;
     }

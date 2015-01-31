@@ -33,7 +33,7 @@
 {
     "addr" : "0x0403",
     "fields" : {
-        "HBI_OVR" : {"bits":"14:12", "options" : {"BYPASS":7}},
+        "HBD_OVR" : {"bits":"14:12", "options" : {"BYPASS":7}},
         "IQCORR" : {"bits":"11:0"}
     },
     "default": "00000000 00000000"
@@ -104,12 +104,12 @@
     "fields" : {
         "CMIX_GAIN" : {"bits":"15:14", "options" : {"0db": 0, "pos6db" : 1, "neg6db" : 2}},
         "CMIX_SC" : {"bits":"13", "options" : {"DOWNCONVERT": 1, "UPCONVERT" : 0}},
-        "CMIX_BYP" : {"bits":"8"},
-        "ISINC_BYP" : {"bits":"7"},
-        "GFIR3_BYP" : {"bits":"6"},
-        "GFIR2_BYP" : {"bits":"5"},
-        "GFIR1_BYP" : {"bits":"4"},
-        "DC_BYP" : {"bits":"3"},
+        "CMIX_BYP" : {"bits":"7"},
+        "AGC_BYP" : {"bits":"6"},
+        "GFIR3_BYP" : {"bits":"5"},
+        "GFIR2_BYP" : {"bits":"4"},
+        "GFIR1_BYP" : {"bits":"3"},
+        "DC_BYP" : {"bits":"2"},
         "GC_BYP" : {"bits":"1"},
         "PH_BYP" : {"bits":"0"}
     },
