@@ -50,6 +50,12 @@ LMS7002M_API int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, co
         break; //its good
     }
 
+    //reset
+    self->regs.reg_0x0086_reset_n_cgen = 0;
+    LMS7002M_regs_spi_write(self, 0x0086);
+    self->regs.reg_0x0086_reset_n_cgen = 1;
+    LMS7002M_regs_spi_write(self, 0x0086);
+
     //configure and enable synthesizer
     self->regs.reg_0x0086_en_intonly_sdm_cgen = 0; //support frac-N
     self->regs.reg_0x0086_en_sdm_clk_cgen = 1; //enable
@@ -59,6 +65,7 @@ LMS7002M_API int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, co
     self->regs.reg_0x0086_pd_sdm_cgen = 0; //enable
     self->regs.reg_0x0086_pd_vco_cgen = 0; //enable
     self->regs.reg_0x0086_pd_vco_comp_cgen = 0; //enable
+    self->regs.reg_0x0086_en_g_cgen = 1;
 
     //coarse tuning algorithm
     self->regs.reg_0x0086_en_coarse_cklgen = 1;

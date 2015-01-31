@@ -2,7 +2,7 @@
 {
     "addr" : "0x0400",
     "fields" : {
-        "CAPTURE" : {"bits":"9"},
+        "CAPTURE" : {"bits":"15"},
         "CAPSEL" : {"bits":"14:13", "options" : {"RSSI": 0, "ADCI_ADCQ": 1, "BSIGI_BSTATE": 2, "BSIGQ_BSTATE": 3}},
         "TSGFC" : {"bits":"9", "options" : {"neg6db":0, "fs":1}},
         "TSGFCW" : {"bits":"8:7", "options" : {"div8":1, "div4":2}},

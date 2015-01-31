@@ -59,7 +59,7 @@
         "REV_CLKDAC_CGEN" : {"bits":"14"},
         "REV_CLKADC_CGEN" : {"bits":"13"},
         "REVPH_PFD_CGEN" : {"bits":"12"},
-        "IOFFSET_CP_CGEN" : {"bits":"11:16"},
+        "IOFFSET_CP_CGEN" : {"bits":"11:6"},
         "IPULSE_CP_CGEN" : {"bits":"5:0"}
     },
     "default": "00000101 00010100"

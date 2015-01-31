@@ -502,9 +502,9 @@ struct LMS7002M_regs_struct
     int reg_0x0241_pho;
     int reg_0x0242_fcw0_hi;
     int reg_0x0243_fcw0_lo;
+    int reg_0x0400_capture;
     int reg_0x0400_capsel;
     int reg_0x0400_tsgfc;
-    int reg_0x0400_capture;
     int reg_0x0400_tsgfcw;
     int reg_0x0400_tsgdcldq;
     int reg_0x0400_tsgdcldi;
@@ -1225,9 +1225,9 @@ static inline void LMS7002M_regs_set(LMS7002M_regs_t *regs, const int addr, cons
     }
     if (addr == 0x0400)
     {
+        regs->reg_0x0400_capture = (value >> 15) & 0x1;
         regs->reg_0x0400_capsel = (value >> 13) & 0x3;
         regs->reg_0x0400_tsgfc = (value >> 9) & 0x1;
-        regs->reg_0x0400_capture = (value >> 9) & 0x1;
         regs->reg_0x0400_tsgfcw = (value >> 7) & 0x3;
         regs->reg_0x0400_tsgdcldq = (value >> 6) & 0x1;
         regs->reg_0x0400_tsgdcldi = (value >> 5) & 0x1;
@@ -1842,9 +1842,9 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr)
     }
     if (addr == 0x0400)
     {
+        value |= (regs->reg_0x0400_capture & 0x1) << 15;
         value |= (regs->reg_0x0400_capsel & 0x3) << 13;
         value |= (regs->reg_0x0400_tsgfc & 0x1) << 9;
-        value |= (regs->reg_0x0400_capture & 0x1) << 9;
         value |= (regs->reg_0x0400_tsgfcw & 0x3) << 7;
         value |= (regs->reg_0x0400_tsgdcldq & 0x1) << 6;
         value |= (regs->reg_0x0400_tsgdcldi & 0x1) << 5;
