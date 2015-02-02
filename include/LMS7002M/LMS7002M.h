@@ -244,6 +244,20 @@ LMS7002M_API void LMS7002M_set_mac_ch(LMS7002M_t *self, const LMS7002M_chan_t ch
 LMS7002M_API void LMS7002M_set_mac_dir(LMS7002M_t *self, const LMS7002M_dir_t direction);
 
 //=====================================================================//
+// AFE (ADCs and DACs)
+//=====================================================================//
+
+/*!
+ * Enable/disable individual DACs and ADCs in the AFE section.
+ * Use the direction and channel parameters to specify a DAC/DAC.
+ * \param self an instance of the LMS7002M driver
+ * \param direction the direction LMS_TX or LMS_RX
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param enable true to enable, false to power down
+ */
+LMS7002M_API void LMS7002M_afe_enable(LMS7002M_t *self, const LMS7002M_dir_t direction, const LMS7002M_chan_t channel, const bool enable);
+
+//=====================================================================//
 // CGEN (clock generation)
 //=====================================================================//
 

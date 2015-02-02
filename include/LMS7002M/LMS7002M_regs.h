@@ -259,6 +259,7 @@ struct LMS7002M_regs_struct
     int reg_0x002b_rxdiven;
     int reg_0x002c_txtspclk_div;
     int reg_0x002c_rxtspclk_div;
+    int reg_0x002e_mimo_siso;
     int reg_0x002f_ver;
     int reg_0x002f_rev;
     int reg_0x002f_mask;
@@ -557,6 +558,7 @@ static inline void LMS7002M_regs_init(LMS7002M_regs_t *regs)
     LMS7002M_regs_set(regs, 0x002A, 0x86);
     LMS7002M_regs_set(regs, 0x002B, 0x10);
     LMS7002M_regs_set(regs, 0x002C, 0xffff);
+    LMS7002M_regs_set(regs, 0x002E, 0x0);
     LMS7002M_regs_set(regs, 0x002F, 0x3840);
     LMS7002M_regs_set(regs, 0x0082, 0x800b);
     LMS7002M_regs_set(regs, 0x0085, 0x1);
@@ -738,6 +740,11 @@ static inline void LMS7002M_regs_set(LMS7002M_regs_t *regs, const int addr, cons
     {
         regs->reg_0x002c_txtspclk_div = (value >> 8) & 0xff;
         regs->reg_0x002c_rxtspclk_div = (value >> 0) & 0xff;
+        return;
+    }
+    if (addr == 0x002E)
+    {
+        regs->reg_0x002e_mimo_siso = (value >> 15) & 0x1;
         return;
     }
     if (addr == 0x002F)
@@ -1417,6 +1424,10 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr)
         value |= (regs->reg_0x002c_txtspclk_div & 0xff) << 8;
         value |= (regs->reg_0x002c_rxtspclk_div & 0xff) << 0;
     }
+    if (addr == 0x002E)
+    {
+        value |= (regs->reg_0x002e_mimo_siso & 0x1) << 15;
+    }
     if (addr == 0x002F)
     {
         value |= (regs->reg_0x002f_ver & 0x1f) << 11;
@@ -1932,6 +1943,7 @@ static inline const int *LMS7002M_regs_addrs(LMS7002M_regs_t *regs)
     0x002A,
     0x002B,
     0x002C,
+    0x002E,
     0x002F,
     0x0082,
     0x0085,

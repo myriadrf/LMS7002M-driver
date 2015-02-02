@@ -175,14 +175,12 @@ LMS7002M_API int LMS7002M_load_ini(LMS7002M_t *self, const char *path)
                 printf("Found section %s\n", line);
                 write_reg_ok = true;
                 chan = LMS_CHA;
-                LMS7002M_set_mac_ch(self, chan);
             }
             else if (strcmp(line, "[LMS7002 registers ch.B]") == 0)
             {
                 printf("Found section %s\n", line);
                 write_reg_ok = true;
                 chan = LMS_CHB;
-                LMS7002M_set_mac_ch(self, chan);
             }
             else write_reg_ok = false;
         }
@@ -194,6 +192,7 @@ LMS7002M_API int LMS7002M_load_ini(LMS7002M_t *self, const char *path)
             ret = sscanf(line, "0x%04x=0x%04x", &addr, &value);
             if (ret > 0)
             {
+                LMS7002M_set_mac_ch(self, chan);
                 LMS7002M_spi_write(self, addr, value);
                 LMS7002M_regs_set(LMS7002M_regs(self), addr, value);
                 //printf("Load: 0x%04x=0x%04x\n", addr, value);
@@ -216,5 +215,6 @@ LMS7002M_API int LMS7002M_load_ini(LMS7002M_t *self, const char *path)
 #include <LMS7002M/LMS7002M_lml.h>
 #include <LMS7002M/LMS7002M_cgen.h>
 #include <LMS7002M/LMS7002M_nco.h>
+#include <LMS7002M/LMS7002M_afe.h>
 #include <LMS7002M/LMS7002M_sxx.h>
 #include <LMS7002M/LMS7002M_rxtsp.h>

@@ -27,7 +27,7 @@ LMS7002M_API void LMS7002M_rxtsp_init(LMS7002M_t *self, const LMS7002M_chan_t ch
     self->regs.reg_0x0400_insel = REG_0X0400_INSEL_LML; //r19 regs - probably means baseband input
     LMS7002M_regs_spi_write(self, 0x0400);
 
-    self->regs.reg_0x0403_hbd_ovr = 2;//REG_0X0403_HBD_OVR_BYPASS;
+    self->regs.reg_0x0403_hbd_ovr = REG_0X0403_HBD_OVR_BYPASS;
 
     self->regs.reg_0x040a_agc_mode = REG_0X040A_AGC_MODE_BYPASS;
 
