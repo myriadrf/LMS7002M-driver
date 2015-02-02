@@ -155,7 +155,15 @@ LMS7002M_API LMS7002M_regs_t *LMS7002M_regs(LMS7002M_t *self);
  * \param path the path to a .ini output file
  * \return 0 for success otherwise failure
  */
-LMS7002M_API int LMS7002M_regs_dump_ini(LMS7002M_t *self, const char *path);
+LMS7002M_API int LMS7002M_dump_ini(LMS7002M_t *self, const char *path);
+
+/*!
+ * Load registers from an INI format like the one used by the EVB7 GUI.
+ * \param self an instance of the LMS7002M driver
+ * \param path the path to a .ini input file
+ * \return 0 for success otherwise failure
+ */
+LMS7002M_API int LMS7002M_load_ini(LMS7002M_t *self, const char *path);
 
 //=====================================================================//
 // LML (Lime light)

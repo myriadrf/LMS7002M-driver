@@ -15,6 +15,7 @@
 #pragma once
 #include <stdlib.h>
 #include <stdio.h>
+#include <ctype.h>
 #include <LMS7002M/LMS7002M.h>
 
 #ifdef __cplusplus
@@ -138,6 +139,69 @@ LMS7002M_API int LMS7002M_dump_ini(LMS7002M_t *self, const char *path)
     fprintf(p, "CGEN reference frequency MHz=%f\n", self->cgen_fref/1e6);
     fprintf(p, "SXR reference frequency MHz=%f\n", self->sxr_fref/1e6);
     fprintf(p, "SXT reference frequency MHz=%f\n", self->sxt_fref/1e6);
+
+    return fclose(p);
+}
+
+LMS7002M_API int LMS7002M_load_ini(LMS7002M_t *self, const char *path)
+{
+    FILE *p = fopen(path, "r");
+    if (p == NULL) return -1;
+
+    bool write_reg_ok = false;
+    LMS7002M_chan_t chan = LMS_CHA;
+
+    while (true)
+    {
+        char *line = NULL;
+        size_t n = 0;
+        int ret = getline(&line, &n, p);
+        if (ret < 0)
+        {
+            free(line);
+            break; //EOF
+        }
+        while (ret > 0 && isspace(line[ret-1]))
+        {
+            line[ret-1] = '\0'; //strip newline
+            ret--;
+        }
+
+        //parse ini sections
+        if (line[0] == '[')
+        {
+            if (strcmp(line, "[LMS7002 registers ch.A]") == 0)
+            {
+                printf("Found section %s\n", line);
+                write_reg_ok = true;
+                chan = LMS_CHA;
+                LMS7002M_set_mac_ch(self, chan);
+            }
+            else if (strcmp(line, "[LMS7002 registers ch.B]") == 0)
+            {
+                printf("Found section %s\n", line);
+                write_reg_ok = true;
+                chan = LMS_CHB;
+                LMS7002M_set_mac_ch(self, chan);
+            }
+            else write_reg_ok = false;
+        }
+
+        //parse values
+        else if (write_reg_ok)
+        {
+            unsigned int addr = 0, value = 0;
+            ret = sscanf(line, "0x%04x=0x%04x", &addr, &value);
+            if (ret > 0)
+            {
+                LMS7002M_spi_write(self, addr, value);
+                LMS7002M_regs_set(LMS7002M_regs(self), addr, value);
+                //printf("Load: 0x%04x=0x%04x\n", addr, value);
+            }
+        }
+
+        free(line);
+    }
 
     return fclose(p);
 }
