@@ -14,6 +14,7 @@
 //------ this is a generated file, do not edit --------//
 
 #pragma once
+#include <stdio.h>
 
 struct LMS7002M_regs_struct;
 typedef struct LMS7002M_regs_struct LMS7002M_regs_t;
@@ -816,7 +817,7 @@ static inline void LMS7002M_regs_set(LMS7002M_regs_t *regs, const int addr, cons
         regs->reg_0x008a_rev_clkdac_cgen = (value >> 14) & 0x1;
         regs->reg_0x008a_rev_clkadc_cgen = (value >> 13) & 0x1;
         regs->reg_0x008a_revph_pfd_cgen = (value >> 12) & 0x1;
-        regs->reg_0x008a_ioffset_cp_cgen = (value >> 11) & 0x3f;
+        regs->reg_0x008a_ioffset_cp_cgen = (value >> 6) & 0x3f;
         regs->reg_0x008a_ipulse_cp_cgen = (value >> 0) & 0x3f;
         return;
     }
@@ -1486,7 +1487,7 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr)
         value |= (regs->reg_0x008a_rev_clkdac_cgen & 0x1) << 14;
         value |= (regs->reg_0x008a_rev_clkadc_cgen & 0x1) << 13;
         value |= (regs->reg_0x008a_revph_pfd_cgen & 0x1) << 12;
-        value |= (regs->reg_0x008a_ioffset_cp_cgen & 0x3f) << 11;
+        value |= (regs->reg_0x008a_ioffset_cp_cgen & 0x3f) << 6;
         value |= (regs->reg_0x008a_ipulse_cp_cgen & 0x3f) << 0;
     }
     if (addr == 0x008B)
@@ -1918,6 +1919,95 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr)
         value |= (regs->reg_0x040c_ph_byp & 0x1) << 0;
     }
     return value;
+}
+
+static inline const int *LMS7002M_regs_addrs(LMS7002M_regs_t *regs)
+{
+    static const int addrs[] = {
+    0x0020,
+    0x0021,
+    0x0023,
+    0x0024,
+    0x0027,
+    0x002A,
+    0x002B,
+    0x002C,
+    0x002F,
+    0x0082,
+    0x0085,
+    0x0086,
+    0x0087,
+    0x0088,
+    0x0089,
+    0x008A,
+    0x008B,
+    0x008C,
+    0x008D,
+    0x0100,
+    0x0101,
+    0x0102,
+    0x0103,
+    0x0104,
+    0x0105,
+    0x0106,
+    0x0107,
+    0x0108,
+    0x0109,
+    0x010A,
+    0x010C,
+    0x010D,
+    0x010E,
+    0x010F,
+    0x0110,
+    0x0111,
+    0x0112,
+    0x0113,
+    0x0114,
+    0x0115,
+    0x0116,
+    0x0117,
+    0x0118,
+    0x0119,
+    0x011A,
+    0x011B,
+    0x011C,
+    0x011D,
+    0x011E,
+    0x011F,
+    0x0120,
+    0x0121,
+    0x0122,
+    0x0123,
+    0x0124,
+    0x0200,
+    0x0201,
+    0x0202,
+    0x0203,
+    0x0204,
+    0x0205,
+    0x0206,
+    0x0207,
+    0x0208,
+    0x0240,
+    0x0241,
+    0x0242,
+    0x0243,
+    0x0400,
+    0x0401,
+    0x0402,
+    0x0403,
+    0x0404,
+    0x0405,
+    0x0406,
+    0x0407,
+    0x0408,
+    0x0409,
+    0x040A,
+    0x040B,
+    0x040C,
+    0x0000 //end
+    };
+    return addrs;
 }
 
 

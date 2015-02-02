@@ -54,6 +54,7 @@ TMPL="""
 //------ this is a generated file, do not edit --------//
 
 #pragma once
+\#include <stdio.h>
 
 struct LMS7002M_regs_struct;
 typedef struct LMS7002M_regs_struct LMS7002M_regs_t;
@@ -125,6 +126,17 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr)
     }
     #end for
     return value;
+}
+
+static inline const int *LMS7002M_regs_addrs(LMS7002M_regs_t *regs)
+{
+    static const int addrs[] = {
+    #for $reg in $regs
+    $reg.addr,
+    #end for
+    0x0000 //end
+    };
+    return addrs;
 }
 
 """

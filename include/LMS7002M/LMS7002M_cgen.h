@@ -50,6 +50,10 @@ LMS7002M_API int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, co
         break; //its good
     }
 
+    //stash the freq now that we know the loop above passed
+    self->cgen_freq = fout;
+    self->cgen_fref = fref;
+
     //reset
     self->regs.reg_0x0086_reset_n_cgen = 0;
     LMS7002M_regs_spi_write(self, 0x0086);

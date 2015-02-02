@@ -14,6 +14,7 @@
 
 #pragma once
 #include <stdlib.h>
+#include <stdio.h>
 #include <LMS7002M/LMS7002M.h>
 
 #ifdef __cplusplus
@@ -29,6 +30,14 @@ struct LMS7002M_struct
     LMS7002M_spi_transact_t spi_transact;
     void *spi_transact_handle;
     LMS7002M_regs_t regs;
+
+    double cgen_freq; //!< last written CGEN frequency in Hz
+    double sxr_freq; //!< last written RX frequency in Hz
+    double sxt_freq; //!< last written TX frequency in Hz
+
+    double cgen_fref; //!< last written CGEN ref frequency in Hz
+    double sxr_fref; //!< last written RX ref frequency in Hz
+    double sxt_fref; //!< last written TX ref frequency in Hz
 };
 
 /***********************************************************************
@@ -41,6 +50,12 @@ LMS7002M_API LMS7002M_t *LMS7002M_create(LMS7002M_spi_transact_t transact, void 
     self->spi_transact = transact;
     self->spi_transact_handle = handle;
     LMS7002M_regs_init(&self->regs);
+    self->cgen_freq = 0.0;
+    self->sxr_freq = 0.0;
+    self->sxt_freq = 0.0;
+    self->cgen_fref = 0.0;
+    self->sxr_fref = 0.0;
+    self->sxt_fref = 0.0;
     return self;
 }
 
@@ -82,6 +97,49 @@ LMS7002M_API void LMS7002M_regs_spi_read(LMS7002M_t *self, const int addr)
 LMS7002M_API LMS7002M_regs_t *LMS7002M_regs(LMS7002M_t *self)
 {
     return &self->regs;
+}
+
+LMS7002M_API int LMS7002M_dump_ini(LMS7002M_t *self, const char *path)
+{
+    FILE *p = fopen(path, "w");
+    if (p == NULL) return -1;
+
+    fprintf(p, "[FILE INFO]\n");
+    fprintf(p, "type=LMS7002 configuration\n");
+    fprintf(p, "version=1\n");
+
+    fprintf(p, "[Frequencies]\n");
+    fprintf(p, "CGEN frequency MHz=%f\n", self->cgen_freq/1e6);
+    fprintf(p, "SXR frequency MHz=%f\n", self->sxr_freq/1e6);
+    fprintf(p, "SXT frequency MHz=%f\n", self->sxt_freq/1e6);
+
+    size_t i = 0;
+    const int *addrs = LMS7002M_regs_addrs(LMS7002M_regs(self));
+
+    fprintf(p, "[LMS7002 registers ch.A]\n");
+    LMS7002M_set_mac_ch(self, LMS_CHA);
+    i = 0;
+    while (addrs[i] != 0x0000)
+    {
+        fprintf(p, "0x%04x=0x%04x\n", addrs[i], LMS7002M_spi_read(self, addrs[i]));
+        i++;
+    }
+
+    fprintf(p, "[LMS7002 registers ch.B]\n");
+    LMS7002M_set_mac_ch(self, LMS_CHB);
+    i = 0;
+    while (addrs[i] != 0x0000)
+    {
+        fprintf(p, "0x%04x=0x%04x\n", addrs[i], LMS7002M_spi_read(self, addrs[i]));
+        i++;
+    }
+
+    fprintf(p, "[Reference clocks]\n");
+    fprintf(p, "CGEN reference frequency MHz=%f\n", self->cgen_fref/1e6);
+    fprintf(p, "SXR reference frequency MHz=%f\n", self->sxr_fref/1e6);
+    fprintf(p, "SXT reference frequency MHz=%f\n", self->sxt_fref/1e6);
+
+    return fclose(p);
 }
 
 #ifdef __cplusplus

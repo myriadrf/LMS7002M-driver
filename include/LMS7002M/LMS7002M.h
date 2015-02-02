@@ -149,6 +149,14 @@ LMS7002M_API void LMS7002M_regs_spi_read(LMS7002M_t *self, const int addr);
  */
 LMS7002M_API LMS7002M_regs_t *LMS7002M_regs(LMS7002M_t *self);
 
+/*!
+ * Dump the known registers to an INI format like the one used by the EVB7 GUI.
+ * \param self an instance of the LMS7002M driver
+ * \param path the path to a .ini output file
+ * \return 0 for success otherwise failure
+ */
+LMS7002M_API int LMS7002M_regs_dump_ini(LMS7002M_t *self, const char *path);
+
 //=====================================================================//
 // LML (Lime light)
 // The input and output data ports and associated muxes.

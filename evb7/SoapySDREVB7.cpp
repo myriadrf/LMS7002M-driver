@@ -50,11 +50,16 @@
 #define FPGA_REG_RD_TX_CLKS 12 //sanity check clock counter
 #define FPGA_REG_RD_TIME_LO 16
 #define FPGA_REG_RD_TIME_HI 20
+#define FPGA_REG_RD_RX_CHA 28
+#define FPGA_REG_RD_RX_CHB 32
 
 #define FPGA_REG_WR_EXT_RST 12 //active high external reset
 #define FPGA_REG_WR_TIME_LO 16
 #define FPGA_REG_WR_TIME_HI 20
 #define FPGA_REG_WR_TIME_LATCH 24
+#define FPGA_REG_WR_TX_CHA 28
+#define FPGA_REG_WR_TX_CHB 32
+#define FPGA_REG_WR_TX_TEST 36
 
 #define RX_DMA_INDEX 0
 #define TX_DMA_INDEX 1
@@ -116,30 +121,39 @@ public:
         SoapySDR::logf(SOAPY_SDR_INFO, "ver 0x%x", LMS7002M_regs(_lms)->reg_0x002f_ver);
 
         //turn the clocks on
-        this->setMasterClockRate(61.44e6/2);
+        this->setMasterClockRate(61e6);
 
         //configure data port directions and data clock rates
         LMS7002M_configure_lml_port(_lms, LMS_PORT1, LMS_TX, 1);
-        LMS7002M_configure_lml_port(_lms, LMS_PORT2, LMS_RX, 8);
-        LMS7002M_invert_fclk(_lms, true); //makes it read in I, Q
+        LMS7002M_configure_lml_port(_lms, LMS_PORT2, LMS_RX, 1);
 
         //external reset now that clocks are on
         this->writeRegister(FPGA_REG_WR_EXT_RST, 1);
         this->writeRegister(FPGA_REG_WR_EXT_RST, 0);
 
-        SoapySDR::logf(SOAPY_SDR_INFO, "FPGA_REG_RD_RX_CLKS 0x%x", xumem_read32(_regs, FPGA_REG_RD_RX_CLKS));
-        SoapySDR::logf(SOAPY_SDR_INFO, "FPGA_REG_RD_RX_CLKS 0x%x", xumem_read32(_regs, FPGA_REG_RD_RX_CLKS));
-
-        SoapySDR::logf(SOAPY_SDR_INFO, "FPGA_REG_RD_TX_CLKS 0x%x", xumem_read32(_regs, FPGA_REG_RD_TX_CLKS));
-        SoapySDR::logf(SOAPY_SDR_INFO, "FPGA_REG_RD_TX_CLKS 0x%x", xumem_read32(_regs, FPGA_REG_RD_TX_CLKS));
+        //estimate the clock rates with readback registers
+        uint32_t rxt0 = xumem_read32(_regs, FPGA_REG_RD_RX_CLKS);
+        uint32_t txt0 = xumem_read32(_regs, FPGA_REG_RD_TX_CLKS);
+        sleep(1);
+        uint32_t rxt1 = xumem_read32(_regs, FPGA_REG_RD_RX_CLKS);
+        uint32_t txt1 = xumem_read32(_regs, FPGA_REG_RD_TX_CLKS);
+        SoapySDR::logf(SOAPY_SDR_INFO, "RX rate %f Mhz", (rxt1-rxt0)/1e6);
+        SoapySDR::logf(SOAPY_SDR_INFO, "TX rate %f Mhz", (txt1-txt0)/1e6);
 
         //clear time
         this->setHardwareTime(0, "");
-        SoapySDR::logf(SOAPY_SDR_INFO, "Time after clear 0x%x", this->getHardwareTime(""));
+        long long t0 = this->getHardwareTime("");
+        sleep(1);
+        long long t1 = this->getHardwareTime("");
+        SoapySDR::logf(SOAPY_SDR_INFO, "HW sec/PC sec %f", (t1-t0)/1e9);
 
         //port output enables
         SET_EMIO_OUT_LVL(RXEN_EMIO, 1);
         SET_EMIO_OUT_LVL(TXEN_EMIO, 1);
+
+        //setup dsp
+        LMS7002M_rxtsp_init(_lms, LMS_CHA);
+        LMS7002M_rxtsp_init(_lms, LMS_CHB);
 
         //setup dma buffs
         _rx_data_dma = pzdud_create(RX_DMA_INDEX, PZDUD_S2MM);
@@ -159,6 +173,43 @@ public:
         pzdud_reset(_tx_stat_dma);
 
         SoapySDR::logf(SOAPY_SDR_INFO, "EVB7() setup OK");
+
+        //try test
+        this->writeRegister(FPGA_REG_WR_TX_TEST, 0); //test off, normal tx from deframer
+        /*
+        this->writeRegister(FPGA_REG_WR_TX_TEST, 1); //test registers drive tx
+        this->writeRegister(FPGA_REG_WR_TX_CHA, 0xAAAABBBB);
+        this->writeRegister(FPGA_REG_WR_TX_CHB, 0xCCCCDDDD);
+        LMS7002M_setup_digital_loopback(_lms);
+        sleep(1);
+        SoapySDR::logf(SOAPY_SDR_INFO, "FPGA_REG_RD_RX_CHA 0x%x", xumem_read32(_regs, FPGA_REG_RD_RX_CHA));
+        SoapySDR::logf(SOAPY_SDR_INFO, "FPGA_REG_RD_RX_CHB 0x%x", xumem_read32(_regs, FPGA_REG_RD_RX_CHB));
+        //*/
+
+        //LMS7002M_setup_digital_loopback(_lms);
+
+        LMS7002M_regs(_lms)->reg_0x0082_pd_afe = 0;
+        LMS7002M_regs(_lms)->reg_0x0082_pd_rx_afe1 = 0;
+        LMS7002M_regs(_lms)->reg_0x0082_pd_rx_afe2 = 0;
+        LMS7002M_regs(_lms)->reg_0x0082_en_g_afe = 1;
+        LMS7002M_regs(_lms)->reg_0x0082_mode_interleave_afe = REG_0X0082_MODE_INTERLEAVE_AFE_2ADCS;
+        LMS7002M_regs_spi_write(_lms, 0x0082);
+
+        LMS7002M_regs(_lms)->reg_0x002a_rxwrclk_mux = REG_0X002A_RXWRCLK_MUX_FCLK1;
+        LMS7002M_regs(_lms)->reg_0x002a_tx_mux = REG_0X002A_TX_MUX_RXTSP;
+        LMS7002M_regs(_lms)->reg_0x002a_rx_mux = REG_0X002A_RX_MUX_TXFIFO;
+        LMS7002M_regs_spi_write(_lms, 0x002A);
+
+        LMS7002M_rxtsp_tsg_const(_lms, LMS_CHA, 1024, 512);
+        LMS7002M_rxtsp_tsg_const(_lms, LMS_CHB, 512, 1024);
+        //LMS7002M_rxtsp_tsg_tone(_lms, LMS_CHA);
+        //LMS7002M_rxtsp_tsg_tone(_lms, LMS_CHB);
+
+        sleep(1);
+        SoapySDR::logf(SOAPY_SDR_INFO, "FPGA_REG_RD_RX_CHA 0x%x", xumem_read32(_regs, FPGA_REG_RD_RX_CHA));
+        SoapySDR::logf(SOAPY_SDR_INFO, "FPGA_REG_RD_RX_CHB 0x%x", xumem_read32(_regs, FPGA_REG_RD_RX_CHB));
+
+        LMS7002M_dump_ini(_lms, "/tmp/regs.ini");
     }
 
     ~EVB7(void)
@@ -397,8 +448,11 @@ public:
     void setMasterClockRate(const double rate)
     {
         int ret = LMS7002M_set_data_clock(_lms, EXT_REF_CLK, rate);
-        SoapySDR::logf(SOAPY_SDR_ERROR, "LMS7002M_set_data_clock(%f MHz) -> %d", rate/1e6, ret);
-        if (ret != 0) throw std::runtime_error("EVB7 fail LMS7002M_set_data_clock()");
+        if (ret != 0)
+        {
+            SoapySDR::logf(SOAPY_SDR_ERROR, "LMS7002M_set_data_clock(%f MHz) -> %d", rate/1e6, ret);
+            throw std::runtime_error("EVB7 fail LMS7002M_set_data_clock()");
+        }
         _masterClockRate = rate;
     }
 

@@ -22,7 +22,15 @@ extern "C" {
 LMS7002M_API int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, const double fref, const double fout)
 {
     LMS7002M_set_mac_dir(self, direction);
+
     //TODO
+
+    //after a successful tune, stash the frequency
+    if (direction == LMS_RX) self->sxr_freq = fout;
+    if (direction == LMS_TX) self->sxt_freq = fout;
+    if (direction == LMS_RX) self->sxr_fref = fref;
+    if (direction == LMS_TX) self->sxt_fref = fref;
+
     return -1;
 }
 
