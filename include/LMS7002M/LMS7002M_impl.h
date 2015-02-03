@@ -218,3 +218,4 @@ LMS7002M_API int LMS7002M_load_ini(LMS7002M_t *self, const char *path)
 #include <LMS7002M/LMS7002M_afe.h>
 #include <LMS7002M/LMS7002M_sxx.h>
 #include <LMS7002M/LMS7002M_rxtsp.h>
+#include <LMS7002M/LMS7002M_txtsp.h>

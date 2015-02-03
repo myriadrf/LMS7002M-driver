@@ -46,6 +46,20 @@ LMS7002M_API void LMS7002M_rxtsp_init(LMS7002M_t *self, const LMS7002M_chan_t ch
     LMS7002M_regs_spi_write(self, 0x040c);
 }
 
+LMS7002M_API void LMS7002M_rxtsp_set_decim(LMS7002M_t *self, const LMS7002M_chan_t channel, const size_t decim)
+{
+    LMS7002M_set_mac_ch(self, channel);
+
+    if (decim == 1) self->regs.reg_0x0403_hbd_ovr = REG_0X0403_HBD_OVR_BYPASS;
+    if (decim == 2) self->regs.reg_0x0403_hbd_ovr = 0;
+    if (decim == 4) self->regs.reg_0x0403_hbd_ovr = 1;
+    if (decim == 8) self->regs.reg_0x0403_hbd_ovr = 2;
+    if (decim == 16) self->regs.reg_0x0403_hbd_ovr = 3;
+    if (decim == 32) self->regs.reg_0x0403_hbd_ovr = 4;
+
+    LMS7002M_regs_spi_write(self, 0x0403);
+}
+
 LMS7002M_API void LMS7002M_rxtsp_tsg_const(LMS7002M_t *self, const LMS7002M_chan_t channel, const int valI, const int valQ)
 {
     LMS7002M_set_mac_ch(self, channel);

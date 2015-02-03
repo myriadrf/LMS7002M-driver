@@ -115,6 +115,14 @@ public:
         LMS7002M_set_spi_mode(_lms, 4); //set 4-wire spi mode first
         LMS7002M_reset(_lms);
 
+        LMS7002M_afe_enable(_lms, LMS_TX, LMS_CHA, true);
+        LMS7002M_afe_enable(_lms, LMS_TX, LMS_CHB, true);
+        LMS7002M_afe_enable(_lms, LMS_RX, LMS_CHA, true);
+        LMS7002M_afe_enable(_lms, LMS_RX, LMS_CHB, true);
+
+        //LMS7002M_load_ini(_lms, "/root/src/test2.ini");
+        //LMS7002M_set_spi_mode(_lms, 4); //set 4-wire spi mode first
+
         //read info register
         LMS7002M_regs_spi_read(_lms, 0x002f);
         SoapySDR::logf(SOAPY_SDR_INFO, "rev 0x%x", LMS7002M_regs(_lms)->reg_0x002f_rev);
@@ -152,8 +160,8 @@ public:
         SET_EMIO_OUT_LVL(TXEN_EMIO, 1);
 
         //setup dsp
-        LMS7002M_rxtsp_init(_lms, LMS_CHA);
-        LMS7002M_rxtsp_init(_lms, LMS_CHB);
+        LMS7002M_rxtsp_init(_lms, LMS_CHAB);
+        LMS7002M_txtsp_init(_lms, LMS_CHAB);
 
         //setup dma buffs
         _rx_data_dma = pzdud_create(RX_DMA_INDEX, PZDUD_S2MM);
@@ -164,6 +172,7 @@ public:
         if (_rx_ctrl_dma == NULL) throw std::runtime_error("EVB7 fail create rx ctrl DMA");
         pzdud_reset(_rx_ctrl_dma);
 
+        /*
         _tx_data_dma = pzdud_create(TX_DMA_INDEX, PZDUD_MM2S);
         if (_tx_data_dma == NULL) throw std::runtime_error("EVB7 fail create tx data DMA");
         pzdud_reset(_tx_data_dma);
@@ -171,6 +180,7 @@ public:
         _tx_stat_dma = pzdud_create(TX_DMA_INDEX, PZDUD_S2MM);
         if (_tx_stat_dma == NULL) throw std::runtime_error("EVB7 fail create tx stat DMA");
         pzdud_reset(_tx_stat_dma);
+        */
 
         SoapySDR::logf(SOAPY_SDR_INFO, "EVB7() setup OK");
 
@@ -186,30 +196,20 @@ public:
         SoapySDR::logf(SOAPY_SDR_INFO, "FPGA_REG_RD_RX_CHB 0x%x", xumem_read32(_regs, FPGA_REG_RD_RX_CHB));
         //*/
 
-        //LMS7002M_setup_digital_loopback(_lms);
-
-        LMS7002M_regs(_lms)->reg_0x0082_pd_afe = 0;
-        LMS7002M_regs(_lms)->reg_0x0082_pd_rx_afe1 = 0;
-        LMS7002M_regs(_lms)->reg_0x0082_pd_rx_afe2 = 0;
-        LMS7002M_regs(_lms)->reg_0x0082_en_g_afe = 1;
-        LMS7002M_regs(_lms)->reg_0x0082_mode_interleave_afe = REG_0X0082_MODE_INTERLEAVE_AFE_2ADCS;
-        LMS7002M_regs_spi_write(_lms, 0x0082);
-
-        LMS7002M_regs(_lms)->reg_0x002a_rxwrclk_mux = REG_0X002A_RXWRCLK_MUX_FCLK1;
-        LMS7002M_regs(_lms)->reg_0x002a_tx_mux = REG_0X002A_TX_MUX_RXTSP;
-        LMS7002M_regs(_lms)->reg_0x002a_rx_mux = REG_0X002A_RX_MUX_TXFIFO;
-        LMS7002M_regs_spi_write(_lms, 0x002A);
-
         LMS7002M_rxtsp_tsg_const(_lms, LMS_CHA, 1024, 512);
-        LMS7002M_rxtsp_tsg_const(_lms, LMS_CHB, 512, 1024);
-        //LMS7002M_rxtsp_tsg_tone(_lms, LMS_CHA);
-        //LMS7002M_rxtsp_tsg_tone(_lms, LMS_CHB);
-
+        LMS7002M_rxtsp_tsg_const(_lms, LMS_CHB, 256, 2048);
+        LMS7002M_rxtsp_tsg_tone(_lms, LMS_CHA);
+        LMS7002M_rxtsp_tsg_tone(_lms, LMS_CHB);
+/*
         sleep(1);
         SoapySDR::logf(SOAPY_SDR_INFO, "FPGA_REG_RD_RX_CHA 0x%x", xumem_read32(_regs, FPGA_REG_RD_RX_CHA));
         SoapySDR::logf(SOAPY_SDR_INFO, "FPGA_REG_RD_RX_CHB 0x%x", xumem_read32(_regs, FPGA_REG_RD_RX_CHB));
 
         LMS7002M_dump_ini(_lms, "/tmp/regs.ini");
+*/
+        //some defaults to avoid throwing
+        _cachedSampleRates[SOAPY_SDR_RX] = 1e6;
+        _cachedSampleRates[SOAPY_SDR_TX] = 1e6;
     }
 
     ~EVB7(void)
@@ -226,8 +226,10 @@ public:
         //dma cleanup
         pzdud_destroy(_rx_data_dma);
         pzdud_destroy(_rx_ctrl_dma);
+        /*
         pzdud_destroy(_tx_data_dma);
         pzdud_destroy(_tx_stat_dma);
+        */
 
         //spi cleanup
         spidev_interface_close(_spiHandle);
@@ -339,6 +341,11 @@ public:
         if (stream == reinterpret_cast<SoapySDR::Stream *>(_rx_data_dma))
         {
             return sendControlMessage(
+                false, //timeFlag
+                true, //burstFlag
+                false, //contFlag
+                RX_FRAME_SIZE, RX_FRAME_SIZE*4, this->timeNsToTicks(timeNs));
+            return sendControlMessage(
                 (flags & SOAPY_SDR_HAS_TIME) != 0, //timeFlag
                 (numElems) != 0, //burstFlag
                 (flags & SOAPY_SDR_END_BURST) == 0, //contFlag
@@ -393,6 +400,7 @@ public:
         if (((hdr[0] >> 31) & 0x1) != 0) flags |= SOAPY_SDR_HAS_TIME;
         bool burstFlag = ((hdr[0] >> 28) & 0x1) != 0;
         bool continuousFlag = ((hdr[0] >> 27) & 0x1) != 0;
+        SoapySDR::logf(SOAPY_SDR_TRACE, "numSamples = %d, x=0x%x", numSamples, hdr[numSamples/2]);
 
         if (burstFlag) //in burst
         {
@@ -417,7 +425,7 @@ public:
             std::memcpy(buffs[0], hdr+4, ret*sizeof(uint32_t));
         }
 
-        //std::cout << "ret = " << ret << std::endl;
+        std::cout << "ret = " << ret << std::endl;
         return ret;
     }
 
@@ -441,10 +449,58 @@ public:
     /*******************************************************************
      * Sample Rate API
      ******************************************************************/
+    void setSampleRate(const int direction, const size_t, const double rate)
+    {
+        const double baseRate = this->getTSPRate(direction);
+        const double factor = baseRate/rate;
+        if (factor > 1.0 or factor <= 0.0) throw std::runtime_error("EVB7::setSampleRate() -- rate not possible");
+        const int intFactor = int(factor + 0.5);
+        if (intFactor > 32) throw std::runtime_error("EVB7::setSampleRate() -- rate too low");
+
+        if (std::abs(factor-intFactor) > 0.01) SoapySDR::logf(SOAPY_SDR_WARNING,
+            "EVB7::setSampleRate(): not a power of two factor: TSP Rate = %f MHZ, Requested rate = %f MHz", baseRate/1e6, rate/1e6);
+
+        //apply the settings, both the interp/decim has to be matched with the lml interface divider
+        if (direction == SOAPY_SDR_RX)
+        {
+            LMS7002M_rxtsp_set_decim(_lms, LMS_CHAB, intFactor);
+            LMS7002M_configure_lml_port(_lms, LMS_PORT2, LMS_RX, intFactor);
+        }
+        if (direction == SOAPY_SDR_TX)
+        {
+            LMS7002M_txtsp_set_interp(_lms, LMS_CHAB, intFactor);
+            LMS7002M_configure_lml_port(_lms, LMS_PORT1, LMS_TX, intFactor);
+        }
+
+        _cachedSampleRates[direction] = baseRate/intFactor;
+    }
+
+    double getSampleRate(const int direction, const size_t) const
+    {
+        return _cachedSampleRates.at(direction);
+    }
+
+    std::vector<double> listSampleRates(const int direction, const size_t) const
+    {
+        const double baseRate = this->getTSPRate(direction);
+        std::vector<double> rates;
+        for (int i = 5; i >= 0; i--)
+        {
+            rates.push_back(baseRate/(1 << i));
+        }
+        return rates;
+    }
+
+    std::map<int, double> _cachedSampleRates;
 
     /*******************************************************************
      * Clocking API
      ******************************************************************/
+    double getTSPRate(const int direction) const
+    {
+        return (direction == SOAPY_SDR_TX)? _masterClockRate : _masterClockRate/4;
+    }
+
     void setMasterClockRate(const double rate)
     {
         int ret = LMS7002M_set_data_clock(_lms, EXT_REF_CLK, rate);

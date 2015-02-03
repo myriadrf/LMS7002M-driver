@@ -36,6 +36,7 @@ typedef enum
 {
     LMS_CHA = 'A',
     LMS_CHB = 'B',
+    LMS_CHAB = 'C',
 } LMS7002M_chan_t;
 
 //! port number constants
@@ -310,6 +311,23 @@ LMS7002M_API int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t dir
 // TxTSP (transmit DSP chain)
 //=====================================================================//
 
+/*!
+ * Initialize the TX TSP chain by:
+ * Clearing configuration values, enabling the chain,
+ * and bypassing IQ gain, phase, DC corrections, and filters.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ */
+LMS7002M_API void LMS7002M_txtsp_init(LMS7002M_t *self, const LMS7002M_chan_t channel);
+
+/*!
+ * Set the TX TSP chain interpolation.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param interp the interpolation 1, 2, 4, 8, 16, 32
+ */
+LMS7002M_API void LMS7002M_txtsp_set_interp(LMS7002M_t *self, const LMS7002M_chan_t channel, const size_t interp);
+
 //=====================================================================//
 // TBB (transmit baseband chain)
 //=====================================================================//
@@ -325,11 +343,19 @@ LMS7002M_API int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t dir
 /*!
  * Initialize the RX TSP chain by:
  * Clearing configuration values, enabling the chain,
- * and bypassing IQ gain, phase, DC, filters, and AGC.
+ * and bypassing IQ gain, phase, DC corrections, filters, and AGC.
  * \param self an instance of the LMS7002M driver
  * \param channel the channel LMS_CHA or LMS_CHB
  */
 LMS7002M_API void LMS7002M_rxtsp_init(LMS7002M_t *self, const LMS7002M_chan_t channel);
+
+/*!
+ * Set the RX TSP chain decimation.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param decim the decimation 1, 2, 4, 8, 16, 32
+ */
+LMS7002M_API void LMS7002M_rxtsp_set_decim(LMS7002M_t *self, const LMS7002M_chan_t channel, const size_t decim);
 
 /*!
  * Test constant signal level for RX TSP chain.
