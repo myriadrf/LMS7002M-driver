@@ -73,6 +73,7 @@ LMS7002M_API void LMS7002M_rxtsp_tsg_const(LMS7002M_t *self, const LMS7002M_chan
     LMS7002M_set_mac_ch(self, channel);
 
     //muxes
+    self->regs.reg_0x0400_tsgfc = REG_0X0400_TSGFC_FS;
     self->regs.reg_0x0400_tsgmode = REG_0X0400_TSGMODE_DC;
     self->regs.reg_0x0400_insel = REG_0X0400_INSEL_TEST;
     LMS7002M_regs_spi_write(self, 0x0400);

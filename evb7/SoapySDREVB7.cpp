@@ -74,6 +74,11 @@
 
 #define EXT_REF_CLK (61.44e6/2)
 
+//using an independent clock to drive the device timer
+#define IF_TIME_CLK 100e6
+
+#define RX_TAG 0x5B
+
 /***********************************************************************
  * Device interface
  **********************************************************************/
@@ -150,10 +155,12 @@ public:
 
         //clear time
         this->setHardwareTime(0, "");
+        /*
         long long t0 = this->getHardwareTime("");
         sleep(1);
         long long t1 = this->getHardwareTime("");
         SoapySDR::logf(SOAPY_SDR_INFO, "HW sec/PC sec %f", (t1-t0)/1e9);
+        */
 
         //port output enables
         SET_EMIO_OUT_LVL(RXEN_EMIO, 1);
@@ -172,7 +179,6 @@ public:
         if (_rx_ctrl_dma == NULL) throw std::runtime_error("EVB7 fail create rx ctrl DMA");
         pzdud_reset(_rx_ctrl_dma);
 
-        /*
         _tx_data_dma = pzdud_create(TX_DMA_INDEX, PZDUD_MM2S);
         if (_tx_data_dma == NULL) throw std::runtime_error("EVB7 fail create tx data DMA");
         pzdud_reset(_tx_data_dma);
@@ -180,7 +186,6 @@ public:
         _tx_stat_dma = pzdud_create(TX_DMA_INDEX, PZDUD_S2MM);
         if (_tx_stat_dma == NULL) throw std::runtime_error("EVB7 fail create tx stat DMA");
         pzdud_reset(_tx_stat_dma);
-        */
 
         SoapySDR::logf(SOAPY_SDR_INFO, "EVB7() setup OK");
 
@@ -196,8 +201,8 @@ public:
         SoapySDR::logf(SOAPY_SDR_INFO, "FPGA_REG_RD_RX_CHB 0x%x", xumem_read32(_regs, FPGA_REG_RD_RX_CHB));
         //*/
 
-        LMS7002M_rxtsp_tsg_const(_lms, LMS_CHA, 1024, 1024);
-        LMS7002M_rxtsp_tsg_const(_lms, LMS_CHB, 1024, 1024);
+        LMS7002M_rxtsp_tsg_const(_lms, LMS_CHA, 1 << 15, 1 << 15);
+        LMS7002M_rxtsp_tsg_const(_lms, LMS_CHB, 1 << 15, 1 << 15);
     /*
         LMS7002M_rxtsp_tsg_tone(_lms, LMS_CHA);
         LMS7002M_rxtsp_tsg_tone(_lms, LMS_CHB);
@@ -234,10 +239,8 @@ public:
         //dma cleanup
         pzdud_destroy(_rx_data_dma);
         pzdud_destroy(_rx_ctrl_dma);
-        /*
         pzdud_destroy(_tx_data_dma);
         pzdud_destroy(_tx_stat_dma);
-        */
 
         //spi cleanup
         spidev_interface_close(_spiHandle);
@@ -282,7 +285,7 @@ public:
         const std::vector<size_t> &channels,
         const SoapySDR::Kwargs &)
     {
-        std::cout << "EVB7::setupStream() " << size_t(_rx_data_dma) << "\n";
+        //std::cout << "EVB7::setupStream() " << size_t(_rx_data_dma) << "\n";
         if (direction != SOAPY_SDR_RX) throw std::runtime_error("EVB7::setupStream: no TX support yet");
         if (format != "CS16") throw std::runtime_error("EVB7::setupStream: "+format);
         if (channels.size() != 1) throw std::runtime_error("EVB7::setupStream: only one channel for now");
@@ -301,12 +304,26 @@ public:
         ret = pzdud_init(_rx_ctrl_dma, true);
         if (ret != PZDUD_OK) throw std::runtime_error("EVB7::setupStream: fail init rx ctrl DMA");
 
+        //ensure stream inactive
+        this->sendControlMessage(false, false, false, RX_FRAME_SIZE, 0, 0);
+
+        //flush
+        while (true)
+        {
+            ret = pzdud_wait(_rx_data_dma, 100);
+            if (ret != 0) break;
+            size_t len = 0;
+            int handle = pzdud_acquire(_rx_data_dma, &len);
+            if (handle < 0) break;
+            pzdud_release(_rx_data_dma, handle, 0);
+        }
+
         return reinterpret_cast<SoapySDR::Stream *>(_rx_data_dma);
     }
 
     void closeStream(SoapySDR::Stream *stream)
     {
-        std::cout << "EVB7::closeStream() " << size_t(stream) << "\n";
+        //std::cout << "EVB7::closeStream() " << size_t(stream) << "\n";
         if (stream == reinterpret_cast<SoapySDR::Stream *>(_rx_data_dma))
         {
             //halt the channels
@@ -326,14 +343,14 @@ public:
         if (handle < 0) return SOAPY_SDR_STREAM_ERROR;
 
         uint32_t *ctrl_msg = (uint32_t *)pzdud_addr(_rx_ctrl_dma, handle);
-        ctrl_msg[0] = frameSize-1;
+        ctrl_msg[0] = (frameSize-1) | (RX_TAG << 16);
         if (timeFlag) ctrl_msg[0] |= (1 << 31);
         if (burstFlag) ctrl_msg[0] |= (1 << 28);
         if (contFlag) ctrl_msg[0] |= (1 << 27);
         ctrl_msg[1] = burstSize - 1;
         ctrl_msg[2] = time >> 32;
         ctrl_msg[3] = time & 0xffffffff;
-        for (size_t i = 0; i < 4; i++) SoapySDR::logf(SOAPY_SDR_INFO, "ctrl_msg[%d] = 0x%x\n", int(i), ctrl_msg[i]);
+        //for (size_t i = 0; i < 4; i++) SoapySDR::logf(SOAPY_SDR_INFO, "ctrl_msg[%d] = 0x%x\n", int(i), ctrl_msg[i]);
 
         pzdud_release(_rx_ctrl_dma, handle, sizeof(uint32_t)*4);
         return 0;
@@ -345,14 +362,9 @@ public:
         const long long timeNs,
         const size_t numElems)
     {
-        std::cout << "EVB7::activateStream() " << size_t(stream) << "\n";
+        //std::cout << "EVB7::activateStream() " << size_t(stream) << "\n";
         if (stream == reinterpret_cast<SoapySDR::Stream *>(_rx_data_dma))
         {
-            return sendControlMessage(
-                false, //timeFlag
-                true, //burstFlag
-                false, //contFlag
-                RX_FRAME_SIZE, RX_FRAME_SIZE*4, this->timeNsToTicks(timeNs));
             return sendControlMessage(
                 (flags & SOAPY_SDR_HAS_TIME) != 0, //timeFlag
                 (numElems) != 0, //burstFlag
@@ -367,15 +379,14 @@ public:
         const int flags,
         const long long timeNs)
     {
-        std::cout << "EVB7::deactivateStream() " << size_t(stream) << "\n";
+        //std::cout << "EVB7::deactivateStream() " << size_t(stream) << "\n";
         if (stream == reinterpret_cast<SoapySDR::Stream *>(_rx_data_dma))
         {
             return sendControlMessage(
                 (flags & SOAPY_SDR_HAS_TIME) != 0, //timeFlag
                 false, //burstFlag
                 false, //contFlag
-        //TODO time ticks != time ns
-                0, 0, timeNs);
+                RX_FRAME_SIZE, 0, this->timeNsToTicks(timeNs));
         }
         return SOAPY_SDR_STREAM_ERROR;
     }
@@ -406,11 +417,28 @@ public:
 
         flags = 0;
         if (((hdr[0] >> 31) & 0x1) != 0) flags |= SOAPY_SDR_HAS_TIME;
+        bool timeError = ((hdr[0] >> 30) & 0x1) != 0;
         bool burstFlag = ((hdr[0] >> 28) & 0x1) != 0;
         bool continuousFlag = ((hdr[0] >> 27) & 0x1) != 0;
-        SoapySDR::logf(SOAPY_SDR_TRACE, "numSamples = %d, x=0x%x", numSamples, hdr[numSamples/2]);
+        const int tag = (hdr[0] >> 16) & 0xff;
 
-        if (burstFlag) //in burst
+        //gather time even if its not valid
+        timeNs = this->ticksToTimeNs((((uint64_t)hdr[2]) << 32) | hdr[3]);
+
+        if (tag != RX_TAG)
+        {
+            SoapySDR::logf(SOAPY_SDR_ERROR,
+                "readStream tag error hdr=0x%x, len=%d", hdr[0], len);
+            ret = SOAPY_SDR_STREAM_ERROR;
+        }
+        else if (timeError)
+        {
+            SoapySDR::logf(SOAPY_SDR_ERROR,
+                "readStream time error time now %f, time pkt %f, hi=0x%x, lo=0x%x, len=%d",
+                this->getHardwareTime("")/1e9, timeNs/1e9, hdr[2], hdr[3], len);
+            ret = SOAPY_SDR_STREAM_ERROR;
+        }
+        else if (burstFlag) //in burst
         {
             if (burstCount == numSamples) flags |= SOAPY_SDR_END_BURST;
             else if (frameSize != numSamples) ret = SOAPY_SDR_OVERFLOW;
@@ -419,10 +447,12 @@ public:
         {
             ret = SOAPY_SDR_OVERFLOW;
             SoapySDR::log(SOAPY_SDR_TRACE, "O");
+            sendControlMessage( //restart streaming
+                false, //timeFlag
+                false, //burstFlag
+                true, //contFlag
+                RX_FRAME_SIZE, 0, 0);
         }
-
-        //gather time even if its not valid
-        timeNs = this->ticksToTimeNs((((uint64_t)hdr[2]) << 32) | hdr[3]);
 
         pzdud_release(_rx_data_dma, handle, 0);
 
@@ -433,7 +463,7 @@ public:
             std::memcpy(buffs[0], hdr+4, ret*sizeof(uint32_t));
         }
 
-        std::cout << "ret = " << ret << std::endl;
+        //std::cout << "ret = " << ret << std::endl;
         return ret;
     }
 
@@ -569,12 +599,12 @@ public:
      ******************************************************************/
     long long ticksToTimeNs(const long long ticks) const
     {
-        return ticks/(_masterClockRate/1e9);
+        return ticks/(IF_TIME_CLK/1e9);
     }
 
     long long timeNsToTicks(const long long timeNs) const
     {
-        return timeNs/(1e9/_masterClockRate);
+        return timeNs/(1e9/IF_TIME_CLK);
     }
 
     bool hasHardwareTime(const std::string &what) const
