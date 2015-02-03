@@ -30,6 +30,14 @@ LMS7002M_API void LMS7002M_txtsp_set_interp(LMS7002M_t *self, const LMS7002M_cha
     //TODO
 }
 
+LMS7002M_API void LMS7002M_txtsp_set_freq(LMS7002M_t *self, const LMS7002M_chan_t channel, const double freqRel)
+{
+    LMS7002M_set_mac_ch(self, channel);
+    self->regs.reg_0x0208_cmix_byp = 0;
+    LMS7002M_regs_spi_write(self, 0x0208);
+    LMS7002M_set_nco_freq(self, LMS_TX, channel, freqRel);
+}
+
 #ifdef __cplusplus
 }
 #endif

@@ -328,6 +328,15 @@ LMS7002M_API void LMS7002M_txtsp_init(LMS7002M_t *self, const LMS7002M_chan_t ch
  */
 LMS7002M_API void LMS7002M_txtsp_set_interp(LMS7002M_t *self, const LMS7002M_chan_t channel, const size_t interp);
 
+/*!
+ * Set the TX TSP CMIX frequency.
+ * Math: freqHz = TSPRate * sampleRate
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param freqRel a fractional frequency in (-0.5, 0.5)
+ */
+LMS7002M_API void LMS7002M_txtsp_set_freq(LMS7002M_t *self, const LMS7002M_chan_t channel, const double freqRel);
+
 //=====================================================================//
 // TBB (transmit baseband chain)
 //=====================================================================//
@@ -356,6 +365,15 @@ LMS7002M_API void LMS7002M_rxtsp_init(LMS7002M_t *self, const LMS7002M_chan_t ch
  * \param decim the decimation 1, 2, 4, 8, 16, 32
  */
 LMS7002M_API void LMS7002M_rxtsp_set_decim(LMS7002M_t *self, const LMS7002M_chan_t channel, const size_t decim);
+
+/*!
+ * Set the RX TSP CMIX frequency.
+ * Math: freqHz = TSPRate * sampleRate
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param freqRel a fractional frequency in (-0.5, 0.5)
+ */
+LMS7002M_API void LMS7002M_rxtsp_set_freq(LMS7002M_t *self, const LMS7002M_chan_t channel, const double freqRel);
 
 /*!
  * Test constant signal level for RX TSP chain.

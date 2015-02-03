@@ -196,10 +196,12 @@ public:
         SoapySDR::logf(SOAPY_SDR_INFO, "FPGA_REG_RD_RX_CHB 0x%x", xumem_read32(_regs, FPGA_REG_RD_RX_CHB));
         //*/
 
-        LMS7002M_rxtsp_tsg_const(_lms, LMS_CHA, 1024, 512);
-        LMS7002M_rxtsp_tsg_const(_lms, LMS_CHB, 256, 2048);
+        LMS7002M_rxtsp_tsg_const(_lms, LMS_CHA, 1024, 1024);
+        LMS7002M_rxtsp_tsg_const(_lms, LMS_CHB, 1024, 1024);
+    /*
         LMS7002M_rxtsp_tsg_tone(_lms, LMS_CHA);
         LMS7002M_rxtsp_tsg_tone(_lms, LMS_CHB);
+        */
 /*
         sleep(1);
         SoapySDR::logf(SOAPY_SDR_INFO, "FPGA_REG_RD_RX_CHA 0x%x", xumem_read32(_regs, FPGA_REG_RD_RX_CHA));
@@ -210,6 +212,12 @@ public:
         //some defaults to avoid throwing
         _cachedSampleRates[SOAPY_SDR_RX] = 1e6;
         _cachedSampleRates[SOAPY_SDR_TX] = 1e6;
+        _cachedLOFrequencies[SOAPY_SDR_RX] = 1e9;
+        _cachedLOFrequencies[SOAPY_SDR_TX] = 1e9;
+        _cachedBBFrequencies[SOAPY_SDR_RX][0] = 0;
+        _cachedBBFrequencies[SOAPY_SDR_TX][0] = 0;
+        _cachedBBFrequencies[SOAPY_SDR_RX][1] = 0;
+        _cachedBBFrequencies[SOAPY_SDR_TX][1] = 0;
     }
 
     ~EVB7(void)
@@ -256,7 +264,7 @@ public:
 ******************************************************************/
     size_t getNumChannels(const int) const
     {
-        return 1; //eventually 2
+        return 2;
     }
 
     bool getFullDuplex(const int, const size_t) const
@@ -445,6 +453,44 @@ public:
     /*******************************************************************
      * Frequency API
      ******************************************************************/
+    void setFrequency(const int direction, const size_t channel, const double frequency, const SoapySDR::Kwargs &args)
+    {
+        //for now, we just tune the cordics
+        const double baseRate = this->getTSPRate(direction);
+        if (direction == SOAPY_SDR_RX) LMS7002M_rxtsp_set_freq(_lms, (channel == 0)?LMS_CHA:LMS_CHB, frequency/baseRate);
+        if (direction == SOAPY_SDR_TX) LMS7002M_txtsp_set_freq(_lms, (channel == 0)?LMS_CHA:LMS_CHB, frequency/baseRate);
+        _cachedBBFrequencies[direction][channel] = frequency;
+    }
+
+    double getFrequency(const int direction, const size_t channel) const
+    {
+        return getFrequency(direction, channel, "BB") + getFrequency(direction, channel, "RF");
+    }
+
+    double getFrequency(const int direction, const size_t channel, const std::string &name) const
+    {
+        if (name == "BB") return _cachedBBFrequencies.at(direction).at(channel);
+        if (name == "RF") return _cachedLOFrequencies.at(direction);
+        return SoapySDR::Device::getFrequency(direction, channel, name);
+    }
+
+    std::vector<std::string> listFrequencies(const int, const size_t) const
+    {
+        std::vector<std::string> opts;
+        opts.push_back("RF");
+        opts.push_back("BB");
+        return opts;
+    }
+
+    SoapySDR::RangeList getFrequencyRange(const int, const size_t) const
+    {
+        SoapySDR::RangeList ranges;
+        ranges.push_back(SoapySDR::Range(100e3, 3.8e9));
+        return ranges;
+    }
+
+    std::map<int, double> _cachedLOFrequencies;
+    std::map<int, std::map<size_t, double> > _cachedBBFrequencies;
 
     /*******************************************************************
      * Sample Rate API
@@ -453,7 +499,8 @@ public:
     {
         const double baseRate = this->getTSPRate(direction);
         const double factor = baseRate/rate;
-        if (factor > 1.0 or factor <= 0.0) throw std::runtime_error("EVB7::setSampleRate() -- rate not possible");
+        SoapySDR::logf(SOAPY_SDR_TRACE, "setSampleRate %f MHz, baseRate %f MHz, factor %f", rate/1e6, baseRate/1e6, factor);
+        if (factor < 1.0) throw std::runtime_error("EVB7::setSampleRate() -- rate too high");
         const int intFactor = int(factor + 0.5);
         if (intFactor > 32) throw std::runtime_error("EVB7::setSampleRate() -- rate too low");
 
