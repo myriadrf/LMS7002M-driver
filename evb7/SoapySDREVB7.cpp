@@ -201,8 +201,8 @@ public:
         SoapySDR::logf(SOAPY_SDR_INFO, "FPGA_REG_RD_RX_CHB 0x%x", xumem_read32(_regs, FPGA_REG_RD_RX_CHB));
         //*/
 
-        LMS7002M_rxtsp_tsg_const(_lms, LMS_CHA, 1 << 15, 1 << 15);
-        LMS7002M_rxtsp_tsg_const(_lms, LMS_CHB, 1 << 15, 1 << 15);
+        LMS7002M_rxtsp_tsg_const(_lms, LMS_CHA, 1 << 14, 1 << 14);
+        LMS7002M_rxtsp_tsg_const(_lms, LMS_CHB, 1 << 14, 1 << 14);
     /*
         LMS7002M_rxtsp_tsg_tone(_lms, LMS_CHA);
         LMS7002M_rxtsp_tsg_tone(_lms, LMS_CHB);
@@ -460,7 +460,15 @@ public:
         {
             //TODO if numElems < numSamples, keep remainder...
             ret = std::min(numSamples, numElems);
-            std::memcpy(buffs[0], hdr+4, ret*sizeof(uint32_t));
+            uint32_t *in = hdr+4;
+            std::complex<int16_t> *out = (std::complex<int16_t> *)buffs[0];
+            for (size_t i = 0; i < ret; i++)
+            {
+                int16_t i16 = in[i] >> 16;
+                int16_t q16 = in[i] & 0xffff;
+                out[i] = std::complex<int16_t>(i16, q16);
+            }
+            //std::memcpy(buffs[0], hdr+4, ret*sizeof(uint32_t));
         }
 
         //std::cout << "ret = " << ret << std::endl;
@@ -530,7 +538,7 @@ public:
         const double baseRate = this->getTSPRate(direction);
         const double factor = baseRate/rate;
         SoapySDR::logf(SOAPY_SDR_TRACE, "setSampleRate %f MHz, baseRate %f MHz, factor %f", rate/1e6, baseRate/1e6, factor);
-        if (factor < 1.0) throw std::runtime_error("EVB7::setSampleRate() -- rate too high");
+        if (factor < 2.0) throw std::runtime_error("EVB7::setSampleRate() -- rate too high");
         const int intFactor = int(factor + 0.5);
         if (intFactor > 32) throw std::runtime_error("EVB7::setSampleRate() -- rate too low");
 
@@ -538,15 +546,16 @@ public:
             "EVB7::setSampleRate(): not a power of two factor: TSP Rate = %f MHZ, Requested rate = %f MHz", baseRate/1e6, rate/1e6);
 
         //apply the settings, both the interp/decim has to be matched with the lml interface divider
+        //the lml interface needs a clock rate 2x the sample rate for DDR TRX IQ mode
         if (direction == SOAPY_SDR_RX)
         {
             LMS7002M_rxtsp_set_decim(_lms, LMS_CHAB, intFactor);
-            LMS7002M_configure_lml_port(_lms, LMS_PORT2, LMS_RX, intFactor);
+            LMS7002M_configure_lml_port(_lms, LMS_PORT2, LMS_RX, intFactor/2);
         }
         if (direction == SOAPY_SDR_TX)
         {
             LMS7002M_txtsp_set_interp(_lms, LMS_CHAB, intFactor);
-            LMS7002M_configure_lml_port(_lms, LMS_PORT1, LMS_TX, intFactor);
+            LMS7002M_configure_lml_port(_lms, LMS_PORT1, LMS_TX, intFactor/2);
         }
 
         _cachedSampleRates[direction] = baseRate/intFactor;
