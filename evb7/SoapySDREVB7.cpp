@@ -23,6 +23,9 @@
 #include "xilinx_user_gpio.h"
 #include "xilinx_user_mem.h"
 
+/***********************************************************************
+ * FPGA EMIOs that are controlled by sysfs GPIO
+ **********************************************************************/
 #define EMIO_OFFSET 54
 #define RESET_EMIO    (EMIO_OFFSET+0)
 #define DIG_RST_EMIO  (EMIO_OFFSET+1)
@@ -42,6 +45,9 @@
     gpio_set_dir(emio, 0); \
     gpio_unexport(emio)
 
+/***********************************************************************
+ * FPGA register space for misc controls
+ **********************************************************************/
 #define FPGA_REGS 0x43C00000
 #define FPGA_REGS_SIZE 1024
 
@@ -61,6 +67,9 @@
 #define FPGA_REG_WR_TX_CHB 32
 #define FPGA_REG_WR_TX_TEST 36
 
+/***********************************************************************
+ * Settings for the AXI DMA and framer/deframer
+ **********************************************************************/
 #define RX_DMA_INDEX 0
 #define TX_DMA_INDEX 1
 #define RX_FRAME_SIZE 1000 //buff size - hdrs
@@ -72,12 +81,18 @@
 #define CTRL_NUM_BUFFS 16
 #define CTRL_BUFF_SIZE 64
 
+//sanity check tags that the framers echo back in their responses
+#define RX_TAG_ACTIVATE uint8_t('A')
+#define RX_TAG_DEACTIVATE uint8_t('D')
+
+/***********************************************************************
+ * Clock rates for this system
+ **********************************************************************/
+//the reference clock on the EVB7
 #define EXT_REF_CLK (61.44e6/2)
 
-//using an independent clock to drive the device timer
+//using an independent FPGA clock to drive the device timer
 #define IF_TIME_CLK 100e6
-
-#define RX_TAG 0x5B
 
 /***********************************************************************
  * Device interface
@@ -105,6 +120,7 @@ public:
             throw std::runtime_error("EVB7 fail to map registers");
         }
         SoapySDR::logf(SOAPY_SDR_INFO, "Read sentinel 0x%x\n", xumem_read32(_regs, FPGA_REG_RD_SENTINEL));
+        this->writeRegister(FPGA_REG_WR_TX_TEST, 0); //test off, normal tx from deframer
 
         //perform reset
         SET_EMIO_OUT_LVL(RESET_EMIO, 0);
@@ -120,6 +136,7 @@ public:
         LMS7002M_set_spi_mode(_lms, 4); //set 4-wire spi mode first
         LMS7002M_reset(_lms);
 
+        //enable all ADCs and DACs
         LMS7002M_afe_enable(_lms, LMS_TX, LMS_CHA, true);
         LMS7002M_afe_enable(_lms, LMS_TX, LMS_CHB, true);
         LMS7002M_afe_enable(_lms, LMS_RX, LMS_CHA, true);
@@ -190,7 +207,6 @@ public:
         SoapySDR::logf(SOAPY_SDR_INFO, "EVB7() setup OK");
 
         //try test
-        this->writeRegister(FPGA_REG_WR_TX_TEST, 0); //test off, normal tx from deframer
         /*
         this->writeRegister(FPGA_REG_WR_TX_TEST, 1); //test registers drive tx
         this->writeRegister(FPGA_REG_WR_TX_CHA, 0xAAAABBBB);
@@ -305,20 +321,25 @@ public:
         if (ret != PZDUD_OK) throw std::runtime_error("EVB7::setupStream: fail init rx ctrl DMA");
 
         //ensure stream inactive
-        this->sendControlMessage(false, false, false, RX_FRAME_SIZE, 0, 0);
+        this->sendControlMessage(RX_TAG_DEACTIVATE, false, true, false, RX_FRAME_SIZE, 1, 0);
 
         //flush
+        this->rxFlush();
+
+        return reinterpret_cast<SoapySDR::Stream *>(_rx_data_dma);
+    }
+
+    void rxFlush(void)
+    {
         while (true)
         {
-            ret = pzdud_wait(_rx_data_dma, 100);
+            int ret = pzdud_wait(_rx_data_dma, 1000);
             if (ret != 0) break;
             size_t len = 0;
             int handle = pzdud_acquire(_rx_data_dma, &len);
             if (handle < 0) break;
             pzdud_release(_rx_data_dma, handle, 0);
         }
-
-        return reinterpret_cast<SoapySDR::Stream *>(_rx_data_dma);
     }
 
     void closeStream(SoapySDR::Stream *stream)
@@ -336,14 +357,14 @@ public:
         }
     }
 
-    int sendControlMessage(const bool timeFlag, const bool burstFlag, const bool contFlag, const int frameSize, const int burstSize, const long long time)
+    int sendControlMessage(const int tag, const bool timeFlag, const bool burstFlag, const bool contFlag, const int frameSize, const int burstSize, const long long time)
     {
         size_t len = 0;
         int handle = pzdud_acquire(_rx_ctrl_dma, &len);
         if (handle < 0) return SOAPY_SDR_STREAM_ERROR;
 
         uint32_t *ctrl_msg = (uint32_t *)pzdud_addr(_rx_ctrl_dma, handle);
-        ctrl_msg[0] = (frameSize-1) | (RX_TAG << 16);
+        ctrl_msg[0] = (frameSize-1) | (tag << 16);
         if (timeFlag) ctrl_msg[0] |= (1 << 31);
         if (burstFlag) ctrl_msg[0] |= (1 << 28);
         if (contFlag) ctrl_msg[0] |= (1 << 27);
@@ -366,6 +387,7 @@ public:
         if (stream == reinterpret_cast<SoapySDR::Stream *>(_rx_data_dma))
         {
             return sendControlMessage(
+                RX_TAG_ACTIVATE,
                 (flags & SOAPY_SDR_HAS_TIME) != 0, //timeFlag
                 (numElems) != 0, //burstFlag
                 (flags & SOAPY_SDR_END_BURST) == 0, //contFlag
@@ -382,11 +404,14 @@ public:
         //std::cout << "EVB7::deactivateStream() " << size_t(stream) << "\n";
         if (stream == reinterpret_cast<SoapySDR::Stream *>(_rx_data_dma))
         {
-            return sendControlMessage(
+            int ret = sendControlMessage(
+                RX_TAG_DEACTIVATE,
                 (flags & SOAPY_SDR_HAS_TIME) != 0, //timeFlag
-                false, //burstFlag
+                true, //burstFlag
                 false, //contFlag
-                RX_FRAME_SIZE, 0, this->timeNsToTicks(timeNs));
+                RX_FRAME_SIZE, 1, this->timeNsToTicks(timeNs));
+            this->rxFlush();
+            return ret;
         }
         return SOAPY_SDR_STREAM_ERROR;
     }
@@ -402,6 +427,7 @@ public:
         //std::cout << "EVB7::readStream() " << numElems << "\n";
         size_t len = 0;
         int ret = 0;
+        flags = 0;
 
         //wait with timeout then acquire
         ret = pzdud_wait(_rx_data_dma, timeoutUs);
@@ -414,8 +440,6 @@ public:
         const size_t burstCount = hdr[1] + 1;
         const size_t frameSize = (hdr[0] & 0xffff) + 1;
         const size_t numSamples = (len - (sizeof(uint32_t)*4))/sizeof(uint32_t);
-
-        flags = 0;
         if (((hdr[0] >> 31) & 0x1) != 0) flags |= SOAPY_SDR_HAS_TIME;
         bool timeError = ((hdr[0] >> 30) & 0x1) != 0;
         bool burstFlag = ((hdr[0] >> 28) & 0x1) != 0;
@@ -425,12 +449,21 @@ public:
         //gather time even if its not valid
         timeNs = this->ticksToTimeNs((((uint64_t)hdr[2]) << 32) | hdr[3]);
 
-        if (tag != RX_TAG)
+        //old packet from the deactivate command, just ignore it with timeout
+        if (tag == RX_TAG_DEACTIVATE)
+        {
+            ret = SOAPY_SDR_TIMEOUT;
+        }
+
+        //not an activate or deactivate tag, this is bad!
+        else if (tag != RX_TAG_ACTIVATE)
         {
             SoapySDR::logf(SOAPY_SDR_ERROR,
-                "readStream tag error hdr=0x%x, len=%d", hdr[0], len);
+                "readStream tag error hdr=0x%x, tag=0x%x, len=%d", hdr[0], tag, len);
             ret = SOAPY_SDR_STREAM_ERROR;
         }
+
+        //a bad time was specified in the command packet
         else if (timeError)
         {
             SoapySDR::logf(SOAPY_SDR_ERROR,
@@ -438,23 +471,26 @@ public:
                 this->getHardwareTime("")/1e9, timeNs/1e9, hdr[2], hdr[3], len);
             ret = SOAPY_SDR_STREAM_ERROR;
         }
+
+        //handle checks for the burst requests
         else if (burstFlag) //in burst
         {
             if (burstCount == numSamples) flags |= SOAPY_SDR_END_BURST;
             else if (frameSize != numSamples) ret = SOAPY_SDR_OVERFLOW;
         }
+
+        //handle checks for the continuous requests
         else if (continuousFlag and frameSize != numSamples)
         {
             ret = SOAPY_SDR_OVERFLOW;
             SoapySDR::log(SOAPY_SDR_TRACE, "O");
             sendControlMessage( //restart streaming
+                RX_TAG_ACTIVATE,
                 false, //timeFlag
                 false, //burstFlag
                 true, //contFlag
                 RX_FRAME_SIZE, 0, 0);
         }
-
-        pzdud_release(_rx_data_dma, handle, 0);
 
         if (ret == 0) //no errors yet, copy buffer -- sorry for the copy, zero copy in the future...
         {
@@ -462,14 +498,16 @@ public:
             ret = std::min(numSamples, numElems);
             uint32_t *in = hdr+4;
             std::complex<int16_t> *out = (std::complex<int16_t> *)buffs[0];
-            for (size_t i = 0; i < ret; i++)
+            for (int i = 0; i < ret; i++)
             {
-                int16_t i16 = in[i] >> 16;
-                int16_t q16 = in[i] & 0xffff;
+                int16_t i16 = uint16_t(in[i] >> 16);
+                int16_t q16 = uint16_t(in[i] & 0xffff);
                 out[i] = std::complex<int16_t>(i16, q16);
             }
-            //std::memcpy(buffs[0], hdr+4, ret*sizeof(uint32_t));
         }
+
+        //always release the buffer back the SG engine
+        pzdud_release(_rx_data_dma, handle, 0);
 
         //std::cout << "ret = " << ret << std::endl;
         return ret;
@@ -493,6 +531,17 @@ public:
      ******************************************************************/
     void setFrequency(const int direction, const size_t channel, const double frequency, const SoapySDR::Kwargs &args)
     {
+        //the rf frequency as passed -n or specifically from args
+        //double rfFreq = (args.count("RF") != 0)?atof(args.at("RF").c_str()):frequency;
+
+        //optional LO offset from the args
+        //double offset = (args.count("OFFSET") != 0)?atof(args.at("OFFSET").c_str()):0.0;
+
+        //rfFreq += offset;
+
+        //tune the LO
+        //int ret = LMS7002M_set_lo_freq(_lms, (direction == SOAPY_SDR_RX)?LMS_RX:LMS_RX, _masterClockRate, frequency, &_cachedLOFrequencies[direction]);
+
         //for now, we just tune the cordics
         const double baseRate = this->getTSPRate(direction);
         if (direction == SOAPY_SDR_RX) LMS7002M_rxtsp_set_freq(_lms, (channel == 0)?LMS_CHA:LMS_CHB, frequency/baseRate);
@@ -589,13 +638,13 @@ public:
 
     void setMasterClockRate(const double rate)
     {
-        int ret = LMS7002M_set_data_clock(_lms, EXT_REF_CLK, rate);
+        int ret = LMS7002M_set_data_clock(_lms, EXT_REF_CLK, rate, &_masterClockRate);
         if (ret != 0)
         {
             SoapySDR::logf(SOAPY_SDR_ERROR, "LMS7002M_set_data_clock(%f MHz) -> %d", rate/1e6, ret);
             throw std::runtime_error("EVB7 fail LMS7002M_set_data_clock()");
         }
-        _masterClockRate = rate;
+        SoapySDR::logf(SOAPY_SDR_TRACE, "LMS7002M_set_data_clock(%f MHz) -> %f MHz", rate/1e6, _masterClockRate/1e6);
     }
 
     double getMasterClockRate(void) const

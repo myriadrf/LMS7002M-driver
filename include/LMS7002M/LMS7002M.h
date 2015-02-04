@@ -270,9 +270,10 @@ LMS7002M_API void LMS7002M_afe_enable(LMS7002M_t *self, const LMS7002M_dir_t dir
  * \param self an instance of the LMS7002M driver
  * \param fref the reference clock frequency in Hz
  * \param fout the desired data clock frequency in Hz
+ * \param factual the actual clock rate in Hz (or NULL)
  * \return 0 for success or error code on failure
  */
-LMS7002M_API int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, const double fout);
+LMS7002M_API int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, const double fout, double *factual);
 
 //=====================================================================//
 // NCO (numerically controlled oscillators)
@@ -303,9 +304,10 @@ LMS7002M_API void LMS7002M_set_nco_freq(LMS7002M_t *self, const LMS7002M_dir_t d
  * \param direction the direction LMS_TX or LMS_RX
  * \param fref the reference clock frequency in Hz
  * \param fout the desired LO frequency in Hz
+ * \param factual the actual LO frequency in Hz (or NULL)
  * \return 0 for success or error code on failure
  */
-LMS7002M_API int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, const double fref, const double fout);
+LMS7002M_API int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, const double fref, const double fout, double *factual);
 
 //=====================================================================//
 // TxTSP (transmit DSP chain)

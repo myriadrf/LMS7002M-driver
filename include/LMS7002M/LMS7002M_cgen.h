@@ -19,7 +19,7 @@
 extern "C" {
 #endif
 
-LMS7002M_API int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, const double fout)
+LMS7002M_API int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, const double fout, double *factual)
 {
     //The equations:
     // fref * N = fvco
@@ -134,6 +134,9 @@ LMS7002M_API int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, co
     self->regs.reg_0x0089_sel_sdmclk_cgen = REG_0X0089_SEL_SDMCLK_CGEN_CLK_DIV;
     self->regs.reg_0x0089_div_outch_cgen = (fdiv/2)-1;
     LMS7002M_regs_spi_write(self, 0x0089);
+
+    //calculate the actual rate
+    if (factual != NULL) *factual = fref * (Nint + (Nfrac/double(1 << 20))) / fdiv;
 
     return 0; //OK
 }

@@ -19,7 +19,7 @@
 extern "C" {
 #endif
 
-LMS7002M_API int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, const double fref, const double fout)
+LMS7002M_API int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, const double fref, const double fout, double *factual)
 {
     LMS7002M_set_mac_dir(self, direction);
 
