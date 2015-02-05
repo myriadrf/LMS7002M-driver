@@ -134,7 +134,9 @@ static inline int gpio_export(unsigned int gpio)
 	}
  
 	len = snprintf(buf, sizeof(buf), "%d", gpio);
-	write(fd, buf, len);
+	if (len < 0) return len;
+	len = write(fd, buf, len);
+	if (len < 0) return len;
 	close(fd);
  
 	return 0;
@@ -155,7 +157,9 @@ static inline int gpio_unexport(unsigned int gpio)
 	}
  
 	len = snprintf(buf, sizeof(buf), "%d", gpio);
-	write(fd, buf, len);
+	if (len < 0) return len;
+	len = write(fd, buf, len);
+	if (len < 0) return len;
 	close(fd);
 	return 0;
 }
@@ -169,6 +173,7 @@ static inline int gpio_set_dir(unsigned int gpio, unsigned int out_flag)
 	char buf[MAX_BUF];
  
 	len = snprintf(buf, sizeof(buf), SYSFS_GPIO_DIR  "/gpio%d/direction", gpio);
+	if (len < 0) return len;
  
 	fd = open(buf, O_WRONLY);
 	if (fd < 0) {
@@ -177,9 +182,10 @@ static inline int gpio_set_dir(unsigned int gpio, unsigned int out_flag)
 	}
  
 	if (out_flag)
-		write(fd, "out", 4);
+		len = write(fd, "out", 4);
 	else
-		write(fd, "in", 3);
+		len = write(fd, "in", 3);
+	if (len < 0) return len;
  
 	close(fd);
 	return 0;
@@ -194,6 +200,7 @@ static inline int gpio_set_value(unsigned int gpio, unsigned int value)
 	char buf[MAX_BUF];
  
 	len = snprintf(buf, sizeof(buf), SYSFS_GPIO_DIR "/gpio%d/value", gpio);
+	if (len < 0) return len;
  
 	fd = open(buf, O_WRONLY);
 	if (fd < 0) {
@@ -202,9 +209,10 @@ static inline int gpio_set_value(unsigned int gpio, unsigned int value)
 	}
  
 	if (value)
-		write(fd, "1", 2);
+		len = write(fd, "1", 2);
 	else
-		write(fd, "0", 2);
+		len = write(fd, "0", 2);
+	if (len < 0) return len;
  
 	close(fd);
 	return 0;
@@ -220,6 +228,7 @@ static inline int gpio_get_value(unsigned int gpio, unsigned int *value)
 	char ch;
 
 	len = snprintf(buf, sizeof(buf), SYSFS_GPIO_DIR "/gpio%d/value", gpio);
+	if (len < 0) return len;
  
 	fd = open(buf, O_RDONLY);
 	if (fd < 0) {
@@ -250,6 +259,7 @@ static inline int gpio_set_edge(unsigned int gpio, const char *edge)
 	char buf[MAX_BUF];
 
 	len = snprintf(buf, sizeof(buf), SYSFS_GPIO_DIR "/gpio%d/edge", gpio);
+	if (len < 0) return len;
  
 	fd = open(buf, O_WRONLY);
 	if (fd < 0) {
@@ -272,6 +282,7 @@ static inline int gpio_fd_open(unsigned int gpio)
 	char buf[MAX_BUF];
 
 	len = snprintf(buf, sizeof(buf), SYSFS_GPIO_DIR "/gpio%d/value", gpio);
+	if (len < 0) return len;
  
 	fd = open(buf, O_RDONLY | O_NONBLOCK );
 	if (fd < 0) {
