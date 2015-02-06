@@ -46,6 +46,14 @@ typedef enum
     LMS_PORT2 = 2,
 } LMS7002M_port_t;
 
+//! VCO ranges
+#define LMS7002M_CGEN_VCO_LO 2.000e9
+#define LMS7002M_CGEN_VCO_HI 2.700e9
+#define LMS7002M_VCOL_LO 3.800e9
+#define LMS7002M_VCOL_HI 5.222e9
+#define LMS7002M_VCOH_LO 6.306e9
+#define LMS7002M_VCOH_HI 7.714e9
+
 #ifdef __cplusplus
 extern "C" {
 #endif

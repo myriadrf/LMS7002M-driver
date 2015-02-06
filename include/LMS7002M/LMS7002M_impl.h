@@ -212,6 +212,7 @@ LMS7002M_API int LMS7002M_load_ini(LMS7002M_t *self, const char *path)
 /***********************************************************************
  * Other implementation includes
  **********************************************************************/
+#include <LMS7002M/LMS7002M_util.h>
 #include <LMS7002M/LMS7002M_lml.h>
 #include <LMS7002M/LMS7002M_cgen.h>
 #include <LMS7002M/LMS7002M_nco.h>
