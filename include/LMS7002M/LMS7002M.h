@@ -411,6 +411,22 @@ LMS7002M_API void LMS7002M_rxtsp_tsg_tone(LMS7002M_t *self, const LMS7002M_chan_
 // RFE (receive RF frontend)
 //=====================================================================//
 
+/*!
+ * Set the LNA gain for the RF frontend.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param gain the gain value in dB 0 to 30
+ */
+LMS7002M_API void LMS7002M_rfe_set_lna(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain);
+
+/*!
+ * Set the LNA gain for the RF frontend (in TX loopback mode).
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param gain the gain value in dB 0 to 40
+ */
+LMS7002M_API void LMS7002M_rfe_set_loopback_lna(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain);
+
 #ifdef __cplusplus
 }
 #endif
