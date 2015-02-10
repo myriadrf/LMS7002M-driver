@@ -22,6 +22,7 @@
 #include "sysfs_gpio_interface.h"
 #include "xilinx_user_gpio.h"
 #include "xilinx_user_mem.h"
+#include "twbw_helper.h"
 
 /***********************************************************************
  * FPGA EMIOs that are controlled by sysfs GPIO
@@ -81,9 +82,12 @@
 #define CTRL_NUM_BUFFS 16
 #define CTRL_BUFF_SIZE 64
 
+#define XFER_SIZE sizeof(uint32_t)
+
 //sanity check tags that the framers echo back in their responses
 #define RX_TAG_ACTIVATE uint8_t('A')
 #define RX_TAG_DEACTIVATE uint8_t('D')
+#define TX_TAG_TRANSMIT uint8_t('T')
 
 /***********************************************************************
  * Clock rates for this system
@@ -301,32 +305,51 @@ public:
         const std::vector<size_t> &channels,
         const SoapySDR::Kwargs &)
     {
-        //std::cout << "EVB7::setupStream() " << size_t(_rx_data_dma) << "\n";
-        if (direction != SOAPY_SDR_RX) throw std::runtime_error("EVB7::setupStream: no TX support yet");
         if (format != "CS16") throw std::runtime_error("EVB7::setupStream: "+format);
         if (channels.size() != 1) throw std::runtime_error("EVB7::setupStream: only one channel for now");
         if (channels[0] != 0) throw std::runtime_error("EVB7::setupStream: only ch0 for now");
 
-        //allocate dma memory
-        int ret = 0;
-        ret = pzdud_alloc(_rx_data_dma, DATA_NUM_BUFFS, DATA_BUFF_SIZE);
-        if (ret != PZDUD_OK) throw std::runtime_error("EVB7::setupStream: fail alloc rx data DMA");
-        ret = pzdud_alloc(_rx_ctrl_dma, CTRL_NUM_BUFFS, CTRL_BUFF_SIZE);
-        if (ret != PZDUD_OK) throw std::runtime_error("EVB7::setupStream: fail alloc rx ctrl DMA");
+        if (direction == SOAPY_SDR_RX)
+        {
+            //allocate dma memory
+            int ret = 0;
+            ret = pzdud_alloc(_rx_data_dma, DATA_NUM_BUFFS, DATA_BUFF_SIZE);
+            if (ret != PZDUD_OK) throw std::runtime_error("EVB7::setupStream: fail alloc rx data DMA");
+            ret = pzdud_alloc(_rx_ctrl_dma, CTRL_NUM_BUFFS, CTRL_BUFF_SIZE);
+            if (ret != PZDUD_OK) throw std::runtime_error("EVB7::setupStream: fail alloc rx ctrl DMA");
 
-        //start the channels
-        ret = pzdud_init(_rx_data_dma, true);
-        if (ret != PZDUD_OK) throw std::runtime_error("EVB7::setupStream: fail init rx data DMA");
-        ret = pzdud_init(_rx_ctrl_dma, true);
-        if (ret != PZDUD_OK) throw std::runtime_error("EVB7::setupStream: fail init rx ctrl DMA");
+            //start the channels
+            ret = pzdud_init(_rx_data_dma, true);
+            if (ret != PZDUD_OK) throw std::runtime_error("EVB7::setupStream: fail init rx data DMA");
+            ret = pzdud_init(_rx_ctrl_dma, true);
+            if (ret != PZDUD_OK) throw std::runtime_error("EVB7::setupStream: fail init rx ctrl DMA");
 
-        //ensure stream inactive
-        this->sendControlMessage(RX_TAG_DEACTIVATE, false, true, false, RX_FRAME_SIZE, 1, 0);
+            //ensure stream inactive
+            this->sendControlMessage(RX_TAG_DEACTIVATE, false, true, RX_FRAME_SIZE, 1, 0);
 
-        //flush
-        this->rxFlush();
+            //flush
+            this->rxFlush();
 
-        return reinterpret_cast<SoapySDR::Stream *>(_rx_data_dma);
+            return reinterpret_cast<SoapySDR::Stream *>(_rx_data_dma);
+        }
+
+        if (direction == SOAPY_SDR_TX)
+        {
+            //allocate dma memory
+            int ret = 0;
+            ret = pzdud_alloc(_tx_data_dma, DATA_NUM_BUFFS, DATA_BUFF_SIZE);
+            if (ret != PZDUD_OK) throw std::runtime_error("EVB7::setupStream: fail alloc tx data DMA");
+            ret = pzdud_alloc(_tx_stat_dma, CTRL_NUM_BUFFS, CTRL_BUFF_SIZE);
+            if (ret != PZDUD_OK) throw std::runtime_error("EVB7::setupStream: fail alloc tx stat DMA");
+
+            //start the channels
+            ret = pzdud_init(_tx_data_dma, true);
+            if (ret != PZDUD_OK) throw std::runtime_error("EVB7::setupStream: fail init tx data DMA");
+            ret = pzdud_init(_tx_stat_dma, true);
+            if (ret != PZDUD_OK) throw std::runtime_error("EVB7::setupStream: fail init tx stat DMA");
+
+            return reinterpret_cast<SoapySDR::Stream *>(_tx_data_dma);
+        }
     }
 
     void rxFlush(void)
@@ -344,7 +367,6 @@ public:
 
     void closeStream(SoapySDR::Stream *stream)
     {
-        //std::cout << "EVB7::closeStream() " << size_t(stream) << "\n";
         if (stream == reinterpret_cast<SoapySDR::Stream *>(_rx_data_dma))
         {
             //halt the channels
@@ -355,25 +377,32 @@ public:
             pzdud_free(_rx_data_dma);
             pzdud_free(_rx_ctrl_dma);
         }
+
+        if (stream == reinterpret_cast<SoapySDR::Stream *>(_tx_data_dma))
+        {
+            //halt the channels
+            pzdud_halt(_tx_data_dma);
+            pzdud_halt(_tx_stat_dma);
+
+            //free dma memory
+            pzdud_free(_tx_data_dma);
+            pzdud_free(_tx_stat_dma);
+        }
     }
 
-    int sendControlMessage(const int tag, const bool timeFlag, const bool burstFlag, const bool contFlag, const int frameSize, const int burstSize, const long long time)
+    int sendControlMessage(const int tag, const bool timeFlag, const bool burstFlag, const int frameSize, const int burstSize, const long long time)
     {
         size_t len = 0;
         int handle = pzdud_acquire(_rx_ctrl_dma, &len);
         if (handle < 0) return SOAPY_SDR_STREAM_ERROR;
 
-        uint32_t *ctrl_msg = (uint32_t *)pzdud_addr(_rx_ctrl_dma, handle);
-        ctrl_msg[0] = (frameSize-1) | (tag << 16);
-        if (timeFlag) ctrl_msg[0] |= (1 << 31);
-        if (burstFlag) ctrl_msg[0] |= (1 << 28);
-        if (contFlag) ctrl_msg[0] |= (1 << 27);
-        ctrl_msg[1] = burstSize - 1;
-        ctrl_msg[2] = time >> 32;
-        ctrl_msg[3] = time & 0xffffffff;
-        //for (size_t i = 0; i < 4; i++) SoapySDR::logf(SOAPY_SDR_INFO, "ctrl_msg[%d] = 0x%x\n", int(i), ctrl_msg[i]);
+        twbw_framer_ctrl_packer(
+            pzdud_addr(_rx_ctrl_dma, handle), len,
+            tag, timeFlag, time,
+            burstFlag, frameSize, burstSize
+        );
 
-        pzdud_release(_rx_ctrl_dma, handle, sizeof(uint32_t)*4);
+        pzdud_release(_rx_ctrl_dma, handle, len);
         return 0;
     }
 
@@ -383,16 +412,20 @@ public:
         const long long timeNs,
         const size_t numElems)
     {
-        //std::cout << "EVB7::activateStream() " << size_t(stream) << "\n";
         if (stream == reinterpret_cast<SoapySDR::Stream *>(_rx_data_dma))
         {
             return sendControlMessage(
                 RX_TAG_ACTIVATE,
                 (flags & SOAPY_SDR_HAS_TIME) != 0, //timeFlag
-                (numElems) != 0, //burstFlag
-                (flags & SOAPY_SDR_END_BURST) == 0, //contFlag
+                (flags & SOAPY_SDR_END_BURST) != 0, //burstFlag
                 RX_FRAME_SIZE, numElems, this->timeNsToTicks(timeNs));
         }
+
+        if (stream == reinterpret_cast<SoapySDR::Stream *>(_tx_data_dma))
+        {
+            return 0;
+        }
+
         return SOAPY_SDR_STREAM_ERROR;
     }
 
@@ -401,18 +434,22 @@ public:
         const int flags,
         const long long timeNs)
     {
-        //std::cout << "EVB7::deactivateStream() " << size_t(stream) << "\n";
         if (stream == reinterpret_cast<SoapySDR::Stream *>(_rx_data_dma))
         {
             int ret = sendControlMessage(
                 RX_TAG_DEACTIVATE,
                 (flags & SOAPY_SDR_HAS_TIME) != 0, //timeFlag
                 true, //burstFlag
-                false, //contFlag
                 RX_FRAME_SIZE, 1, this->timeNsToTicks(timeNs));
             this->rxFlush();
             return ret;
         }
+
+        if (stream == reinterpret_cast<SoapySDR::Stream *>(_tx_data_dma))
+        {
+            return 0;
+        }
+
         return SOAPY_SDR_STREAM_ERROR;
     }
 
@@ -424,7 +461,6 @@ public:
         long long &timeNs,
         const long timeoutUs)
     {
-        //std::cout << "EVB7::readStream() " << numElems << "\n";
         size_t len = 0;
         int ret = 0;
         flags = 0;
@@ -435,31 +471,41 @@ public:
         int handle = pzdud_acquire(_rx_data_dma, &len);
         if (handle == PZDUD_ERROR_CLAIMED) throw std::runtime_error("EVB7::readStream() all claimed");
 
-        //extract header
-        uint32_t *hdr = (uint32_t *)pzdud_addr(_rx_data_dma, handle);
-        const size_t burstCount = hdr[1] + 1;
-        const size_t frameSize = (hdr[0] & 0xffff) + 1;
-        const size_t numSamples = (len - (sizeof(uint32_t)*4))/sizeof(uint32_t);
-        if (((hdr[0] >> 31) & 0x1) != 0) flags |= SOAPY_SDR_HAS_TIME;
-        bool timeError = ((hdr[0] >> 30) & 0x1) != 0;
-        bool burstFlag = ((hdr[0] >> 28) & 0x1) != 0;
-        bool continuousFlag = ((hdr[0] >> 27) & 0x1) != 0;
-        const int tag = (hdr[0] >> 16) & 0xff;
+        //unpack the header
+        const void *payload;
+        size_t numSamples;
+        bool overflow;
+        int idTag;
+        bool hasTime;
+        long long timeTicks;
+        bool timeError;
+        bool isBurst;
+        bool burstEnd;
+        twbw_framer_data_unpacker(
+            pzdud_addr(_rx_data_dma, handle), len, XFER_SIZE,
+            payload, numSamples, overflow, idTag,
+            hasTime, timeTicks,
+            timeError, isBurst, burstEnd);
 
         //gather time even if its not valid
-        timeNs = this->ticksToTimeNs((((uint64_t)hdr[2]) << 32) | hdr[3]);
+        timeNs = this->ticksToTimeNs(timeTicks);
+
+        //error indicators
+        if (overflow) ret = SOAPY_SDR_OVERFLOW;
+        if (hasTime) flags |= SOAPY_SDR_HAS_TIME;
+        if (burstEnd) flags |= SOAPY_SDR_END_BURST;
 
         //old packet from the deactivate command, just ignore it with timeout
-        if (tag == RX_TAG_DEACTIVATE)
+        if (idTag == RX_TAG_DEACTIVATE)
         {
             ret = SOAPY_SDR_TIMEOUT;
         }
 
         //not an activate or deactivate tag, this is bad!
-        else if (tag != RX_TAG_ACTIVATE)
+        else if (idTag != RX_TAG_ACTIVATE)
         {
             SoapySDR::logf(SOAPY_SDR_ERROR,
-                "readStream tag error hdr=0x%x, tag=0x%x, len=%d", hdr[0], tag, len);
+                "readStream tag error tag=0x%x, len=%d", idTag, len);
             ret = SOAPY_SDR_STREAM_ERROR;
         }
 
@@ -467,36 +513,28 @@ public:
         else if (timeError)
         {
             SoapySDR::logf(SOAPY_SDR_ERROR,
-                "readStream time error time now %f, time pkt %f, hi=0x%x, lo=0x%x, len=%d",
-                this->getHardwareTime("")/1e9, timeNs/1e9, hdr[2], hdr[3], len);
+                "readStream time error time now %f, time pkt %f, len=%d",
+                this->getHardwareTime("")/1e9, timeNs/1e9, len);
             ret = SOAPY_SDR_STREAM_ERROR;
         }
 
-        //handle checks for the burst requests
-        else if (burstFlag) //in burst
+        //restart streaming when overflow in continuous mode
+        if (overflow and not isBurst)
         {
-            if (burstCount == numSamples) flags |= SOAPY_SDR_END_BURST;
-            else if (frameSize != numSamples) ret = SOAPY_SDR_OVERFLOW;
-        }
-
-        //handle checks for the continuous requests
-        else if (continuousFlag and frameSize != numSamples)
-        {
-            ret = SOAPY_SDR_OVERFLOW;
             SoapySDR::log(SOAPY_SDR_TRACE, "O");
             sendControlMessage( //restart streaming
                 RX_TAG_ACTIVATE,
                 false, //timeFlag
                 false, //burstFlag
-                true, //contFlag
                 RX_FRAME_SIZE, 0, 0);
         }
 
         if (ret == 0) //no errors yet, copy buffer -- sorry for the copy, zero copy in the future...
         {
             //TODO if numElems < numSamples, keep remainder...
+            if (numElems < numSamples) SoapySDR::log(SOAPY_SDR_TRACE, "Truncated!");
             ret = std::min(numSamples, numElems);
-            uint32_t *in = hdr+4;
+            const uint32_t *in = (const uint32_t *)payload;
             std::complex<int16_t> *out = (std::complex<int16_t> *)buffs[0];
             for (int i = 0; i < ret; i++)
             {
@@ -513,6 +551,50 @@ public:
         return ret;
     }
 
+    int writeStream(
+        SoapySDR::Stream *,
+        const void * const *buffs,
+        const size_t numElems,
+        int &flags,
+        const long long timeNs,
+        const long timeoutUs
+    )
+    {
+        size_t len = 0;
+        int ret = 0;
+
+        //wait with timeout then acquire
+        ret = pzdud_wait(_tx_data_dma, timeoutUs);
+        if (ret != 0) return SOAPY_SDR_TIMEOUT;
+        int handle = pzdud_acquire(_tx_data_dma, &len);
+        if (handle == PZDUD_ERROR_CLAIMED) throw std::runtime_error("EVB7::writeStream() all claimed");
+
+        //pack the header
+        void *payload;
+        size_t numSamples = std::min<size_t>(TX_FRAME_SIZE, numElems);
+        twbw_deframer_data_packer(
+            pzdud_addr(_tx_data_dma, handle), len, XFER_SIZE,
+            payload, numSamples, TX_TAG_TRANSMIT,
+            (flags & SOAPY_SDR_HAS_TIME) != 0,
+            this->timeNsToTicks(timeNs),
+            (flags & SOAPY_SDR_END_BURST) != 0
+        );
+
+        //convert the samples
+        uint32_t *out = (uint32_t *)payload;
+        std::complex<const int16_t> *in = (std::complex<const int16_t> *)buffs[0];
+        for (size_t i = 0; i < numSamples; i++)
+        {
+            uint16_t i16 = in[i].real();
+            uint16_t q16 = in[i].imag();
+            out[i] = (uint32_t(i16) << 16) | q16;
+        }
+
+        //always release the buffer back the SG engine
+        pzdud_release(_tx_data_dma, handle, 0);
+
+        return numSamples;
+    }
 
     /*******************************************************************
      * Antenna API
