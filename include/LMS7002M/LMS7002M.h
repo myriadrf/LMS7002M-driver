@@ -431,9 +431,38 @@ LMS7002M_API void LMS7002M_rxtsp_tsg_tone(LMS7002M_t *self, const LMS7002M_chan_
 // RBB (receive baseband chain)
 //=====================================================================//
 
+#define LMS7002M_RBB_NONE (int)'N'  //!< No input selected - power down
+#define LMS7002M_RBB_LOW (int)'L'   //!< Low frequency path selected
+#define LMS7002M_RBB_HIGH (int)'H'  //!< High frequency path selected
+#define LMS7002M_RBB_LOW_LB 1       //!< Low frequency with loopback from TXBB
+#define LMS7002M_RBB_HIGH_LB 2      //!< High frequency with loopback from TXBB
+
+/*!
+ * Select the input source for the RX baseband.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param path the input path (see LMS7002M_RBB_* defines)
+ */
+LMS7002M_API void LMS7002M_rbb_select_input(LMS7002M_t *self, const LMS7002M_chan_t channel, const int path);
+
+/*!
+ * Set the PGA gain for the RX baseband.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param gain the gain value in dB 0 to 31
+ */
+LMS7002M_API void LMS7002M_rbb_set_lna(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain);
+
 //=====================================================================//
 // RFE (receive RF frontend)
 //=====================================================================//
+
+#define LMS7002M_RFE_NONE (int)'N'     //!< No input path selected
+#define LMS7002M_RFE_LNAH (int)'H'     //!< LNAH path selected
+#define LMS7002M_RFE_LNAL (int)'L'     //!< LNAL path selected
+#define LMS7002M_RFE_LNAW (int)'W'     //!< LNAW path selected
+#define LMS7002M_RFE_LB1 (int)'1'      //!< loopback 1 path selected (W)
+#define LMS7002M_RFE_LB2 (int)'2'      //!< loopback 2 path selected (L)
 
 /*!
  * Enable/disable the RX RF frontend.
@@ -444,21 +473,15 @@ LMS7002M_API void LMS7002M_rxtsp_tsg_tone(LMS7002M_t *self, const LMS7002M_chan_
 LMS7002M_API void LMS7002M_rfe_enable(LMS7002M_t *self, const LMS7002M_chan_t channel, const bool enable);
 
 /*!
- * Select the active input path:
- *  - '1' for loopback 1
- *  - '2' for loopback 2
- *  - 'H' for LNAH
- *  - 'L' for LNAL
- *  - 'W' for LNAW
- *  - 'N' for no path
+ * Select the active input path for the RX RF frontend.
  * \param self an instance of the LMS7002M driver
  * \param channel the channel LMS_CHA or LMS_CHB
- * \param path '1', '2', 'H', 'L', 'W', or 'N' for no path
+ * \param path the input path (see LMS7002M_RFE_* defines)
  */
-LMS7002M_API void LMS7002M_rfe_select_input(LMS7002M_t *self, const LMS7002M_chan_t channel, const char path);
+LMS7002M_API void LMS7002M_rfe_select_input(LMS7002M_t *self, const LMS7002M_chan_t channel, const int path);
 
 /*!
- * Set the LNA gain for the RF frontend.
+ * Set the LNA gain for the RX RF frontend.
  * \param self an instance of the LMS7002M driver
  * \param channel the channel LMS_CHA or LMS_CHB
  * \param gain the gain value in dB 0 to 30
@@ -466,7 +489,7 @@ LMS7002M_API void LMS7002M_rfe_select_input(LMS7002M_t *self, const LMS7002M_cha
 LMS7002M_API void LMS7002M_rfe_set_lna(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain);
 
 /*!
- * Set the LNA gain for the RF frontend (in TX loopback mode).
+ * Set the LNA gain for the RX RF frontend (in TX loopback mode).
  * \param self an instance of the LMS7002M driver
  * \param channel the channel LMS_CHA or LMS_CHB
  * \param gain the gain value in dB 0 to 40

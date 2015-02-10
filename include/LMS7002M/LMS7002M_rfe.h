@@ -31,7 +31,7 @@ LMS7002M_API void LMS7002M_rfe_enable(LMS7002M_t *self, const LMS7002M_chan_t ch
     LMS7002M_regs_spi_write(self, 0x010C);
 }
 
-LMS7002M_API void LMS7002M_rfe_select_input(LMS7002M_t *self, const LMS7002M_chan_t channel, const char path)
+LMS7002M_API void LMS7002M_rfe_select_input(LMS7002M_t *self, const LMS7002M_chan_t channel, const int path)
 {
     LMS7002M_set_mac_ch(self, channel);
     self->regs.reg_0x010c_pd_lna_rfe = 1;
@@ -45,29 +45,29 @@ LMS7002M_API void LMS7002M_rfe_select_input(LMS7002M_t *self, const LMS7002M_cha
 
     switch (path)
     {
-    case '1':
+    case LMS7002M_RFE_LB1:
         self->regs.reg_0x010d_en_inshsw_lb1_rfe = 0;
         break;
 
-    case '2':
+    case LMS7002M_RFE_LB2:
         self->regs.reg_0x010d_en_inshsw_lb2_rfe = 0;
         break;
 
-    case 'N':
+    case LMS7002M_RFE_NONE:
         break;
 
-    case 'H':
+    case LMS7002M_RFE_LNAH:
         self->regs.reg_0x010d_sel_path_rfe = REG_0X010D_SEL_PATH_RFE_LNAH;
         self->regs.reg_0x010c_pd_lna_rfe = 0;
         break;
 
-    case 'L':
+    case LMS7002M_RFE_LNAL:
         self->regs.reg_0x010d_sel_path_rfe = REG_0X010D_SEL_PATH_RFE_LNAL;
         self->regs.reg_0x010c_pd_lna_rfe = 0;
         self->regs.reg_0x010d_en_inshsw_l_rfe = 0;
         break;
 
-    case 'W':
+    case LMS7002M_RFE_LNAW:
         self->regs.reg_0x010d_sel_path_rfe = REG_0X010D_SEL_PATH_RFE_LNAW;
         self->regs.reg_0x010c_pd_lna_rfe = 0;
         self->regs.reg_0x010d_en_inshsw_w_rfe = 0;
