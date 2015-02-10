@@ -412,6 +412,28 @@ LMS7002M_API void LMS7002M_rxtsp_tsg_tone(LMS7002M_t *self, const LMS7002M_chan_
 //=====================================================================//
 
 /*!
+ * Enable/disable the RX RF frontend.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param enable true to enable, false to power down
+ */
+LMS7002M_API void LMS7002M_rfe_enable(LMS7002M_t *self, const LMS7002M_chan_t channel, const bool enable);
+
+/*!
+ * Select the active input path:
+ *  - '1' for loopback 1
+ *  - '2' for loopback 2
+ *  - 'H' for LNAH
+ *  - 'L' for LNAL
+ *  - 'W' for LNAW
+ *  - 'N' for no path
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param path '1', '2', 'H', 'L', 'W', or 'N' for no path
+ */
+LMS7002M_API void LMS7002M_rfe_select_input(LMS7002M_t *self, const LMS7002M_chan_t channel, const char path);
+
+/*!
  * Set the LNA gain for the RF frontend.
  * \param self an instance of the LMS7002M driver
  * \param channel the channel LMS_CHA or LMS_CHB

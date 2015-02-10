@@ -18,6 +18,66 @@
 extern "C" {
 #endif
 
+LMS7002M_API void LMS7002M_rfe_enable(LMS7002M_t *self, const LMS7002M_chan_t channel, const bool enable)
+{
+    LMS7002M_set_mac_ch(self, channel);
+    self->regs.reg_0x010c_en_g_rfe = 1; //individual controls
+    self->regs.reg_0x010c_pd_mxlobuf_rfe = enable?0:1;
+    self->regs.reg_0x010c_pd_qgen_rfe = enable?0:1;
+    self->regs.reg_0x010c_pd_tia_rfe = enable?0:1;
+    self->regs.reg_0x010c_pd_lna_rfe = 1;
+    self->regs.reg_0x010c_pd_rloopb_1_rfe = 1;
+    self->regs.reg_0x010c_pd_rloopb_2_rfe = 1;
+    LMS7002M_regs_spi_write(self, 0x010C);
+}
+
+LMS7002M_API void LMS7002M_rfe_select_input(LMS7002M_t *self, const LMS7002M_chan_t channel, const char path)
+{
+    LMS7002M_set_mac_ch(self, channel);
+    self->regs.reg_0x010c_pd_lna_rfe = 1;
+    self->regs.reg_0x010c_pd_rloopb_1_rfe = 1;
+    self->regs.reg_0x010c_pd_rloopb_2_rfe = 1;
+    self->regs.reg_0x010d_en_inshsw_l_rfe = 1;
+    self->regs.reg_0x010d_en_inshsw_w_rfe = 1;
+    self->regs.reg_0x010d_en_inshsw_lb1_rfe = 1;
+    self->regs.reg_0x010d_en_inshsw_lb2_rfe = 1;
+    self->regs.reg_0x010d_sel_path_rfe = REG_0X010D_SEL_PATH_RFE_NONE;
+
+    switch (path)
+    {
+    case '1':
+        self->regs.reg_0x010d_en_inshsw_lb1_rfe = 0;
+        break;
+
+    case '2':
+        self->regs.reg_0x010d_en_inshsw_lb2_rfe = 0;
+        break;
+
+    case 'N':
+        break;
+
+    case 'H':
+        self->regs.reg_0x010d_sel_path_rfe = REG_0X010D_SEL_PATH_RFE_LNAH;
+        self->regs.reg_0x010c_pd_lna_rfe = 0;
+        break;
+
+    case 'L':
+        self->regs.reg_0x010d_sel_path_rfe = REG_0X010D_SEL_PATH_RFE_LNAL;
+        self->regs.reg_0x010c_pd_lna_rfe = 0;
+        self->regs.reg_0x010d_en_inshsw_l_rfe = 0;
+        break;
+
+    case 'W':
+        self->regs.reg_0x010d_sel_path_rfe = REG_0X010D_SEL_PATH_RFE_LNAW;
+        self->regs.reg_0x010c_pd_lna_rfe = 0;
+        self->regs.reg_0x010d_en_inshsw_w_rfe = 0;
+        break;
+    }
+
+    LMS7002M_regs_spi_write(self, 0x010C);
+    LMS7002M_regs_spi_write(self, 0x010D);
+}
+
 LMS7002M_API void LMS7002M_rfe_set_lna(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain)
 {
     LMS7002M_set_mac_ch(self, channel);
