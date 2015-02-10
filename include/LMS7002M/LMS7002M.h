@@ -355,6 +355,30 @@ LMS7002M_API void LMS7002M_txtsp_set_freq(LMS7002M_t *self, const LMS7002M_chan_
 // TRF (transmit RF frontend)
 //=====================================================================//
 
+/*!
+ * Enable/disable the TX RF frontend.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param enable true to enable, false to power down
+ */
+LMS7002M_API void LMS7002M_trf_enable(LMS7002M_t *self, const LMS7002M_chan_t channel, const bool enable);
+
+/*!
+ * Select the TX RF band (band 1 or band 2)
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param band the band number, values 1 or 2
+ */
+LMS7002M_API void LMS7002M_trf_select_band(LMS7002M_t *self, const LMS7002M_chan_t channel, const int band);
+
+/*!
+ * Enable/disable the TX RF loopback to RFE.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param enable true to enable the loopback
+ */
+LMS7002M_API void LMS7002M_trf_enable_loopback(LMS7002M_t *self, const LMS7002M_chan_t channel, const bool enable);
+
 //=====================================================================//
 // RxTSP (receive DSP chain)
 //=====================================================================//

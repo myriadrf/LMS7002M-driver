@@ -18,7 +18,29 @@
 extern "C" {
 #endif
 
+LMS7002M_API void LMS7002M_trf_enable(LMS7002M_t *self, const LMS7002M_chan_t channel, const bool enable)
+{
+    LMS7002M_set_mac_ch(self, channel);
+    self->regs.reg_0x0100_en_g_trf = 1; //individual controls
+    self->regs.reg_0x0100_pd_tlobuf_trf = enable?0:1;
+    self->regs.reg_0x0100_pd_txpad_trf = enable?0:1;
+    LMS7002M_regs_spi_write(self, 0x0100);
+}
 
+LMS7002M_API void LMS7002M_trf_select_band(LMS7002M_t *self, const LMS7002M_chan_t channel, const int band)
+{
+    LMS7002M_set_mac_ch(self, channel);
+    self->regs.reg_0x0103_sel_band1_trf = (band == 1)?1:0;
+    self->regs.reg_0x0103_sel_band2_trf = (band == 2)?1:0;
+    LMS7002M_regs_spi_write(self, 0x0103);
+}
+
+LMS7002M_API void LMS7002M_trf_enable_loopback(LMS7002M_t *self, const LMS7002M_chan_t channel, const bool enable)
+{
+    LMS7002M_set_mac_ch(self, channel);
+    self->regs.reg_0x0101_en_loopb_txpad_trf = enable?0:1;
+    LMS7002M_regs_spi_write(self, 0x0101);
+}
 
 #ifdef __cplusplus
 }
