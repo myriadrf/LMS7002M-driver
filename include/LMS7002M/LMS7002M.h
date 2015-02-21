@@ -351,6 +351,21 @@ LMS7002M_API void LMS7002M_txtsp_set_freq(LMS7002M_t *self, const LMS7002M_chan_
 // TBB (transmit baseband chain)
 //=====================================================================//
 
+
+#define LMS7002M_TBB_DISCONNECTED 0 //!< Loopback disconnected
+#define LMS7002M_TBB_DAC_CURRENT 1 //!< DAC current
+#define LMS7002M_TBB_LB_LADDER 2 //!< low band ladder
+#define LMS7002M_TBB_MAIN_TBB 3 //!< TX baseband
+
+/*!
+ * Enable/disable the TX BB loopback to RBB.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param mode loopback mode (see LMS7002M_TBB_* defines)
+ * \param swap true to swap I and Q in the loopback
+ */
+LMS7002M_API void LMS7002M_tbb_enable_loopback(LMS7002M_t *self, const LMS7002M_chan_t channel, const int mode, const bool swap);
+
 //=====================================================================//
 // TRF (transmit RF frontend)
 //=====================================================================//
