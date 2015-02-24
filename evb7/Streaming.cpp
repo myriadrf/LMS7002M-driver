@@ -425,13 +425,13 @@ int EVB7::acquireReadBuffer(
     if (burstEnd) flags |= SOAPY_SDR_END_BURST;
 
     //old packet from the deactivate command, just ignore it with timeout
-    if (idTag == 0x00)
+    if (idTag == RX_TAG_ACTIVATE)
     {
         ret = SOAPY_SDR_TIMEOUT;
     }
 
     //not an activate or deactivate tag, this is bad!
-    else if (idTag != 0xff)
+    else if (idTag != RX_TAG_DEACTIVATE)
     {
         SoapySDR::logf(SOAPY_SDR_ERROR,
             "readStream tag error tag=0x%x, len=%d", idTag, len);

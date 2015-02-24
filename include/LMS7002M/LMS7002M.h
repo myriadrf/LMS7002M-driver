@@ -252,6 +252,19 @@ LMS7002M_API void LMS7002M_set_mac_ch(LMS7002M_t *self, const LMS7002M_chan_t ch
  */
 LMS7002M_API void LMS7002M_set_mac_dir(LMS7002M_t *self, const LMS7002M_dir_t direction);
 
+#define LMS7002M_LML_AI 0 //!< specify CHA I for a sample position
+#define LMS7002M_LML_AQ 1 //!< specify CHA Q for a sample position
+#define LMS7002M_LML_BI 2 //!< specify CHB I for a sample position
+#define LMS7002M_LML_BQ 3 //!< specify CHB Q for a sample position
+
+/*!
+ * Set the DIQ mux to control CHA and CHB I and Q ordering.
+ * \param self an instance of the LMS7002M driver
+ * \param direction the direction LMS_TX or LMS_RX
+ * \param positions sample position 0-3 (see LMS7002M_LML_*)
+ */
+LMS7002M_API void LMS7002M_set_diq_mux(LMS7002M_t *self, const LMS7002M_dir_t direction, const int positions[4]);
+
 //=====================================================================//
 // AFE (ADCs and DACs)
 //=====================================================================//

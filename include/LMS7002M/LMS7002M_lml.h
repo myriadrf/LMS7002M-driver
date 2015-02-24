@@ -160,6 +160,47 @@ LMS7002M_API void LMS7002M_set_mac_dir(LMS7002M_t *self, const LMS7002M_dir_t di
     LMS7002M_regs_spi_write(self, 0x0020);
 }
 
+static inline int __lms7002m_diq_index(const int search, const int positions[4])
+{
+    for (size_t i = 0; i < 4; i++)
+    {
+        if (search == positions[i]) return i;
+    }
+    return 0; //dont care
+}
+
+LMS7002M_API void LMS7002M_set_diq_mux(LMS7002M_t *self, const LMS7002M_dir_t direction, const int positions[4])
+{
+    //set the same config on both ports, only one is used as per port config
+
+    if (direction == LMS_TX)
+    {
+        self->regs.reg_0x0024_lml1_bqp = __lms7002m_diq_index(LMS7002M_LML_BQ, positions);
+        self->regs.reg_0x0024_lml1_bip = __lms7002m_diq_index(LMS7002M_LML_BI, positions);
+        self->regs.reg_0x0024_lml1_aqp = __lms7002m_diq_index(LMS7002M_LML_AQ, positions);
+        self->regs.reg_0x0024_lml1_aip = __lms7002m_diq_index(LMS7002M_LML_AI, positions);
+        self->regs.reg_0x0027_lml2_bqp = __lms7002m_diq_index(LMS7002M_LML_BQ, positions);
+        self->regs.reg_0x0027_lml2_bip = __lms7002m_diq_index(LMS7002M_LML_BI, positions);
+        self->regs.reg_0x0027_lml2_aqp = __lms7002m_diq_index(LMS7002M_LML_AQ, positions);
+        self->regs.reg_0x0027_lml2_aip = __lms7002m_diq_index(LMS7002M_LML_AI, positions);
+    }
+
+    if (direction == LMS_RX)
+    {
+        self->regs.reg_0x0024_lml1_s3s = positions[3];
+        self->regs.reg_0x0024_lml1_s2s = positions[2];
+        self->regs.reg_0x0024_lml1_s1s = positions[1];
+        self->regs.reg_0x0024_lml1_s0s = positions[0];
+        self->regs.reg_0x0027_lml2_s3s = positions[3];
+        self->regs.reg_0x0027_lml2_s2s = positions[2];
+        self->regs.reg_0x0027_lml2_s1s = positions[1];
+        self->regs.reg_0x0027_lml2_s0s = positions[0];
+    }
+
+    LMS7002M_regs_spi_write(self, 0x0024);
+    LMS7002M_regs_spi_write(self, 0x0027);
+}
+
 #ifdef __cplusplus
 }
 #endif

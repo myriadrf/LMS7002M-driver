@@ -73,7 +73,6 @@
 //sanity check tags that the framers echo back in their responses
 #define RX_TAG_ACTIVATE uint8_t('A')
 #define RX_TAG_DEACTIVATE uint8_t('D')
-#define TX_TAG_TRANSMIT uint8_t('T')
 
 /***********************************************************************
  * Clock rates for this system
