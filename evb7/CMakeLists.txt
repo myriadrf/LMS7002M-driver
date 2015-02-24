@@ -22,10 +22,19 @@ if (NOT SoapySDR_FOUND)
     return()
 endif ()
 
+if(CMAKE_COMPILER_IS_GNUCXX)
+    #C++11 is a required language feature for this project
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+endif()
+
+add_compile_options(-mfloat-abi=hard -mfpu=neon)
+
 include_directories(../include)
 include_directories(../interfaces)
 
 SOAPY_SDR_MODULE_UTIL(
-    TARGET SoapySDREVB7
-    SOURCES SoapySDREVB7.cpp
+    TARGET EVB7
+    SOURCES
+        Streaming.cpp
+        EVB7Device.cpp
 )
