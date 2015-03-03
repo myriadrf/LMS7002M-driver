@@ -154,6 +154,10 @@ EVB7::EVB7(void):
         _cachedFreqValues[SOAPY_SDR_TX][i]["RF"] = 1e9;
         _cachedFreqValues[SOAPY_SDR_RX][i]["BB"] = 0;
         _cachedFreqValues[SOAPY_SDR_TX][i]["BB"] = 0;
+        this->setAntenna(SOAPY_SDR_RX, i, "LNAW");
+        this->setAntenna(SOAPY_SDR_TX, i, "BAND1");
+        this->setGain(SOAPY_SDR_RX, i, "LNA", 0.0);
+        this->setGain(SOAPY_SDR_RX, i, "PGA", 0.0);
     }
 }
 
@@ -250,6 +254,7 @@ std::vector<std::string> EVB7::listGains(const int direction, const size_t) cons
 
 void EVB7::setGain(const int direction, const size_t channel, const std::string &name, const double value)
 {
+    SoapySDR::logf(SOAPY_SDR_INFO, "EVB7::setGain(%d, ch%d, %s, %f dB)", direction, channel, name.c_str(), value);
     if (direction == SOAPY_SDR_RX and name == "LNA")
     {
         LMS7002M_rfe_set_lna(_lms, ch2LMS(channel), value);
@@ -278,6 +283,15 @@ SoapySDR::Range EVB7::getGainRange(const int direction, const size_t channel, co
  ******************************************************************/
 void EVB7::setFrequency(const int direction, const size_t channel, const std::string &name, const double frequency, const SoapySDR::Kwargs &)
 {
+    SoapySDR::logf(SOAPY_SDR_INFO, "EVB7::setFrequency(%d, ch%d, %s, %f MHz)", direction, channel, name.c_str(), frequency/1e6);
+    //not ready yet....
+    if (name == "RF")
+    {
+        _cachedFreqValues[direction][0][name] = 0.0;
+        _cachedFreqValues[direction][1][name] = 0.0;
+        return;
+    }
+
     if (name == "RF")
     {
         double actualFreq = 0.0;
@@ -330,9 +344,9 @@ void EVB7::setSampleRate(const int direction, const size_t, const double rate)
 {
     const double baseRate = this->getTSPRate(direction);
     const double factor = baseRate/rate;
-    SoapySDR::logf(SOAPY_SDR_TRACE, "setSampleRate %f MHz, baseRate %f MHz, factor %f", rate/1e6, baseRate/1e6, factor);
+    SoapySDR::logf(SOAPY_SDR_INFO, "EVB7::setSampleRate(%d, %f MHz), baseRate %f MHz, factor %f", direction, rate/1e6, baseRate/1e6, factor);
     if (factor < 2.0) throw std::runtime_error("EVB7::setSampleRate() -- rate too high");
-    const int intFactor = int(factor + 0.5);
+    int intFactor = 1 << int((std::log(factor)/std::log(2.0)) + 0.5);
     if (intFactor > 32) throw std::runtime_error("EVB7::setSampleRate() -- rate too low");
 
     if (std::abs(factor-intFactor) > 0.01) SoapySDR::logf(SOAPY_SDR_WARNING,
