@@ -365,9 +365,8 @@ int EVB7::readStreamStatus(
     if (burstEnd) flags |= SOAPY_SDR_END_BURST;
 
     //SoapySDR::logf(SOAPY_SDR_TRACE, "handle=%d, TxStat=%d", handle, idTag);
-    if (underflow) SoapySDR::log(SOAPY_SDR_TRACE, "U");
-    if (timeError) SoapySDR::log(SOAPY_SDR_TRACE, "T");
-    if (burstEnd) SoapySDR::log(SOAPY_SDR_TRACE, "B");
+    if (underflow) std::cerr << "U" << std::flush;
+    if (timeError) std::cerr << "T" << std::flush;
 
     pzdud_release(_tx_stat_dma, handle, len);
 
@@ -450,7 +449,7 @@ int EVB7::acquireReadBuffer(
     //restart streaming when overflow in continuous mode
     if (overflow and not isBurst)
     {
-        SoapySDR::log(SOAPY_SDR_TRACE, "O");
+        std::cerr << "O" << std::flush;
         sendControlMessage( //restart streaming
             RX_TAG_ACTIVATE,
             false, //timeFlag

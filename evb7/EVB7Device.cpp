@@ -146,12 +146,13 @@ EVB7::EVB7(void):
     //some defaults to avoid throwing
     _cachedSampleRates[SOAPY_SDR_RX] = 1e6;
     _cachedSampleRates[SOAPY_SDR_TX] = 1e6;
-    _cachedLOFrequencies[SOAPY_SDR_RX] = 1e9;
-    _cachedLOFrequencies[SOAPY_SDR_TX] = 1e9;
-    _cachedBBFrequencies[SOAPY_SDR_RX][0] = 0;
-    _cachedBBFrequencies[SOAPY_SDR_TX][0] = 0;
-    _cachedBBFrequencies[SOAPY_SDR_RX][1] = 0;
-    _cachedBBFrequencies[SOAPY_SDR_TX][1] = 0;
+    for (size_t i = 0; i < 2; i++)
+    {
+        _cachedFreqValues[SOAPY_SDR_RX][i]["RF"] = 1e9;
+        _cachedFreqValues[SOAPY_SDR_TX][i]["RF"] = 1e9;
+        _cachedFreqValues[SOAPY_SDR_RX][i]["BB"] = 0;
+        _cachedFreqValues[SOAPY_SDR_TX][i]["BB"] = 0;
+    }
 }
 
 EVB7::~EVB7(void)
@@ -179,38 +180,104 @@ EVB7::~EVB7(void)
 }
 
 /*******************************************************************
- * Frequency API
+ * Antenna API
  ******************************************************************/
-void EVB7::setFrequency(const int direction, const size_t channel, const double frequency, const SoapySDR::Kwargs &args)
+std::vector<std::string> EVB7::listAntennas(const int direction, const size_t channel) const
 {
-    //the rf frequency as passed -n or specifically from args
-    //double rfFreq = (args.count("RF") != 0)?atof(args.at("RF").c_str()):frequency;
-
-    //optional LO offset from the args
-    //double offset = (args.count("OFFSET") != 0)?atof(args.at("OFFSET").c_str()):0.0;
-
-    //rfFreq += offset;
-
-    //tune the LO
-    //int ret = LMS7002M_set_lo_freq(_lms, (direction == SOAPY_SDR_RX)?LMS_RX:LMS_RX, _masterClockRate, frequency, &_cachedLOFrequencies[direction]);
-
-    //for now, we just tune the cordics
-    const double baseRate = this->getTSPRate(direction);
-    if (direction == SOAPY_SDR_RX) LMS7002M_rxtsp_set_freq(_lms, (channel == 0)?LMS_CHA:LMS_CHB, frequency/baseRate);
-    if (direction == SOAPY_SDR_TX) LMS7002M_txtsp_set_freq(_lms, (channel == 0)?LMS_CHA:LMS_CHB, frequency/baseRate);
-    _cachedBBFrequencies[direction][channel] = frequency;
+    std::vector<std::string> ants;
+    if (direction == SOAPY_SDR_RX)
+    {
+        ants.push_back("LNAH");
+        ants.push_back("LNAL");
+        ants.push_back("LNAW");
+    }
+    if (direction == SOAPY_SDR_TX)
+    {
+        ants.push_back("BAND1");
+        ants.push_back("BAND2");
+    }
+    return ants;
 }
 
-double EVB7::getFrequency(const int direction, const size_t channel) const
+void EVB7::setAntenna(const int direction, const size_t channel, const std::string &name)
 {
-    return getFrequency(direction, channel, "BB") + getFrequency(direction, channel, "RF");
+    
+}
+
+std::string EVB7::getAntenna(const int direction, const size_t channel) const
+{
+    
+}
+
+/*******************************************************************
+ * Gain API
+ ******************************************************************/
+std::vector<std::string> EVB7::listGains(const int direction, const size_t) const
+{
+    std::vector<std::string> gains;
+    if (direction == SOAPY_SDR_RX)
+    {
+        gains.push_back("LNA");
+        gains.push_back("PGA");
+    }
+    if (direction == SOAPY_SDR_TX)
+    {
+        //
+    }
+    return gains;
+}
+
+void EVB7::setGain(const int direction, const size_t channel, const std::string &name, const double value)
+{
+    if (direction == SOAPY_SDR_RX and name == "LNA")
+    {
+        LMS7002M_rfe_set_lna(_lms, ch2LMS(channel), value);
+    }
+    if (direction == SOAPY_SDR_RX and name == "PGA")
+    {
+        LMS7002M_rbb_set_pga(_lms, ch2LMS(channel), value);
+    }
+    _cachedGainValues[direction][channel][name] = value;
+}
+
+double EVB7::getGain(const int direction, const size_t channel, const std::string &name) const
+{
+    return _cachedGainValues.at(direction).at(channel).at(name);
+}
+
+SoapySDR::Range EVB7::getGainRange(const int direction, const size_t channel, const std::string &name) const
+{
+    if (direction == SOAPY_SDR_RX and name == "LNA") return SoapySDR::Range(0.0, 30.0);
+    if (direction == SOAPY_SDR_RX and name == "PGA") return SoapySDR::Range(0.0, 31.0);
+    return SoapySDR::Device::getGainRange(direction, channel, name);
+}
+
+/*******************************************************************
+ * Frequency API
+ ******************************************************************/
+void EVB7::setFrequency(const int direction, const size_t channel, const std::string &name, const double frequency, const SoapySDR::Kwargs &)
+{
+    if (name == "RF")
+    {
+        double actualFreq = 0.0;
+        int ret = LMS7002M_set_lo_freq(_lms, dir2LMS(direction), _masterClockRate, frequency, &actualFreq);
+        if (ret != 0) throw std::runtime_error("EVB7::setFrequency(" + std::to_string(frequency/1e6) + " MHz) failed - " + std::to_string(ret));
+        _cachedFreqValues[direction][0][name] = actualFreq;
+        _cachedFreqValues[direction][1][name] = actualFreq;
+    }
+
+    if (name == "BB")
+    {
+        const double baseRate = this->getTSPRate(direction);
+        if (direction == SOAPY_SDR_RX) LMS7002M_rxtsp_set_freq(_lms, ch2LMS(channel), frequency/baseRate);
+        if (direction == SOAPY_SDR_TX) LMS7002M_txtsp_set_freq(_lms, ch2LMS(channel), frequency/baseRate);
+        _cachedFreqValues[direction][channel][name] = frequency;
+    }
 }
 
 double EVB7::getFrequency(const int direction, const size_t channel, const std::string &name) const
 {
-    if (name == "BB") return _cachedBBFrequencies.at(direction).at(channel);
-    if (name == "RF") return _cachedLOFrequencies.at(direction);
-    return SoapySDR::Device::getFrequency(direction, channel, name);
+    return _cachedFreqValues.at(direction).at(channel).at(name);
 }
 
 std::vector<std::string> EVB7::listFrequencies(const int, const size_t) const
@@ -221,10 +288,18 @@ std::vector<std::string> EVB7::listFrequencies(const int, const size_t) const
     return opts;
 }
 
-SoapySDR::RangeList EVB7::getFrequencyRange(const int, const size_t) const
+SoapySDR::RangeList EVB7::getFrequencyRange(const int direction, const size_t, const std::string &name) const
 {
     SoapySDR::RangeList ranges;
-    ranges.push_back(SoapySDR::Range(100e3, 3.8e9));
+    if (name == "RF")
+    {
+        ranges.push_back(SoapySDR::Range(100e3, 3.8e9));
+    }
+    if (name == "BB")
+    {
+        const double rate = this->getTSPRate(direction);
+        ranges.push_back(SoapySDR::Range(-rate/2, rate/2));
+    }
     return ranges;
 }
 /*******************************************************************

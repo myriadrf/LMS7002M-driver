@@ -160,6 +160,9 @@ public:
     /*******************************************************************
      * Antenna API
      ******************************************************************/
+    std::vector<std::string> listAntennas(const int direction, const size_t channel) const;
+    void setAntenna(const int direction, const size_t channel, const std::string &name);
+    std::string getAntenna(const int direction, const size_t channel) const;
 
     /*******************************************************************
      * Frontend corrections API
@@ -168,30 +171,28 @@ public:
     /*******************************************************************
      * Gain API
      ******************************************************************/
+    std::vector<std::string> listGains(const int direction, const size_t channel) const;
+    void setGain(const int direction, const size_t channel, const std::string &name, const double value);
+    double getGain(const int direction, const size_t channel, const std::string &name) const;
+    SoapySDR::Range getGainRange(const int direction, const size_t channel, const std::string &name) const;
+
+    std::map<int, std::map<size_t, std::map<std::string, double>>> _cachedGainValues;
 
     /*******************************************************************
      * Frequency API
      ******************************************************************/
-    void setFrequency(const int direction, const size_t channel, const double frequency, const SoapySDR::Kwargs &args);
-
-    double getFrequency(const int direction, const size_t channel) const;
-
+    void setFrequency(const int direction, const size_t channel, const std::string &, const double frequency, const SoapySDR::Kwargs &args);
     double getFrequency(const int direction, const size_t channel, const std::string &name) const;
-
     std::vector<std::string> listFrequencies(const int, const size_t) const;
+    SoapySDR::RangeList getFrequencyRange(const int, const size_t, const std::string &) const;
 
-    SoapySDR::RangeList getFrequencyRange(const int, const size_t) const;
-
-    std::map<int, double> _cachedLOFrequencies;
-    std::map<int, std::map<size_t, double> > _cachedBBFrequencies;
+    std::map<int, std::map<size_t, std::map<std::string, double>>> _cachedFreqValues;
 
     /*******************************************************************
      * Sample Rate API
      ******************************************************************/
     void setSampleRate(const int direction, const size_t, const double rate);
-
     double getSampleRate(const int direction, const size_t) const;
-
     std::vector<double> listSampleRates(const int direction, const size_t) const;
 
     std::map<int, double> _cachedSampleRates;
@@ -293,6 +294,17 @@ public:
      ******************************************************************/
 
 private:
+
+    LMS7002M_dir_t dir2LMS(const int direction) const
+    {
+        return (direction == SOAPY_SDR_RX)?LMS_RX:LMS_RX;
+    }
+
+    LMS7002M_chan_t ch2LMS(const size_t channel) const
+    {
+        return (channel == 0)?LMS_CHA:LMS_CHB;
+    }
+
     void *_regs;
     void *_spiHandle;
     LMS7002M_t *_lms;
