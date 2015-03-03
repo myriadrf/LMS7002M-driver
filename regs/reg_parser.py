@@ -128,7 +128,7 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr)
     return value;
 }
 
-static inline const int *LMS7002M_regs_addrs(LMS7002M_regs_t *regs)
+static inline const int *LMS7002M_regs_addrs(void)
 {
     static const int addrs[] = {
     #for $reg in $regs

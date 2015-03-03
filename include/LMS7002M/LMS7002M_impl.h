@@ -115,7 +115,7 @@ LMS7002M_API int LMS7002M_dump_ini(LMS7002M_t *self, const char *path)
     fprintf(p, "SXT frequency MHz=%f\n", self->sxt_freq/1e6);
 
     size_t i = 0;
-    const int *addrs = LMS7002M_regs_addrs(LMS7002M_regs(self));
+    const int *addrs = LMS7002M_regs_addrs();
 
     fprintf(p, "[LMS7002 registers ch.A]\n");
     LMS7002M_set_mac_ch(self, LMS_CHA);

@@ -186,7 +186,7 @@ EVB7::~EVB7(void)
 /*******************************************************************
  * Antenna API
  ******************************************************************/
-std::vector<std::string> EVB7::listAntennas(const int direction, const size_t channel) const
+std::vector<std::string> EVB7::listAntennas(const int direction, const size_t) const
 {
     std::vector<std::string> ants;
     if (direction == SOAPY_SDR_RX)
@@ -368,6 +368,55 @@ std::vector<double> EVB7::listSampleRates(const int direction, const size_t) con
         rates.push_back(baseRate/(1 << i));
     }
     return rates;
+}
+
+/*******************************************************************
+ * Clocking API
+ ******************************************************************/
+double EVB7::getTSPRate(const int direction) const
+{
+    return (direction == SOAPY_SDR_TX)? _masterClockRate : _masterClockRate/4;
+}
+
+void EVB7::setMasterClockRate(const double rate)
+{
+    int ret = LMS7002M_set_data_clock(_lms, EXT_REF_CLK, rate, &_masterClockRate);
+    if (ret != 0)
+    {
+        SoapySDR::logf(SOAPY_SDR_ERROR, "LMS7002M_set_data_clock(%f MHz) -> %d", rate/1e6, ret);
+        throw std::runtime_error("EVB7 fail LMS7002M_set_data_clock()");
+    }
+    SoapySDR::logf(SOAPY_SDR_TRACE, "LMS7002M_set_data_clock(%f MHz) -> %f MHz", rate/1e6, _masterClockRate/1e6);
+}
+
+double EVB7::getMasterClockRate(void) const
+{
+    return _masterClockRate;
+}
+
+/*******************************************************************
+ * Time API
+ ******************************************************************/
+bool EVB7::hasHardwareTime(const std::string &what) const
+{
+    if (what.empty()) return true;
+    return false;
+}
+
+long long EVB7::getHardwareTime(const std::string &) const
+{
+    long long timeLo = this->readRegister(FPGA_REG_RD_TIME_LO);
+    long long timeHi = this->readRegister(FPGA_REG_RD_TIME_HI);
+    return this->ticksToTimeNs((timeHi << 32) | timeLo);
+}
+
+void EVB7::setHardwareTime(const long long timeNs, const std::string &)
+{
+    long long ticks = this->timeNsToTicks(timeNs);
+    this->writeRegister(FPGA_REG_WR_TIME_LO, ticks & 0xffffffff);
+    this->writeRegister(FPGA_REG_WR_TIME_HI, ticks >> 32);
+    this->writeRegister(FPGA_REG_WR_TIME_LATCH, 1);
+    this->writeRegister(FPGA_REG_WR_TIME_LATCH, 0);
 }
 
 /***********************************************************************
