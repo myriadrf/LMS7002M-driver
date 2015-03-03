@@ -50,7 +50,7 @@ public:
 ******************************************************************/
     size_t getNumChannels(const int) const
     {
-        return 1;
+        return 2;
     }
 
     bool getFullDuplex(const int, const size_t) const
@@ -164,6 +164,8 @@ public:
     void setAntenna(const int direction, const size_t channel, const std::string &name);
     std::string getAntenna(const int direction, const size_t channel) const;
 
+    std::map<int, std::map<size_t, std::string>> _cachedAntValues;
+
     /*******************************************************************
      * Frontend corrections API
      ******************************************************************/
@@ -237,7 +239,7 @@ public:
     bool hasHardwareTime(const std::string &what) const
     {
         if (what.empty()) return true;
-        return EVB7::hasHardwareTime(what);
+        return false;
     }
 
     long long getHardwareTime(const std::string &) const

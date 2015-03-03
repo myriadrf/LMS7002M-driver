@@ -96,9 +96,11 @@ EVB7::EVB7(void):
     SET_EMIO_OUT_LVL(RXEN_EMIO, 1);
     SET_EMIO_OUT_LVL(TXEN_EMIO, 1);
 
-    //setup dsp
+    //enable components
     LMS7002M_rxtsp_init(_lms, LMS_CHAB);
     LMS7002M_txtsp_init(_lms, LMS_CHAB);
+    LMS7002M_rfe_enable(_lms, LMS_CHAB, true);
+    LMS7002M_trf_enable(_lms, LMS_CHAB, true);
 
     //setup dma buffs
     _rx_data_dma = pzdud_create(RX_DMA_INDEX, PZDUD_S2MM);
@@ -158,6 +160,8 @@ EVB7::EVB7(void):
 EVB7::~EVB7(void)
 {
     //power down and clean up
+    LMS7002M_rfe_enable(_lms, LMS_CHAB, false);
+    LMS7002M_trf_enable(_lms, LMS_CHAB, false);
     LMS7002M_power_down(_lms);
     LMS7002M_destroy(_lms);
 
@@ -201,12 +205,29 @@ std::vector<std::string> EVB7::listAntennas(const int direction, const size_t ch
 
 void EVB7::setAntenna(const int direction, const size_t channel, const std::string &name)
 {
-    
+    if (direction == SOAPY_SDR_RX)
+    {
+        int path = LMS7002M_RFE_NONE;
+        if (name == "LNAH") path = LMS7002M_RFE_LNAH;
+        else if (name == "LNAL") path = LMS7002M_RFE_LNAL;
+        else if (name == "LNAW") path = LMS7002M_RFE_LNAW;
+        else throw std::runtime_error("EVB7::setAntenna(RX, "+name+") - unknown antenna name");
+        LMS7002M_rfe_select_input(_lms, ch2LMS(channel), path);
+    }
+    if (direction == SOAPY_SDR_TX)
+    {
+        int band = 0;
+        if (name == "BAND1") band = 1;
+        else if (name == "BAND2") band = 2;
+        else throw std::runtime_error("EVB7::setAntenna(TX, "+name+") - unknown antenna name");
+        LMS7002M_trf_select_band(_lms, ch2LMS(channel), band);
+    }
+    _cachedAntValues[direction][channel] = name;
 }
 
 std::string EVB7::getAntenna(const int direction, const size_t channel) const
 {
-    
+    return _cachedAntValues.at(direction).at(channel);
 }
 
 /*******************************************************************

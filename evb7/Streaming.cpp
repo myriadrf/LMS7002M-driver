@@ -81,7 +81,16 @@ SoapySDR::Stream *EVB7::setupStream(
     else throw std::runtime_error("EVB7::setupStream: "+format);
 
     //check the channel config
-    if (channels.size() != 1 or channels[0] != 0) throw std::runtime_error("EVB7::setupStream: only one channel supported");
+    if (channels.size() != 1) throw std::runtime_error("EVB7::setupStream: only one channel supported");
+    const size_t channel = channels.front();
+    if (channel > 1) throw std::runtime_error("EVB7::setupStream: channel must be 0 or 1");
+
+    //use the channel to configure the mux
+    //since the streamer is only using the first two sample positions
+    std::vector<int> chMux;
+    if (channel == 0) chMux = {LMS7002M_LML_AI, LMS7002M_LML_AQ, LMS7002M_LML_BI, LMS7002M_LML_BQ};
+    if (channel == 1) chMux = {LMS7002M_LML_BI, LMS7002M_LML_BQ, LMS7002M_LML_AI, LMS7002M_LML_AQ};
+    LMS7002M_set_diq_mux(_lms, dir2LMS(direction), chMux.data());
 
     //store the format
     if (direction == SOAPY_SDR_TX) _txFormat = f;
