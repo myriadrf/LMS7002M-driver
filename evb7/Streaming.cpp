@@ -88,8 +88,8 @@ SoapySDR::Stream *EVB7::setupStream(
     //use the channel to configure the mux
     //since the streamer is only using the first two sample positions
     std::vector<int> chMux;
-    if (channel == 0) chMux = {LMS7002M_LML_AI, LMS7002M_LML_AQ, LMS7002M_LML_BI, LMS7002M_LML_BQ};
-    if (channel == 1) chMux = {LMS7002M_LML_BI, LMS7002M_LML_BQ, LMS7002M_LML_AI, LMS7002M_LML_AQ};
+    if (channel == 0) chMux = {LMS7002M_LML_AQ, LMS7002M_LML_AI, LMS7002M_LML_BQ, LMS7002M_LML_BI};
+    if (channel == 1) chMux = {LMS7002M_LML_BQ, LMS7002M_LML_BI, LMS7002M_LML_AQ, LMS7002M_LML_AI};
     LMS7002M_set_diq_mux(_lms, dir2LMS(direction), chMux.data());
 
     //store the format
@@ -98,6 +98,8 @@ SoapySDR::Stream *EVB7::setupStream(
 
     if (direction == SOAPY_SDR_RX)
     {
+        _remainderHandle = -1;
+
         //allocate dma memory
         int ret = 0;
         ret = pzdud_alloc(_rx_data_dma, DATA_NUM_BUFFS, DATA_BUFF_SIZE);
@@ -232,6 +234,7 @@ int EVB7::deactivateStream(
 {
     if (stream == reinterpret_cast<SoapySDR::Stream *>(_rx_data_dma))
     {
+        if (_remainderHandle != -1) this->releaseReadBuffer(stream, _remainderHandle);
         int ret = sendControlMessage(
             RX_TAG_DEACTIVATE,
             (flags & SOAPY_SDR_HAS_TIME) != 0, //timeFlag
@@ -249,7 +252,7 @@ int EVB7::deactivateStream(
     return SOAPY_SDR_STREAM_ERROR;
 }
 
-int EVB7::convertRemainder(void *outp, const size_t numOutSamps, int &flags)
+int EVB7::convertRemainder(SoapySDR::Stream *stream, void *outp, const size_t numOutSamps, int &flags)
 {
     if (_remainderHandle == -1) return 0; //nothing
 
@@ -266,7 +269,7 @@ int EVB7::convertRemainder(void *outp, const size_t numOutSamps, int &flags)
     _remainderSamps -= n;
     if (_remainderSamps == 0)
     {
-        this->releaseReadBuffer((SoapySDR::Stream *)SOAPY_SDR_RX, _remainderHandle);
+        this->releaseReadBuffer(stream, _remainderHandle);
         _remainderHandle = -1;
     }
     else
@@ -288,7 +291,7 @@ int EVB7::readStream(
     int ret = 0;
 
     //check remainder
-    ret = this->convertRemainder(buffs[0], numElems, flags);
+    ret = this->convertRemainder(stream, buffs[0], numElems, flags);
     if (ret != 0) return ret;
 
     //call into direct buffer access
@@ -303,7 +306,7 @@ int EVB7::readStream(
     _remainderBuff = (const uint32_t *)payload;
     _remainderSamps = ret;
     const size_t numConvert(std::min(numElems, size_t(ret)));
-    return this->convertRemainder(buffs[0], numConvert, flags);
+    return this->convertRemainder(stream, buffs[0], numConvert, flags);
 }
 
 int EVB7::writeStream(
@@ -405,7 +408,7 @@ int EVB7::acquireReadBuffer(
 
     //wait with timeout then acquire
     if (pzdud_wait(data_dma, timeoutUs) != 0) return SOAPY_SDR_TIMEOUT;
-    int handle =  pzdud_acquire(data_dma, &len);
+    int handle = pzdud_acquire(data_dma, &len);
     if (handle == PZDUD_ERROR_CLAIMED) throw std::runtime_error("EVB7::readStream() all claimed");
     handleOut = handle;
 
@@ -433,13 +436,13 @@ int EVB7::acquireReadBuffer(
     if (burstEnd) flags |= SOAPY_SDR_END_BURST;
 
     //old packet from the deactivate command, just ignore it with timeout
-    if (idTag == RX_TAG_ACTIVATE)
+    if (idTag == RX_TAG_DEACTIVATE)
     {
         ret = SOAPY_SDR_TIMEOUT;
     }
 
     //not an activate or deactivate tag, this is bad!
-    else if (idTag != RX_TAG_DEACTIVATE)
+    else if (idTag != RX_TAG_ACTIVATE)
     {
         SoapySDR::logf(SOAPY_SDR_ERROR,
             "readStream tag error tag=0x%x, len=%d", idTag, len);

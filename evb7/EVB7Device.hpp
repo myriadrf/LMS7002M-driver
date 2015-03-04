@@ -76,7 +76,7 @@ public:
 
     int sendControlMessage(const int tag, const bool timeFlag, const bool burstFlag, const int frameSize, const int burstSize, const long long time);
 
-    int convertRemainder(void *outp, const size_t numOutSamps, int &flags);
+    int convertRemainder(SoapySDR::Stream *stream, void *outp, const size_t numOutSamps, int &flags);
 
     int activateStream(
         SoapySDR::Stream *stream,
