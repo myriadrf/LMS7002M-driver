@@ -65,6 +65,50 @@ LMS7002M_API void LMS7002M_txtsp_set_freq(LMS7002M_t *self, const LMS7002M_chan_
     LMS7002M_set_nco_freq(self, LMS_TX, channel, freqRel);
 }
 
+LMS7002M_API void LMS7002M_txtsp_tsg_const(LMS7002M_t *self, const LMS7002M_chan_t channel, const int valI, const int valQ)
+{
+    LMS7002M_set_mac_ch(self, channel);
+
+    //muxes
+    self->regs.reg_0x0200_tsgfc = REG_0X0200_TSGFC_FS;
+    self->regs.reg_0x0200_tsgmode = REG_0X0200_TSGMODE_DC;
+    self->regs.reg_0x0200_insel = REG_0X0200_INSEL_TEST;
+    LMS7002M_regs_spi_write(self, 0x0200);
+
+    //load I
+    self->regs.reg_0x020c_dc_reg = valI;
+    LMS7002M_regs_spi_write(self, 0x020c);
+    self->regs.reg_0x0200_tsgdcldi = 0;
+    LMS7002M_regs_spi_write(self, 0x0200);
+    self->regs.reg_0x0200_tsgdcldi = 1;
+    LMS7002M_regs_spi_write(self, 0x0200);
+    self->regs.reg_0x0200_tsgdcldi = 0;
+    LMS7002M_regs_spi_write(self, 0x0200);
+
+    //load Q
+    self->regs.reg_0x020c_dc_reg = valQ;
+    LMS7002M_regs_spi_write(self, 0x020c);
+    self->regs.reg_0x0200_tsgdcldq = 0;
+    LMS7002M_regs_spi_write(self, 0x0200);
+    self->regs.reg_0x0200_tsgdcldq = 1;
+    LMS7002M_regs_spi_write(self, 0x0200);
+    self->regs.reg_0x0200_tsgdcldq = 0;
+    LMS7002M_regs_spi_write(self, 0x0200);
+}
+
+LMS7002M_API void LMS7002M_txtsp_tsg_tone(LMS7002M_t *self, const LMS7002M_chan_t channel)
+{
+    LMS7002M_set_mac_ch(self, channel);
+
+    //muxes
+    self->regs.reg_0x0200_tsgmode = REG_0X0200_TSGMODE_NCO;
+    self->regs.reg_0x0200_insel = REG_0X0200_INSEL_TEST;
+    LMS7002M_regs_spi_write(self, 0x0200);
+
+    self->regs.reg_0x0200_tsgfcw = REG_0X0200_TSGFCW_DIV8;
+    LMS7002M_regs_spi_write(self, 0x0200);
+}
+
 #ifdef __cplusplus
 }
 #endif

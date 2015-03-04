@@ -23,7 +23,6 @@
 #include <iostream>
 
 #include <LMS7002M/LMS7002M.h>
-#include <LMS7002M/LMS7002M_impl.h>
 
 class EVB7 : public SoapySDR::Device
 {

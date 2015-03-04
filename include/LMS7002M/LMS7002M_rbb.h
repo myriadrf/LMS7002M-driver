@@ -26,35 +26,51 @@ LMS7002M_API void LMS7002M_rbb_select_input(LMS7002M_t *self, const LMS7002M_cha
     self->regs.reg_0x0115_en_g_rbb = 1; //individual controls
     self->regs.reg_0x0115_pd_lpfh_rbb = 1;
     self->regs.reg_0x0115_pd_lpfl_rbb = 1;
-    self->regs.reg_0x0115_pd_pga_rbb = 1;
+    self->regs.reg_0x0115_pd_pga_rbb = 0;
     self->regs.reg_0x0115_en_lb_lpfh_rbb = 0;
     self->regs.reg_0x0115_en_lb_lpfl_rbb = 0;
 
     switch (path)
     {
     case LMS7002M_RBB_NONE:
+        self->regs.reg_0x0115_pd_pga_rbb = 1;
         break;
 
-    case LMS7002M_RBB_LOW:
-        self->regs.reg_0x0115_pd_lpfl_rbb = 0;
+    case LMS7002M_RBB_BYP:
+        self->regs.reg_0x0118_input_ctl_pga_rbb = REG_0X0118_INPUT_CTL_PGA_RBB_BYPASS;
         break;
 
-    case LMS7002M_RBB_HIGH:
-        self->regs.reg_0x0115_pd_lpfh_rbb = 0;
-        break;
-
-    case LMS7002M_RBB_LOW_LB:
+    case LMS7002M_RBB_LPF:
         self->regs.reg_0x0115_pd_lpfl_rbb = 0;
         self->regs.reg_0x0115_en_lb_lpfl_rbb = 1;
+        self->regs.reg_0x0118_input_ctl_pga_rbb = REG_0X0118_INPUT_CTL_PGA_RBB_LPFL;
         break;
 
-    case LMS7002M_RBB_HIGH_LB:
+    case LMS7002M_RBB_HPF:
         self->regs.reg_0x0115_pd_lpfh_rbb = 0;
         self->regs.reg_0x0115_en_lb_lpfh_rbb = 1;
+        self->regs.reg_0x0118_input_ctl_pga_rbb = REG_0X0118_INPUT_CTL_PGA_RBB_LPFH;
+        break;
+
+    case LMS7002M_RBB_BYP_LB:
+        self->regs.reg_0x0118_input_ctl_pga_rbb = REG_0X0118_INPUT_CTL_PGA_RBB_TX;
+        break;
+
+    case LMS7002M_RBB_LPF_LB:
+        self->regs.reg_0x0115_pd_lpfl_rbb = 0;
+        self->regs.reg_0x0115_en_lb_lpfl_rbb = 1;
+        self->regs.reg_0x0118_input_ctl_pga_rbb = REG_0X0118_INPUT_CTL_PGA_RBB_LPFL;
+        break;
+
+    case LMS7002M_RBB_HPF_LB:
+        self->regs.reg_0x0115_pd_lpfh_rbb = 0;
+        self->regs.reg_0x0115_en_lb_lpfh_rbb = 1;
+        self->regs.reg_0x0118_input_ctl_pga_rbb = REG_0X0118_INPUT_CTL_PGA_RBB_LPFH;
         break;
     }
 
     LMS7002M_regs_spi_write(self, 0x0115);
+    LMS7002M_regs_spi_write(self, 0x0118);
 }
 
 LMS7002M_API void LMS7002M_rbb_set_pga(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain)

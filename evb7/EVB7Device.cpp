@@ -9,6 +9,7 @@
 
 #include "EVB7Device.hpp"
 #include <SoapySDR/Registry.hpp>
+#include <LMS7002M/LMS7002M_impl.h>
 
 /***********************************************************************
  * Constructor
@@ -132,8 +133,19 @@ EVB7::EVB7(void):
     SoapySDR::logf(SOAPY_SDR_INFO, "FPGA_REG_RD_RX_CHB 0x%x", xumem_read32(_regs, FPGA_REG_RD_RX_CHB));
     //*/
 
+    //constant DC level
+    /*
     LMS7002M_rxtsp_tsg_const(_lms, LMS_CHA, 1 << 14, 1 << 14);
     LMS7002M_rxtsp_tsg_const(_lms, LMS_CHB, 1 << 14, 1 << 14);
+    */
+
+    //tx baseband loopback to rx baseband
+    LMS7002M_tbb_enable_loopback(_lms, LMS_CHAB, LMS7002M_TBB_MAIN_TBB, false);
+    LMS7002M_rbb_select_input(_lms, LMS_CHAB, LMS7002M_RBB_BYP_LB);
+
+    //tone from tx dsp
+    LMS7002M_txtsp_tsg_tone(_lms, LMS_CHAB);
+
 /*
     LMS7002M_rxtsp_tsg_tone(_lms, LMS_CHA);
     LMS7002M_rxtsp_tsg_tone(_lms, LMS_CHB);
@@ -284,13 +296,6 @@ SoapySDR::Range EVB7::getGainRange(const int direction, const size_t channel, co
 void EVB7::setFrequency(const int direction, const size_t channel, const std::string &name, const double frequency, const SoapySDR::Kwargs &)
 {
     SoapySDR::logf(SOAPY_SDR_INFO, "EVB7::setFrequency(%d, ch%d, %s, %f MHz)", direction, channel, name.c_str(), frequency/1e6);
-    //not ready yet....
-    if (name == "RF")
-    {
-        _cachedFreqValues[direction][0][name] = 0.0;
-        _cachedFreqValues[direction][1][name] = 0.0;
-        return;
-    }
 
     if (name == "RF")
     {

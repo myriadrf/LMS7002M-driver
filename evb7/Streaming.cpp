@@ -9,6 +9,7 @@
 
 #include "EVB7Device.hpp"
 #include <arm_neon.h>
+#include <LMS7002M/LMS7002M_impl.h>
 
 /*******************************************************************
  * Conversions

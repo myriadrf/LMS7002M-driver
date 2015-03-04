@@ -31,7 +31,8 @@ LMS7002M_API int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t dir
     if (direction == LMS_RX) self->sxr_fref = fref;
     if (direction == LMS_TX) self->sxt_fref = fref;
 
-    return -1;
+    *factual = 0.0;
+    return 0;
 }
 
 #ifdef __cplusplus

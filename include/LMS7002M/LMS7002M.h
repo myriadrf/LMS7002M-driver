@@ -360,6 +360,24 @@ LMS7002M_API void LMS7002M_txtsp_set_interp(LMS7002M_t *self, const LMS7002M_cha
  */
 LMS7002M_API void LMS7002M_txtsp_set_freq(LMS7002M_t *self, const LMS7002M_chan_t channel, const double freqRel);
 
+/*!
+ * Test constant signal level for TX TSP chain.
+ * Use LMS7002M_txtsp_init() to restore regular mode.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param valI the I constant value
+ * \param valQ the Q constant value
+ */
+LMS7002M_API void LMS7002M_txtsp_tsg_const(LMS7002M_t *self, const LMS7002M_chan_t channel, const int valI, const int valQ);
+
+/*!
+ * Test tone signal for TX TSP chain (TSP clk/8).
+ * Use LMS7002M_txtsp_init() to restore regular mode.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ */
+LMS7002M_API void LMS7002M_txtsp_tsg_tone(LMS7002M_t *self, const LMS7002M_chan_t channel);
+
 //=====================================================================//
 // TBB (transmit baseband chain)
 //=====================================================================//
@@ -460,10 +478,12 @@ LMS7002M_API void LMS7002M_rxtsp_tsg_tone(LMS7002M_t *self, const LMS7002M_chan_
 //=====================================================================//
 
 #define LMS7002M_RBB_NONE (int)'N'  //!< No input selected - power down
-#define LMS7002M_RBB_LOW (int)'L'   //!< Low frequency path selected
-#define LMS7002M_RBB_HIGH (int)'H'  //!< High frequency path selected
-#define LMS7002M_RBB_LOW_LB 1       //!< Low frequency with loopback from TXBB
-#define LMS7002M_RBB_HIGH_LB 2      //!< High frequency with loopback from TXBB
+#define LMS7002M_RBB_BYP (int)'B'  //!< Bypass filters path selected
+#define LMS7002M_RBB_LPF (int)'L'  //!< Low pass filter path selected
+#define LMS7002M_RBB_HPF (int)'H'  //!< High pass filter path selected
+#define LMS7002M_RBB_BYP_LB 0      //!< Bypass filters with loopback from TXBB
+#define LMS7002M_RBB_LPF_LB 1      //!< Low pass filter with loopback from TXBB
+#define LMS7002M_RBB_HPF_LB 2      //!< High pass filter with loopback from TXBB
 
 /*!
  * Select the input source for the RX baseband.

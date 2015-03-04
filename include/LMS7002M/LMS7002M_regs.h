@@ -140,6 +140,11 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr);
 #define REG_0X010D_SEL_PATH_RFE_LNAW 3
 #define REG_0X010D_EN_NEXTRX_RFE_SISO 0
 #define REG_0X010D_EN_NEXTRX_RFE_MIMO 1
+#define REG_0X0118_INPUT_CTL_PGA_RBB_LPFL 0
+#define REG_0X0118_INPUT_CTL_PGA_RBB_LPFH 1
+#define REG_0X0118_INPUT_CTL_PGA_RBB_BYPASS 2
+#define REG_0X0118_INPUT_CTL_PGA_RBB_TX 3
+#define REG_0X0118_INPUT_CTL_PGA_RBB_PDET 4
 #define REG_0X011F_SEL_SDMCLK_CLK_DIV 0
 #define REG_0X011F_SEL_SDMCLK_CLK_REF 1
 #define REG_0X0121_SEL_VCO_VCOL 0
@@ -498,6 +503,7 @@ struct LMS7002M_regs_struct
     int reg_0x0208_dc_byp;
     int reg_0x0208_gc_byp;
     int reg_0x0208_ph_byp;
+    int reg_0x020c_dc_reg;
     int reg_0x0240_dthbit;
     int reg_0x0240_sel;
     int reg_0x0240_mode;
@@ -615,6 +621,7 @@ static inline void LMS7002M_regs_init(LMS7002M_regs_t *regs)
     LMS7002M_regs_set(regs, 0x0206, 0x0);
     LMS7002M_regs_set(regs, 0x0207, 0x0);
     LMS7002M_regs_set(regs, 0x0208, 0x0);
+    LMS7002M_regs_set(regs, 0x020C, 0x0);
     LMS7002M_regs_set(regs, 0x0240, 0x20);
     LMS7002M_regs_set(regs, 0x0241, 0x0);
     LMS7002M_regs_set(regs, 0x0242, 0x0);
@@ -1207,6 +1214,11 @@ static inline void LMS7002M_regs_set(LMS7002M_regs_t *regs, const int addr, cons
         regs->reg_0x0208_dc_byp = (value >> 3) & 0x1;
         regs->reg_0x0208_gc_byp = (value >> 1) & 0x1;
         regs->reg_0x0208_ph_byp = (value >> 0) & 0x1;
+        return;
+    }
+    if (addr == 0x020C)
+    {
+        regs->reg_0x020c_dc_reg = (value >> 0) & 0xffff;
         return;
     }
     if (addr == 0x0240)
@@ -1834,6 +1846,10 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr)
         value |= (regs->reg_0x0208_gc_byp & 0x1) << 1;
         value |= (regs->reg_0x0208_ph_byp & 0x1) << 0;
     }
+    if (addr == 0x020C)
+    {
+        value |= (regs->reg_0x020c_dc_reg & 0xffff) << 0;
+    }
     if (addr == 0x0240)
     {
         value |= (regs->reg_0x0240_dthbit & 0xf) << 5;
@@ -2000,6 +2016,7 @@ static inline const int *LMS7002M_regs_addrs(void)
     0x0206,
     0x0207,
     0x0208,
+    0x020C,
     0x0240,
     0x0241,
     0x0242,
