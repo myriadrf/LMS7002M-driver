@@ -100,8 +100,12 @@ EVB7::EVB7(void):
     //enable components
     LMS7002M_rxtsp_init(_lms, LMS_CHAB);
     LMS7002M_txtsp_init(_lms, LMS_CHAB);
+    LMS7002M_rbb_enable(_lms, LMS_CHAB, true);
+    LMS7002M_tbb_enable(_lms, LMS_CHAB, true);
     LMS7002M_rfe_enable(_lms, LMS_CHAB, true);
     LMS7002M_trf_enable(_lms, LMS_CHAB, true);
+    LMS7002M_sxx_enable(_lms, LMS_RX, true);
+    LMS7002M_sxx_enable(_lms, LMS_TX, true);
 
     //setup dma buffs
     _rx_data_dma = pzdud_create(RX_DMA_INDEX, PZDUD_S2MM);
@@ -137,7 +141,7 @@ EVB7::EVB7(void):
     /*
     LMS7002M_rxtsp_tsg_const(_lms, LMS_CHA, 1 << 14, 1 << 14);
     LMS7002M_rxtsp_tsg_const(_lms, LMS_CHB, 1 << 14, 1 << 14);
-    */
+    //*/
 
     //tx baseband loopback to rx baseband
     LMS7002M_tbb_enable_loopback(_lms, LMS_CHAB, LMS7002M_TBB_MAIN_TBB, false);
@@ -176,8 +180,12 @@ EVB7::EVB7(void):
 EVB7::~EVB7(void)
 {
     //power down and clean up
+    LMS7002M_rbb_enable(_lms, LMS_CHAB, false);
+    LMS7002M_tbb_enable(_lms, LMS_CHAB, false);
     LMS7002M_rfe_enable(_lms, LMS_CHAB, false);
     LMS7002M_trf_enable(_lms, LMS_CHAB, false);
+    LMS7002M_sxx_enable(_lms, LMS_RX, false);
+    LMS7002M_sxx_enable(_lms, LMS_TX, false);
     LMS7002M_power_down(_lms);
     LMS7002M_destroy(_lms);
 
@@ -286,7 +294,7 @@ double EVB7::getGain(const int direction, const size_t channel, const std::strin
 SoapySDR::Range EVB7::getGainRange(const int direction, const size_t channel, const std::string &name) const
 {
     if (direction == SOAPY_SDR_RX and name == "LNA") return SoapySDR::Range(0.0, 30.0);
-    if (direction == SOAPY_SDR_RX and name == "PGA") return SoapySDR::Range(0.0, 31.0);
+    if (direction == SOAPY_SDR_RX and name == "PGA") return SoapySDR::Range(-12.0, 19.0);
     return SoapySDR::Device::getGainRange(direction, channel, name);
 }
 

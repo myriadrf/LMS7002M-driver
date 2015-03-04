@@ -92,7 +92,7 @@
 {
     "addr" : "0x0124",
     "fields" : {
-        "EN_DIR" : {"bits":"4"},
+        "EN_DIR_SXX" : {"bits":"4"},
         "EN_DIR_RBB" : {"bits":"3"},
         "EN_DIR_RFE" : {"bits":"2"},
         "EN_DIR_TBB" : {"bits":"1"},

@@ -19,6 +19,16 @@
 extern "C" {
 #endif
 
+LMS7002M_API void LMS7002M_sxx_enable(LMS7002M_t *self, const LMS7002M_dir_t direction, const bool enable)
+{
+    LMS7002M_set_mac_dir(self, direction);
+    self->regs.reg_0x0124_en_dir_sxx = 1;
+    LMS7002M_regs_spi_write(self, 0x0124);
+
+    self->regs.reg_0x011c_en_g = enable?1:0;
+    LMS7002M_regs_spi_write(self, 0x011c);
+}
+
 LMS7002M_API int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, const double fref, const double fout, double *factual)
 {
     LMS7002M_set_mac_dir(self, direction);

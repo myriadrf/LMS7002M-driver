@@ -467,7 +467,7 @@ struct LMS7002M_regs_struct
     int reg_0x0123_cp2_pll;
     int reg_0x0123_cp3_pll;
     int reg_0x0123_cz;
-    int reg_0x0124_en_dir;
+    int reg_0x0124_en_dir_sxx;
     int reg_0x0124_en_dir_rbb;
     int reg_0x0124_en_dir_rfe;
     int reg_0x0124_en_dir_tbb;
@@ -1142,7 +1142,7 @@ static inline void LMS7002M_regs_set(LMS7002M_regs_t *regs, const int addr, cons
     }
     if (addr == 0x0124)
     {
-        regs->reg_0x0124_en_dir = (value >> 4) & 0x1;
+        regs->reg_0x0124_en_dir_sxx = (value >> 4) & 0x1;
         regs->reg_0x0124_en_dir_rbb = (value >> 3) & 0x1;
         regs->reg_0x0124_en_dir_rfe = (value >> 2) & 0x1;
         regs->reg_0x0124_en_dir_tbb = (value >> 1) & 0x1;
@@ -1782,7 +1782,7 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr)
     }
     if (addr == 0x0124)
     {
-        value |= (regs->reg_0x0124_en_dir & 0x1) << 4;
+        value |= (regs->reg_0x0124_en_dir_sxx & 0x1) << 4;
         value |= (regs->reg_0x0124_en_dir_rbb & 0x1) << 3;
         value |= (regs->reg_0x0124_en_dir_rfe & 0x1) << 2;
         value |= (regs->reg_0x0124_en_dir_tbb & 0x1) << 1;

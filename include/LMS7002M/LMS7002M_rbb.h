@@ -19,23 +19,29 @@
 extern "C" {
 #endif
 
+LMS7002M_API void LMS7002M_rbb_enable(LMS7002M_t *self, const LMS7002M_chan_t channel, const bool enable)
+{
+    LMS7002M_set_mac_ch(self, channel);
+    self->regs.reg_0x0124_en_dir_rbb = 1;
+    LMS7002M_regs_spi_write(self, 0x0124);
+
+    self->regs.reg_0x0115_en_g_rbb = enable?1:0;
+    self->regs.reg_0x0115_pd_pga_rbb = 0;
+
+    LMS7002M_regs_spi_write(self, 0x0115);
+}
+
 LMS7002M_API void LMS7002M_rbb_select_input(LMS7002M_t *self, const LMS7002M_chan_t channel, const int path)
 {
     LMS7002M_set_mac_ch(self, channel);
 
-    self->regs.reg_0x0115_en_g_rbb = 1; //individual controls
     self->regs.reg_0x0115_pd_lpfh_rbb = 1;
     self->regs.reg_0x0115_pd_lpfl_rbb = 1;
-    self->regs.reg_0x0115_pd_pga_rbb = 0;
     self->regs.reg_0x0115_en_lb_lpfh_rbb = 0;
     self->regs.reg_0x0115_en_lb_lpfl_rbb = 0;
 
     switch (path)
     {
-    case LMS7002M_RBB_NONE:
-        self->regs.reg_0x0115_pd_pga_rbb = 1;
-        break;
-
     case LMS7002M_RBB_BYP:
         self->regs.reg_0x0118_input_ctl_pga_rbb = REG_0X0118_INPUT_CTL_PGA_RBB_BYPASS;
         break;
@@ -77,7 +83,7 @@ LMS7002M_API void LMS7002M_rbb_set_pga(LMS7002M_t *self, const LMS7002M_chan_t c
 {
     LMS7002M_set_mac_ch(self, channel);
 
-    int G_PGA_RBB = (int)(gain + 0.5);
+    int G_PGA_RBB = (int)(gain + 12.5);
     if (G_PGA_RBB > 0x1f) G_PGA_RBB = 0x1f;
     if (G_PGA_RBB < 0) G_PGA_RBB = 0;
     self->regs.reg_0x0119_g_pga_rbb = G_PGA_RBB;

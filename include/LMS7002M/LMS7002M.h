@@ -317,6 +317,14 @@ LMS7002M_API void LMS7002M_set_nco_freq(LMS7002M_t *self, const LMS7002M_dir_t d
 //=====================================================================//
 
 /*!
+ * Enable/disable the synthesizer.
+ * \param self an instance of the LMS7002M driver
+ * \param direction the direction LMS_TX or LMS_RX
+ * \param enable true to enable, false to power down
+ */
+LMS7002M_API void LMS7002M_sxx_enable(LMS7002M_t *self, const LMS7002M_dir_t direction, const bool enable);
+
+/*!
  * The simplified tuning algorithm for the RX and TX local oscillators.
  * Each oscillator is shared between both channels A and B.
  * This is a helper function that may make certain non-ideal assumptions,
@@ -382,11 +390,18 @@ LMS7002M_API void LMS7002M_txtsp_tsg_tone(LMS7002M_t *self, const LMS7002M_chan_
 // TBB (transmit baseband chain)
 //=====================================================================//
 
-
 #define LMS7002M_TBB_DISCONNECTED 0 //!< Loopback disconnected
 #define LMS7002M_TBB_DAC_CURRENT 1 //!< DAC current
 #define LMS7002M_TBB_LB_LADDER 2 //!< low band ladder
 #define LMS7002M_TBB_MAIN_TBB 3 //!< TX baseband
+
+/*!
+ * Enable/disable the TX baseband.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param enable true to enable, false to power down
+ */
+LMS7002M_API void LMS7002M_tbb_enable(LMS7002M_t *self, const LMS7002M_chan_t channel, const bool enable);
 
 /*!
  * Enable/disable the TX BB loopback to RBB.
@@ -477,13 +492,20 @@ LMS7002M_API void LMS7002M_rxtsp_tsg_tone(LMS7002M_t *self, const LMS7002M_chan_
 // RBB (receive baseband chain)
 //=====================================================================//
 
-#define LMS7002M_RBB_NONE (int)'N'  //!< No input selected - power down
 #define LMS7002M_RBB_BYP (int)'B'  //!< Bypass filters path selected
 #define LMS7002M_RBB_LPF (int)'L'  //!< Low pass filter path selected
 #define LMS7002M_RBB_HPF (int)'H'  //!< High pass filter path selected
 #define LMS7002M_RBB_BYP_LB 0      //!< Bypass filters with loopback from TXBB
 #define LMS7002M_RBB_LPF_LB 1      //!< Low pass filter with loopback from TXBB
 #define LMS7002M_RBB_HPF_LB 2      //!< High pass filter with loopback from TXBB
+
+/*!
+ * Enable/disable the RX baseband.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param enable true to enable, false to power down
+ */
+LMS7002M_API void LMS7002M_rbb_enable(LMS7002M_t *self, const LMS7002M_chan_t channel, const bool enable);
 
 /*!
  * Select the input source for the RX baseband.
@@ -497,7 +519,7 @@ LMS7002M_API void LMS7002M_rbb_select_input(LMS7002M_t *self, const LMS7002M_cha
  * Set the PGA gain for the RX baseband.
  * \param self an instance of the LMS7002M driver
  * \param channel the channel LMS_CHA or LMS_CHB
- * \param gain the gain value in dB 0 to 31
+ * \param gain the gain value in dB -12.0 to 19.0
  */
 LMS7002M_API void LMS7002M_rbb_set_pga(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain);
 
