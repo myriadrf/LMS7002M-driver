@@ -27,11 +27,11 @@ LMS7002M_API void LMS7002M_tbb_enable(LMS7002M_t *self, const LMS7002M_chan_t ch
     self->regs.reg_0x0105_en_g_tbb = enable?1:0;
     self->regs.reg_0x0105_pd_lpfh_tbb = 1;
     self->regs.reg_0x0105_pd_lpfiamp_tbb = 0;
-    self->regs.reg_0x0105_pd_lpflad_tbb = 0;
-    self->regs.reg_0x0105_pd_lpfs5_tbb = 0;
+    self->regs.reg_0x0105_pd_lpflad_tbb = 1;
+    self->regs.reg_0x0105_pd_lpfs5_tbb = 1;
 
     //bypass for now
-    self->regs.reg_0x010a_bypladder_tbb = 0;
+    self->regs.reg_0x010a_bypladder_tbb = 1;
 
     LMS7002M_regs_spi_write(self, 0x0105);
     LMS7002M_regs_spi_write(self, 0x010A);

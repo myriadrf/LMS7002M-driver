@@ -348,8 +348,9 @@ LMS7002M_API int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t dir
  * and bypassing IQ gain, phase, DC corrections, and filters.
  * \param self an instance of the LMS7002M driver
  * \param channel the channel LMS_CHA or LMS_CHB
+ * \param enable true to enable, false to disable
  */
-LMS7002M_API void LMS7002M_txtsp_init(LMS7002M_t *self, const LMS7002M_chan_t channel);
+LMS7002M_API void LMS7002M_txtsp_enable(LMS7002M_t *self, const LMS7002M_chan_t channel, const bool enable);
 
 /*!
  * Set the TX TSP chain interpolation.
@@ -370,7 +371,7 @@ LMS7002M_API void LMS7002M_txtsp_set_freq(LMS7002M_t *self, const LMS7002M_chan_
 
 /*!
  * Test constant signal level for TX TSP chain.
- * Use LMS7002M_txtsp_init() to restore regular mode.
+ * Use LMS7002M_txtsp_enable() to restore regular mode.
  * \param self an instance of the LMS7002M driver
  * \param channel the channel LMS_CHA or LMS_CHB
  * \param valI the I constant value
@@ -380,7 +381,7 @@ LMS7002M_API void LMS7002M_txtsp_tsg_const(LMS7002M_t *self, const LMS7002M_chan
 
 /*!
  * Test tone signal for TX TSP chain (TSP clk/8).
- * Use LMS7002M_txtsp_init() to restore regular mode.
+ * Use LMS7002M_txtsp_enable() to restore regular mode.
  * \param self an instance of the LMS7002M driver
  * \param channel the channel LMS_CHA or LMS_CHB
  */
@@ -450,8 +451,9 @@ LMS7002M_API void LMS7002M_trf_enable_loopback(LMS7002M_t *self, const LMS7002M_
  * and bypassing IQ gain, phase, DC corrections, filters, and AGC.
  * \param self an instance of the LMS7002M driver
  * \param channel the channel LMS_CHA or LMS_CHB
+ * \param enable true to enable, false to disable
  */
-LMS7002M_API void LMS7002M_rxtsp_init(LMS7002M_t *self, const LMS7002M_chan_t channel);
+LMS7002M_API void LMS7002M_rxtsp_enable(LMS7002M_t *self, const LMS7002M_chan_t channel, const bool enable);
 
 /*!
  * Set the RX TSP chain decimation.
@@ -472,7 +474,7 @@ LMS7002M_API void LMS7002M_rxtsp_set_freq(LMS7002M_t *self, const LMS7002M_chan_
 
 /*!
  * Test constant signal level for RX TSP chain.
- * Use LMS7002M_rxtsp_init() to restore regular mode.
+ * Use LMS7002M_rxtsp_enable() to restore regular mode.
  * \param self an instance of the LMS7002M driver
  * \param channel the channel LMS_CHA or LMS_CHB
  * \param valI the I constant value
@@ -482,7 +484,7 @@ LMS7002M_API void LMS7002M_rxtsp_tsg_const(LMS7002M_t *self, const LMS7002M_chan
 
 /*!
  * Test tone signal for RX TSP chain (TSP clk/8).
- * Use LMS7002M_rxtsp_init() to restore regular mode.
+ * Use LMS7002M_rxtsp_enable() to restore regular mode.
  * \param self an instance of the LMS7002M driver
  * \param channel the channel LMS_CHA or LMS_CHB
  */

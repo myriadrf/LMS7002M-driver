@@ -18,11 +18,11 @@
 extern "C" {
 #endif
 
-LMS7002M_API void LMS7002M_rxtsp_init(LMS7002M_t *self, const LMS7002M_chan_t channel)
+LMS7002M_API void LMS7002M_rxtsp_enable(LMS7002M_t *self, const LMS7002M_chan_t channel, const bool enable)
 {
     LMS7002M_set_mac_ch(self, channel);
 
-    self->regs.reg_0x0400_en = 1;
+    self->regs.reg_0x0400_en = enable?1:0;
     self->regs.reg_0x0400_bstart = 0;
     self->regs.reg_0x0400_insel = REG_0X0400_INSEL_LML; //r19 regs - probably means baseband input
     LMS7002M_regs_spi_write(self, 0x0400);

@@ -98,8 +98,8 @@ EVB7::EVB7(void):
     SET_EMIO_OUT_LVL(TXEN_EMIO, 1);
 
     //enable components
-    LMS7002M_rxtsp_init(_lms, LMS_CHAB);
-    LMS7002M_txtsp_init(_lms, LMS_CHAB);
+    LMS7002M_rxtsp_enable(_lms, LMS_CHAB, true);
+    LMS7002M_txtsp_enable(_lms, LMS_CHAB, true);
     LMS7002M_rbb_enable(_lms, LMS_CHAB, true);
     LMS7002M_tbb_enable(_lms, LMS_CHAB, true);
     LMS7002M_rfe_enable(_lms, LMS_CHAB, true);
@@ -180,6 +180,8 @@ EVB7::EVB7(void):
 EVB7::~EVB7(void)
 {
     //power down and clean up
+    LMS7002M_rxtsp_enable(_lms, LMS_CHAB, false);
+    LMS7002M_txtsp_enable(_lms, LMS_CHAB, false);
     LMS7002M_rbb_enable(_lms, LMS_CHAB, false);
     LMS7002M_tbb_enable(_lms, LMS_CHAB, false);
     LMS7002M_rfe_enable(_lms, LMS_CHAB, false);
