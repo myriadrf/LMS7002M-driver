@@ -79,7 +79,7 @@ LMS7002M_API void LMS7002M_rbb_select_input(LMS7002M_t *self, const LMS7002M_cha
     LMS7002M_regs_spi_write(self, 0x0118);
 }
 
-LMS7002M_API void LMS7002M_rbb_set_pga(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain)
+LMS7002M_API double LMS7002M_rbb_set_pga(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain)
 {
     LMS7002M_set_mac_ch(self, channel);
 
@@ -97,6 +97,8 @@ LMS7002M_API void LMS7002M_rbb_set_pga(LMS7002M_t *self, const LMS7002M_chan_t c
 
     LMS7002M_regs_spi_write(self, 0x0119);
     LMS7002M_regs_spi_write(self, 0x011A);
+
+    return G_PGA_RBB - 12.0;
 }
 
 #ifdef __cplusplus

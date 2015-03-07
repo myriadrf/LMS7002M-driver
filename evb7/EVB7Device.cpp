@@ -50,13 +50,7 @@ EVB7::EVB7(void):
     LMS7002M_set_spi_mode(_lms, 4); //set 4-wire spi mode first
     LMS7002M_reset(_lms);
 
-    //enable all ADCs and DACs
-    LMS7002M_afe_enable(_lms, LMS_TX, LMS_CHA, true);
-    LMS7002M_afe_enable(_lms, LMS_TX, LMS_CHB, true);
-    LMS7002M_afe_enable(_lms, LMS_RX, LMS_CHA, true);
-    LMS7002M_afe_enable(_lms, LMS_RX, LMS_CHB, true);
-
-    //LMS7002M_load_ini(_lms, "/root/src/test2.ini");
+    //LMS7002M_load_ini(_lms, "/root/src/TBB_to_LPFL_RBB_loopback.ini");
     //LMS7002M_set_spi_mode(_lms, 4); //set 4-wire spi mode first
 
     //read info register
@@ -65,7 +59,7 @@ EVB7::EVB7(void):
     SoapySDR::logf(SOAPY_SDR_INFO, "ver 0x%x", LMS7002M_regs(_lms)->reg_0x002f_ver);
 
     //turn the clocks on
-    this->setMasterClockRate(61e6);
+    this->setMasterClockRate(61.44e6);
 
     //configure data port directions and data clock rates
     LMS7002M_configure_lml_port(_lms, LMS_PORT1, LMS_TX, 1);
@@ -98,6 +92,10 @@ EVB7::EVB7(void):
     SET_EMIO_OUT_LVL(TXEN_EMIO, 1);
 
     //enable components
+    LMS7002M_afe_enable(_lms, LMS_TX, LMS_CHA, true);
+    LMS7002M_afe_enable(_lms, LMS_TX, LMS_CHB, true);
+    LMS7002M_afe_enable(_lms, LMS_RX, LMS_CHA, true);
+    LMS7002M_afe_enable(_lms, LMS_RX, LMS_CHB, true);
     LMS7002M_rxtsp_enable(_lms, LMS_CHAB, true);
     LMS7002M_txtsp_enable(_lms, LMS_CHAB, true);
     LMS7002M_rbb_enable(_lms, LMS_CHAB, true);
@@ -144,11 +142,11 @@ EVB7::EVB7(void):
     //*/
 
     //tx baseband loopback to rx baseband
-    LMS7002M_tbb_enable_loopback(_lms, LMS_CHAB, LMS7002M_TBB_MAIN_TBB, false);
-    LMS7002M_rbb_select_input(_lms, LMS_CHAB, LMS7002M_RBB_BYP_LB);
+    //LMS7002M_tbb_enable_loopback(_lms, LMS_CHAB, LMS7002M_TBB_MAIN_TBB, false);
+    //LMS7002M_rbb_select_input(_lms, LMS_CHAB, LMS7002M_RBB_BYP_LB);
 
     //tone from tx dsp
-    LMS7002M_txtsp_tsg_tone(_lms, LMS_CHAB);
+    //LMS7002M_txtsp_tsg_tone(_lms, LMS_CHAB);
 
 /*
     LMS7002M_rxtsp_tsg_tone(_lms, LMS_CHA);
@@ -158,8 +156,6 @@ EVB7::EVB7(void):
     sleep(1);
     SoapySDR::logf(SOAPY_SDR_INFO, "FPGA_REG_RD_RX_CHA 0x%x", xumem_read32(_regs, FPGA_REG_RD_RX_CHA));
     SoapySDR::logf(SOAPY_SDR_INFO, "FPGA_REG_RD_RX_CHB 0x%x", xumem_read32(_regs, FPGA_REG_RD_RX_CHB));
-
-    LMS7002M_dump_ini(_lms, "/tmp/regs.ini");
 */
     //some defaults to avoid throwing
     _cachedSampleRates[SOAPY_SDR_RX] = 1e6;
@@ -173,13 +169,20 @@ EVB7::EVB7(void):
         this->setAntenna(SOAPY_SDR_RX, i, "LNAW");
         this->setAntenna(SOAPY_SDR_TX, i, "BAND1");
         this->setGain(SOAPY_SDR_RX, i, "LNA", 0.0);
+        this->setGain(SOAPY_SDR_RX, i, "TIA", 0.0);
         this->setGain(SOAPY_SDR_RX, i, "PGA", 0.0);
     }
+
+    //LMS7002M_dump_ini(_lms, "/root/src/regs.ini");
 }
 
 EVB7::~EVB7(void)
 {
     //power down and clean up
+    LMS7002M_afe_enable(_lms, LMS_TX, LMS_CHA, false);
+    LMS7002M_afe_enable(_lms, LMS_TX, LMS_CHB, false);
+    LMS7002M_afe_enable(_lms, LMS_RX, LMS_CHA, false);
+    LMS7002M_afe_enable(_lms, LMS_RX, LMS_CHB, false);
     LMS7002M_rxtsp_enable(_lms, LMS_CHAB, false);
     LMS7002M_txtsp_enable(_lms, LMS_CHAB, false);
     LMS7002M_rbb_enable(_lms, LMS_CHAB, false);
@@ -265,6 +268,7 @@ std::vector<std::string> EVB7::listGains(const int direction, const size_t) cons
     if (direction == SOAPY_SDR_RX)
     {
         gains.push_back("LNA");
+        gains.push_back("TIA");
         gains.push_back("PGA");
     }
     if (direction == SOAPY_SDR_TX)
@@ -277,15 +281,23 @@ std::vector<std::string> EVB7::listGains(const int direction, const size_t) cons
 void EVB7::setGain(const int direction, const size_t channel, const std::string &name, const double value)
 {
     SoapySDR::logf(SOAPY_SDR_INFO, "EVB7::setGain(%d, ch%d, %s, %f dB)", direction, channel, name.c_str(), value);
+
+    double &actualValue = _cachedGainValues[direction][channel][name];
+
     if (direction == SOAPY_SDR_RX and name == "LNA")
     {
-        LMS7002M_rfe_set_lna(_lms, ch2LMS(channel), value);
+        actualValue = LMS7002M_rfe_set_lna(_lms, ch2LMS(channel), value);
     }
+
+    if (direction == SOAPY_SDR_RX and name == "TIA")
+    {
+        actualValue = LMS7002M_rfe_set_tia(_lms, ch2LMS(channel), value);
+    }
+
     if (direction == SOAPY_SDR_RX and name == "PGA")
     {
-        LMS7002M_rbb_set_pga(_lms, ch2LMS(channel), value);
+        actualValue = LMS7002M_rbb_set_pga(_lms, ch2LMS(channel), value);
     }
-    _cachedGainValues[direction][channel][name] = value;
 }
 
 double EVB7::getGain(const int direction, const size_t channel, const std::string &name) const
