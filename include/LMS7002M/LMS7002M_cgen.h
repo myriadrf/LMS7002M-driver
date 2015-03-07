@@ -43,13 +43,14 @@ LMS7002M_API int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, co
         if (fdiv > 512) return -1;
         if (Ndiv < 4) continue;
         if (Ndiv > 512) return -1;
-        //these boundaries observed from the EVB7 GUI
+
+        //check vco boundaries
         if (fvco < LMS7002M_CGEN_VCO_LO) continue;
         if (fvco > LMS7002M_CGEN_VCO_HI) continue;
 
         break; //its good
     }
-    printf("fdiv = %d, fvco = %f MHz\n", fdiv, fvco/1e6);
+    //printf("fdiv = %d, fvco = %f MHz\n", fdiv, fvco/1e6);
 
     //stash the freq now that we know the loop above passed
     self->cgen_freq = fout;

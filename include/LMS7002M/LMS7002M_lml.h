@@ -57,6 +57,10 @@ LMS7002M_API void LMS7002M_configure_lml_port(LMS7002M_t *self, const LMS7002M_p
             REG_0X0023_LML_TXNRXIQ2_RXIQ:REG_0X0023_LML_TXNRXIQ2_TXIQ; //WARNING: TX/RX perspective swap
     }
 
+    //automatic directions based on mode above
+    self->regs.reg_0x0023_enabledirctr1 = 0;
+    self->regs.reg_0x0023_enabledirctr2 = 0;
+
     //delayed mclk is used for RX read clock -- needs small delay set
     self->regs.reg_0x002b_mclk2dly = 1; //1X delay
     self->regs.reg_0x002b_mclk1dly = 1; //1X delay
