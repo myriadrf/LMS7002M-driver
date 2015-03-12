@@ -47,6 +47,12 @@ LMS7002M_API void LMS7002M_tbb_enable_loopback(LMS7002M_t *self, const LMS7002M_
     LMS7002M_regs_spi_write(self, 0x0105);
 }
 
+LMS7002M_API int LMS7002M_tbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, const double bw)
+{
+    LMS7002M_set_mac_ch(self, channel);
+    return -1;
+}
+
 #ifdef __cplusplus
 }
 #endif

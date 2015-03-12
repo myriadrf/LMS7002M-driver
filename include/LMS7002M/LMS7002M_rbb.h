@@ -101,6 +101,12 @@ LMS7002M_API double LMS7002M_rbb_set_pga(LMS7002M_t *self, const LMS7002M_chan_t
     return G_PGA_RBB - 12.0;
 }
 
+LMS7002M_API int LMS7002M_rbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, const double bw)
+{
+    LMS7002M_set_mac_ch(self, channel);
+    return -1;
+}
+
 #ifdef __cplusplus
 }
 #endif
