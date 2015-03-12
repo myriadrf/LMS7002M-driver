@@ -39,6 +39,12 @@ struct LMS7002M_struct
     double cgen_fref; //!< last written CGEN ref frequency in Hz
     double sxr_fref; //!< last written RX ref frequency in Hz
     double sxt_fref; //!< last written TX ref frequency in Hz
+
+    //calibration storage
+    int RBB_RBANK[2]; //!< R_CTL_LPF_RBB storage per channel
+    double RBB_CalFreq[10]; //!< band id to cal freq in Hz
+    int RBB_CBANK[2][10]; //!< CBANK per channel, per band id
+    int RBB_STATUS[2][10]; //!< cal status per channel, per band id
 };
 
 /***********************************************************************
@@ -213,6 +219,7 @@ LMS7002M_API int LMS7002M_load_ini(LMS7002M_t *self, const char *path)
  * Other implementation includes
  **********************************************************************/
 #include <LMS7002M/LMS7002M_util.h>
+#include <LMS7002M/LMS7002M_cal.h>
 #include <LMS7002M/LMS7002M_lml.h>
 #include <LMS7002M/LMS7002M_cgen.h>
 #include <LMS7002M/LMS7002M_nco.h>
