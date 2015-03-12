@@ -45,6 +45,10 @@ struct LMS7002M_struct
     double RBB_CalFreq[10]; //!< band id to cal freq in Hz
     int RBB_CBANK[2][10]; //!< CBANK per channel, per band id
     int RBB_STATUS[2][10]; //!< cal status per channel, per band id
+
+    double TBB_CalFreq[10]; //!< band id to cal freq in Hz
+    int TBB_CBANK[2]; //!< CBANK per channel
+    int TBB_RBANK[2][10]; //!< CBANK per channel, per band id
 };
 
 /***********************************************************************
@@ -220,6 +224,8 @@ LMS7002M_API int LMS7002M_load_ini(LMS7002M_t *self, const char *path)
  **********************************************************************/
 #include <LMS7002M/LMS7002M_util.h>
 #include <LMS7002M/LMS7002M_cal.h>
+#include <LMS7002M/LMS7002M_cal_rbb.h>
+#include <LMS7002M/LMS7002M_cal_tbb.h>
 #include <LMS7002M/LMS7002M_lml.h>
 #include <LMS7002M/LMS7002M_cgen.h>
 #include <LMS7002M/LMS7002M_nco.h>
