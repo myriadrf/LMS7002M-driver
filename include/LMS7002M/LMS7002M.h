@@ -393,10 +393,14 @@ LMS7002M_API void LMS7002M_txtsp_tsg_tone(LMS7002M_t *self, const LMS7002M_chan_
 // TBB (transmit baseband chain)
 //=====================================================================//
 
-#define LMS7002M_TBB_DISCONNECTED 0 //!< Loopback disconnected
-#define LMS7002M_TBB_DAC_CURRENT 1 //!< DAC current
-#define LMS7002M_TBB_LB_LADDER 2 //!< low band ladder
-#define LMS7002M_TBB_MAIN_TBB 3 //!< TX baseband
+#define LMS7002M_TBB_BYP (int)'B'  //!< Bypass filters path selected
+#define LMS7002M_TBB_LBF (int)'L'  //!< Low band filter path selected
+#define LMS7002M_TBB_HBF (int)'H'  //!< High band filter path selected
+
+#define LMS7002M_TBB_LB_DISCONNECTED 0 //!< Loopback disconnected
+#define LMS7002M_TBB_LB_DAC_CURRENT 1 //!< DAC current
+#define LMS7002M_TBB_LB_LB_LADDER 2 //!< low band ladder
+#define LMS7002M_TBB_LB_MAIN_TBB 3 //!< TX baseband
 
 /*!
  * Enable/disable the TX baseband.
@@ -407,10 +411,21 @@ LMS7002M_API void LMS7002M_txtsp_tsg_tone(LMS7002M_t *self, const LMS7002M_chan_
 LMS7002M_API void LMS7002M_tbb_enable(LMS7002M_t *self, const LMS7002M_chan_t channel, const bool enable);
 
 /*!
+ * Select the data path for the TX baseband.
+ * Use this to select loopback and filter paths.
+ * Calling LMS7002M_tbb_set_filter_bw() will also
+ * set the path based on the filter bandwidth setting.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param path the input path (see LMS7002M_TBB_* defines)
+ */
+LMS7002M_API void LMS7002M_tbb_set_path(LMS7002M_t *self, const LMS7002M_chan_t channel, const int path);
+
+/*!
  * Enable/disable the TX BB loopback to RBB.
  * \param self an instance of the LMS7002M driver
  * \param channel the channel LMS_CHA or LMS_CHB
- * \param mode loopback mode (see LMS7002M_TBB_* defines)
+ * \param mode loopback mode (see LMS7002M_TBB_LB_* defines)
  * \param swap true to swap I and Q in the loopback
  */
 LMS7002M_API void LMS7002M_tbb_enable_loopback(LMS7002M_t *self, const LMS7002M_chan_t channel, const int mode, const bool swap);
@@ -516,11 +531,11 @@ LMS7002M_API void LMS7002M_rxtsp_tsg_tone(LMS7002M_t *self, const LMS7002M_chan_
 //=====================================================================//
 
 #define LMS7002M_RBB_BYP (int)'B'  //!< Bypass filters path selected
-#define LMS7002M_RBB_LPF (int)'L'  //!< Low band filter path selected
-#define LMS7002M_RBB_HPF (int)'H'  //!< High band filter path selected
+#define LMS7002M_RBB_LBF (int)'L'  //!< Low band filter path selected
+#define LMS7002M_RBB_HBF (int)'H'  //!< High band filter path selected
 #define LMS7002M_RBB_BYP_LB 0      //!< Bypass filters with loopback from TXBB
-#define LMS7002M_RBB_LPF_LB 1      //!< Low band filter with loopback from TXBB
-#define LMS7002M_RBB_HPF_LB 2      //!< High band filter with loopback from TXBB
+#define LMS7002M_RBB_LBF_LB 1      //!< Low band filter with loopback from TXBB
+#define LMS7002M_RBB_HBF_LB 2      //!< High band filter with loopback from TXBB
 
 /*!
  * Enable/disable the RX baseband.
@@ -531,12 +546,15 @@ LMS7002M_API void LMS7002M_rxtsp_tsg_tone(LMS7002M_t *self, const LMS7002M_chan_
 LMS7002M_API void LMS7002M_rbb_enable(LMS7002M_t *self, const LMS7002M_chan_t channel, const bool enable);
 
 /*!
- * Select the input source for the RX baseband.
+ * Select the data path for the RX baseband.
+ * Use this to select loopback and filter paths.
+ * Calling LMS7002M_rbb_set_filter_bw() will also
+ * set the path based on the filter bandwidth setting.
  * \param self an instance of the LMS7002M driver
  * \param channel the channel LMS_CHA or LMS_CHB
  * \param path the input path (see LMS7002M_RBB_* defines)
  */
-LMS7002M_API void LMS7002M_rbb_select_input(LMS7002M_t *self, const LMS7002M_chan_t channel, const int path);
+LMS7002M_API void LMS7002M_rbb_set_path(LMS7002M_t *self, const LMS7002M_chan_t channel, const int path);
 
 /*!
  * Set the PGA gain for the RX baseband.

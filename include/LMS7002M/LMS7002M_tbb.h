@@ -25,13 +25,34 @@ LMS7002M_API void LMS7002M_tbb_enable(LMS7002M_t *self, const LMS7002M_chan_t ch
     LMS7002M_regs_spi_write(self, 0x0124);
 
     self->regs.reg_0x0105_en_g_tbb = enable?1:0;
+
+    LMS7002M_regs_spi_write(self, 0x0105);
+}
+
+LMS7002M_API void LMS7002M_tbb_set_path(LMS7002M_t *self, const LMS7002M_chan_t channel, const int path)
+{
+    LMS7002M_set_mac_ch(self, channel);
+
     self->regs.reg_0x0105_pd_lpfh_tbb = 1;
-    self->regs.reg_0x0105_pd_lpfiamp_tbb = 0;
     self->regs.reg_0x0105_pd_lpflad_tbb = 1;
     self->regs.reg_0x0105_pd_lpfs5_tbb = 1;
-
-    //bypass for now
     self->regs.reg_0x010a_bypladder_tbb = 1;
+
+    switch (path)
+    {
+    case LMS7002M_TBB_BYP:
+        break;
+
+    case LMS7002M_TBB_LBF:
+        self->regs.reg_0x010a_bypladder_tbb = 0;
+        self->regs.reg_0x0105_pd_lpflad_tbb = 0;
+        self->regs.reg_0x0105_pd_lpfs5_tbb = 0;
+        break;
+
+    case LMS7002M_TBB_HBF:
+        self->regs.reg_0x0105_pd_lpfh_tbb = 0;
+        break;
+    }
 
     LMS7002M_regs_spi_write(self, 0x0105);
     LMS7002M_regs_spi_write(self, 0x010A);
@@ -71,7 +92,10 @@ LMS7002M_API double LMS7002M_tbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_
     self->regs.reg_0x0109_rcal_lpflad_tbb = val;
     LMS7002M_regs_spi_write(self, 0x0109);
 
-    //TODO set path
+    //set path
+    if (bypass) LMS7002M_tbb_set_path(self, channel, LMS7002M_TBB_BYP);
+    else if (hb) LMS7002M_tbb_set_path(self, channel, LMS7002M_TBB_HBF);
+    else LMS7002M_tbb_set_path(self, channel, LMS7002M_TBB_LBF);
 
     return actual;
 }
@@ -82,6 +106,10 @@ LMS7002M_API double LMS7002M_tbb_set_iamp(LMS7002M_t *self, const LMS7002M_chan_
     int value = (int)(gain + 0.5);
     if (value < 0) value = 0;
     if (value > 63) value = 63;
+
+    //ensure enabled iamp
+    self->regs.reg_0x0105_pd_lpfiamp_tbb = 0;
+    LMS7002M_regs_spi_write(self, 0x0105);
 
     //TODO this may need calibration
 

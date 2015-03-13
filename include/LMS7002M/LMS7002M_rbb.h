@@ -31,7 +31,7 @@ LMS7002M_API void LMS7002M_rbb_enable(LMS7002M_t *self, const LMS7002M_chan_t ch
     LMS7002M_regs_spi_write(self, 0x0115);
 }
 
-LMS7002M_API void LMS7002M_rbb_select_input(LMS7002M_t *self, const LMS7002M_chan_t channel, const int path)
+LMS7002M_API void LMS7002M_rbb_set_path(LMS7002M_t *self, const LMS7002M_chan_t channel, const int path)
 {
     LMS7002M_set_mac_ch(self, channel);
 
@@ -46,13 +46,13 @@ LMS7002M_API void LMS7002M_rbb_select_input(LMS7002M_t *self, const LMS7002M_cha
         self->regs.reg_0x0118_input_ctl_pga_rbb = REG_0X0118_INPUT_CTL_PGA_RBB_BYPASS;
         break;
 
-    case LMS7002M_RBB_LPF:
+    case LMS7002M_RBB_LBF:
         self->regs.reg_0x0115_pd_lpfl_rbb = 0;
         self->regs.reg_0x0115_en_lb_lpfl_rbb = 1;
         self->regs.reg_0x0118_input_ctl_pga_rbb = REG_0X0118_INPUT_CTL_PGA_RBB_LPFL;
         break;
 
-    case LMS7002M_RBB_HPF:
+    case LMS7002M_RBB_HBF:
         self->regs.reg_0x0115_pd_lpfh_rbb = 0;
         self->regs.reg_0x0115_en_lb_lpfh_rbb = 1;
         self->regs.reg_0x0118_input_ctl_pga_rbb = REG_0X0118_INPUT_CTL_PGA_RBB_LPFH;
@@ -62,13 +62,13 @@ LMS7002M_API void LMS7002M_rbb_select_input(LMS7002M_t *self, const LMS7002M_cha
         self->regs.reg_0x0118_input_ctl_pga_rbb = REG_0X0118_INPUT_CTL_PGA_RBB_TX;
         break;
 
-    case LMS7002M_RBB_LPF_LB:
+    case LMS7002M_RBB_LBF_LB:
         self->regs.reg_0x0115_pd_lpfl_rbb = 0;
         self->regs.reg_0x0115_en_lb_lpfl_rbb = 1;
         self->regs.reg_0x0118_input_ctl_pga_rbb = REG_0X0118_INPUT_CTL_PGA_RBB_LPFL;
         break;
 
-    case LMS7002M_RBB_HPF_LB:
+    case LMS7002M_RBB_HBF_LB:
         self->regs.reg_0x0115_pd_lpfh_rbb = 0;
         self->regs.reg_0x0115_en_lb_lpfh_rbb = 1;
         self->regs.reg_0x0118_input_ctl_pga_rbb = REG_0X0118_INPUT_CTL_PGA_RBB_LPFH;
@@ -127,7 +127,10 @@ LMS7002M_API double LMS7002M_rbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_
     LMS7002M_regs_spi_write(self, 0x0116);
     LMS7002M_regs_spi_write(self, 0x0117);
 
-    //TODO set path
+    //set path
+    if (bypass) LMS7002M_rbb_set_path(self, channel, LMS7002M_RBB_BYP);
+    else if (hb) LMS7002M_rbb_set_path(self, channel, LMS7002M_RBB_HBF);
+    else LMS7002M_rbb_set_path(self, channel, LMS7002M_RBB_LBF);
 
     return actual;
 }
