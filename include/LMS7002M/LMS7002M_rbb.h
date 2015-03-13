@@ -101,10 +101,35 @@ LMS7002M_API double LMS7002M_rbb_set_pga(LMS7002M_t *self, const LMS7002M_chan_t
     return G_PGA_RBB - 12.0;
 }
 
-LMS7002M_API int LMS7002M_rbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, const double bw)
+LMS7002M_API double LMS7002M_rbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, const double bw)
 {
     LMS7002M_set_mac_ch(self, channel);
-    return -1;
+
+    int val = 0;
+    double actual = bw;
+    bool bypass = false;
+    const bool hb = bw >= 37.0e6;
+
+    if (bw <= 1.4e6) val = 0, actual = 1.4e6;
+    else if (bw <= 3.0e6) val = 1, actual = 3.0e6;
+    else if (bw <= 5.0e6) val = 2, actual = 5.0e6;
+    else if (bw <= 10.0e6) val = 3, actual = 10.0e6;
+    else if (bw <= 15.0e6) val = 4, actual = 15.0e6;
+    else if (bw <= 20.0e6) val = 5, actual = 20.0e6;
+    else if (bw <= 37.0e6) val = 1, actual = 37.0e6;
+    else if (bw <= 66.0e6) val = 4, actual = 66.0e6;
+    else if (bw <= 108.0e6) val = 7, actual = 108.0e6;
+    else bypass = true;
+
+    //only one filter is actually used
+    self->regs.reg_0x0117_rcc_ctl_lpfl_rbb = val;
+    self->regs.reg_0x0116_rcc_ctl_lpfh_rbb = val;
+    LMS7002M_regs_spi_write(self, 0x0116);
+    LMS7002M_regs_spi_write(self, 0x0117);
+
+    //TODO set path
+
+    return actual;
 }
 
 #ifdef __cplusplus

@@ -199,6 +199,15 @@ public:
     std::map<int, double> _cachedSampleRates;
 
     /*******************************************************************
+     * BW filter API
+     ******************************************************************/
+    void setBandwidth(const int direction, const size_t channel, const double bw);
+    double getBandwidth(const int direction, const size_t channel) const;
+    std::vector<double> listBandwidths(const int direction, const size_t channel) const;
+
+    std::map<int, std::map<size_t, double>> _cachedFilterBws;
+
+    /*******************************************************************
      * Clocking API
      ******************************************************************/
     double getTSPRate(const int direction) const;

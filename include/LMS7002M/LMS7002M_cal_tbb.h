@@ -27,10 +27,14 @@ static inline unsigned char Algorithm_C_TBB(LMS7002M_t *self, unsigned char Band
 static inline unsigned char Algorithm_D_TBB(LMS7002M_t *self, unsigned char Band_id, unsigned short LowFreqAmp);
 static inline unsigned char Algorithm_E_TBB(LMS7002M_t *self, unsigned char Band_id, unsigned char MIMO_ch);
 
-#define TBB_11_0MHZ 0
-#define TBB_18_5MHZ 0
-#define TBB_38_0MHZ 1
-#define TBB_54_0MHZ 2
+#define TBB_2_4MHZ 0
+#define TBB_2_74MHZ 1
+#define TBB_5_5MHZ 2
+#define TBB_8_2MHZ 3
+#define TBB_11_0MHZ 4
+#define TBB_18_5MHZ 5
+#define TBB_38_0MHZ 6
+#define TBB_54_0MHZ 7
 
 /***********************************************************************
  * TBB config save/restore

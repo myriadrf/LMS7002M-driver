@@ -171,6 +171,8 @@ EVB7::EVB7(void):
         this->setGain(SOAPY_SDR_RX, i, "LNA", 0.0);
         this->setGain(SOAPY_SDR_RX, i, "TIA", 0.0);
         this->setGain(SOAPY_SDR_RX, i, "PGA", 0.0);
+        this->setBandwidth(SOAPY_SDR_RX, i, 200e6);
+        this->setBandwidth(SOAPY_SDR_TX, i, 200e6);
     }
 
     //LMS7002M_dump_ini(_lms, "/root/src/regs.ini");
@@ -273,7 +275,7 @@ std::vector<std::string> EVB7::listGains(const int direction, const size_t) cons
     }
     if (direction == SOAPY_SDR_TX)
     {
-        //
+        gains.push_back("IAMP");
     }
     return gains;
 }
@@ -298,6 +300,11 @@ void EVB7::setGain(const int direction, const size_t channel, const std::string 
     {
         actualValue = LMS7002M_rbb_set_pga(_lms, ch2LMS(channel), value);
     }
+
+    if (direction == SOAPY_SDR_TX and name == "IAMP")
+    {
+        actualValue = LMS7002M_tbb_set_iamp(_lms, ch2LMS(channel), value);
+    }
 }
 
 double EVB7::getGain(const int direction, const size_t channel, const std::string &name) const
@@ -308,7 +315,9 @@ double EVB7::getGain(const int direction, const size_t channel, const std::strin
 SoapySDR::Range EVB7::getGainRange(const int direction, const size_t channel, const std::string &name) const
 {
     if (direction == SOAPY_SDR_RX and name == "LNA") return SoapySDR::Range(0.0, 30.0);
+    if (direction == SOAPY_SDR_RX and name == "TIA") return SoapySDR::Range(0.0, 12.0);
     if (direction == SOAPY_SDR_RX and name == "PGA") return SoapySDR::Range(-12.0, 19.0);
+    if (direction == SOAPY_SDR_TX and name == "IAMP") return SoapySDR::Range(0.0, 63.0);
     return SoapySDR::Device::getGainRange(direction, channel, name);
 }
 
@@ -409,6 +418,58 @@ std::vector<double> EVB7::listSampleRates(const int direction, const size_t) con
         rates.push_back(baseRate/(1 << i));
     }
     return rates;
+}
+
+/*******************************************************************
+ * BW filter API
+ ******************************************************************/
+void EVB7::setBandwidth(const int direction, const size_t channel, const double bw)
+{
+    double &actualBw = _cachedFilterBws[direction][channel];
+    if (direction == SOAPY_SDR_RX)
+    {
+        actualBw = LMS7002M_rbb_set_filter_bw(_lms, ch2LMS(channel), bw);
+    }
+    if (direction == SOAPY_SDR_TX)
+    {
+        actualBw = LMS7002M_tbb_set_filter_bw(_lms, ch2LMS(channel), bw);
+    }
+}
+
+double EVB7::getBandwidth(const int direction, const size_t channel) const
+{
+    return _cachedFilterBws.at(direction).at(channel);
+}
+
+std::vector<double> EVB7::listBandwidths(const int direction, const size_t) const
+{
+    std::vector<double> bws;
+
+    if (direction == SOAPY_SDR_RX)
+    {
+        bws.push_back(1.4e6);
+        bws.push_back(3.0e6);
+        bws.push_back(5.0e6);
+        bws.push_back(10.0e6);
+        bws.push_back(15.0e6);
+        bws.push_back(20.0e6);
+        bws.push_back(37.0e6);
+        bws.push_back(66.0e6);
+        bws.push_back(108.0e6);
+    }
+    if (direction == SOAPY_SDR_TX)
+    {
+        bws.push_back(2.4e6);
+        bws.push_back(2.74e6);
+        bws.push_back(5.5e6);
+        bws.push_back(8.2e6);
+        bws.push_back(11.0e6);
+        bws.push_back(18.5e6);
+        bws.push_back(38.0e6);
+        bws.push_back(54.0e6);
+    }
+
+    return bws;
 }
 
 /*******************************************************************

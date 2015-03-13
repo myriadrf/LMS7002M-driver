@@ -417,12 +417,22 @@ LMS7002M_API void LMS7002M_tbb_enable_loopback(LMS7002M_t *self, const LMS7002M_
 
 /*!
  * Set the TX baseband filter bandwidth.
+ * The actual bandwidth will be greater than or equal to the requested bandwidth.
  * \param self an instance of the LMS7002M driver
  * \param channel the channel LMS_CHA or LMS_CHB
  * \param bw the complex bandwidth in Hz
- * \return 0 for success otherwise failure
+ * \return the actual filter width in Hz
  */
-LMS7002M_API int LMS7002M_tbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, const double bw);
+LMS7002M_API double LMS7002M_tbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, const double bw);
+
+/*!
+ * Set the IAMP gain for the TX baseband.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param gain the gain value in dB 0.0 to 63.0
+ * \return the actual gain value in dB
+ */
+LMS7002M_API double LMS7002M_tbb_set_iamp(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain);
 
 //=====================================================================//
 // TRF (transmit RF frontend)
@@ -506,11 +516,11 @@ LMS7002M_API void LMS7002M_rxtsp_tsg_tone(LMS7002M_t *self, const LMS7002M_chan_
 //=====================================================================//
 
 #define LMS7002M_RBB_BYP (int)'B'  //!< Bypass filters path selected
-#define LMS7002M_RBB_LPF (int)'L'  //!< Low pass filter path selected
-#define LMS7002M_RBB_HPF (int)'H'  //!< High pass filter path selected
+#define LMS7002M_RBB_LPF (int)'L'  //!< Low band filter path selected
+#define LMS7002M_RBB_HPF (int)'H'  //!< High band filter path selected
 #define LMS7002M_RBB_BYP_LB 0      //!< Bypass filters with loopback from TXBB
-#define LMS7002M_RBB_LPF_LB 1      //!< Low pass filter with loopback from TXBB
-#define LMS7002M_RBB_HPF_LB 2      //!< High pass filter with loopback from TXBB
+#define LMS7002M_RBB_LPF_LB 1      //!< Low band filter with loopback from TXBB
+#define LMS7002M_RBB_HPF_LB 2      //!< High band filter with loopback from TXBB
 
 /*!
  * Enable/disable the RX baseband.
@@ -539,12 +549,13 @@ LMS7002M_API double LMS7002M_rbb_set_pga(LMS7002M_t *self, const LMS7002M_chan_t
 
 /*!
  * Set the RX baseband filter bandwidth.
+ * The actual bandwidth will be greater than or equal to the requested bandwidth.
  * \param self an instance of the LMS7002M driver
  * \param channel the channel LMS_CHA or LMS_CHB
  * \param bw the complex bandwidth in Hz
- * \return 0 for success otherwise failure
+ * \return the actual filter width in Hz
  */
-LMS7002M_API int LMS7002M_rbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, const double bw);
+LMS7002M_API double LMS7002M_rbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, const double bw);
 
 //=====================================================================//
 // RFE (receive RF frontend)
