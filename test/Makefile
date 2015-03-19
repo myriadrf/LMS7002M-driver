@@ -1,5 +1,6 @@
 CC=gcc
 CFLAGS= \
+	-D_GNU_SOURCE \
 	-std=c99 \
 	-I$(CURDIR)/../include \
 	-I$(CURDIR)/../interfaces

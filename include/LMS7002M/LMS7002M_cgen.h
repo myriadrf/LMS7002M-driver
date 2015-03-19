@@ -110,7 +110,7 @@ LMS7002M_API int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, co
     LMS7002M_regs_spi_write(self, 0x0086);
 
     //calculate the actual rate
-    if (factual != NULL) *factual = fref * (Nint + (Nfrac/double(1 << 20))) / fdiv;
+    if (factual != NULL) *factual = fref * (Nint + (Nfrac/((double)(1 << 20)))) / fdiv;
 
     return 0; //OK
 }

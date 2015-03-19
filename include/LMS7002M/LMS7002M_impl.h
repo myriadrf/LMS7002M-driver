@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <string.h>
 #include <LMS7002M/LMS7002M.h>
 
 #ifdef __cplusplus

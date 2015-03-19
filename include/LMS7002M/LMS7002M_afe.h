@@ -26,10 +26,10 @@ LMS7002M_API void LMS7002M_afe_enable(LMS7002M_t *self, const LMS7002M_dir_t dir
     self->regs.reg_0x0082_pd_afe = 0;
 
     //conditional power downs
-    if (direction == LMS_TX and channel == LMS_CHA) self->regs.reg_0x0082_pd_tx_afe1 = enable?0:1;
-    if (direction == LMS_TX and channel == LMS_CHB) self->regs.reg_0x0082_pd_tx_afe2 = enable?0:1;
-    if (direction == LMS_RX and channel == LMS_CHA) self->regs.reg_0x0082_pd_rx_afe1 = enable?0:1;
-    if (direction == LMS_RX and channel == LMS_CHB) self->regs.reg_0x0082_pd_rx_afe2 = enable?0:1;
+    if (direction == LMS_TX && channel == LMS_CHA) self->regs.reg_0x0082_pd_tx_afe1 = enable?0:1;
+    if (direction == LMS_TX && channel == LMS_CHB) self->regs.reg_0x0082_pd_tx_afe2 = enable?0:1;
+    if (direction == LMS_RX && channel == LMS_CHA) self->regs.reg_0x0082_pd_rx_afe1 = enable?0:1;
+    if (direction == LMS_RX && channel == LMS_CHB) self->regs.reg_0x0082_pd_rx_afe2 = enable?0:1;
 
     LMS7002M_regs_spi_write(self, 0x0082);
 }

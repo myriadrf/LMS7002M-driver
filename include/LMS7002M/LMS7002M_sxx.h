@@ -133,7 +133,7 @@ LMS7002M_API int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t dir
 
     //program the N divider
     const int Nint = (int)Ndiv - 4;
-    const int Nfrac = (int)((Ndiv-int(Ndiv))*(1 << 20));
+    const int Nfrac = (int)((Ndiv-((int)(Ndiv)))*(1 << 20));
     self->regs.reg_0x011d_frac_sdm = (Nfrac) & 0xffff; //lower 16 bits
     self->regs.reg_0x011e_frac_sdm = (Nfrac) >> 16; //upper 4 bits
     self->regs.reg_0x011e_int_sdm = Nint;
@@ -168,7 +168,7 @@ LMS7002M_API int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t dir
     LMS7002M_regs_spi_write(self, 0x011c);
 
     //calculate the actual rate
-    if (factual != NULL) *factual = ((1 << EN_DIV2)/2.0) * fref * ((Nint+4) + (Nfrac/double(1 << 20))) / fdiv;
+    if (factual != NULL) *factual = ((1 << EN_DIV2)/2.0) * fref * ((Nint+4) + (Nfrac/((double)(1 << 20)))) / fdiv;
 
     return 0; //OK
 }

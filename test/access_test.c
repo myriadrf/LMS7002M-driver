@@ -106,7 +106,8 @@ int main(int argc, char **argv)
     printf("ver 0x%x\n", LMS7002M_regs(lms)->reg_0x002f_ver);
 
     //turn the clocks on
-    ret = LMS7002M_set_data_clock(lms, 61.44e6/2, 61.44e6/2);
+    double actualRate = 0.0;
+    ret = LMS7002M_set_data_clock(lms, 61.44e6/2, 61.44e6/2, &actualRate);
     if (ret != 0)
     {
         printf("clock tune failure %d\n", ret);
