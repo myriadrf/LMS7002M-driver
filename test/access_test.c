@@ -50,12 +50,14 @@
 #define FPGA_REG_RD_SENTINEL 0 //readback a known value
 #define FPGA_REG_RD_RX_CLKS 8 //sanity check clock counter
 #define FPGA_REG_RD_TX_CLKS 12 //sanity check clock counter
-#define FPGA_REG_RD_DATA_A 20 //RXA data for loopback test
-#define FPGA_REG_RD_DATA_B 24 //RXB data for loopback test
+#define FPGA_REG_RD_DATA_A 28 //RXA data for loopback test
+#define FPGA_REG_RD_DATA_B 32 //RXB data for loopback test
 
-#define FPGA_REG_WR_RX_STORE_OK 8 //can register RX samples (for test)
-#define FPGA_REG_WR_DATA_A 20 //TXA data for loopback test
-#define FPGA_REG_WR_DATA_B 24 //TXB data for loopback test
+#define FPGA_REG_WR_EXT_RST 12 //active high external reset
+//#define FPGA_REG_WR_RX_STORE_OK 8 //can register RX samples (for test)
+#define FPGA_REG_WR_DATA_A 28 //TXA data for loopback test
+#define FPGA_REG_WR_DATA_B 32 //TXB data for loopback test
+#define FPGA_REG_WR_TX_TEST 36
 
 static inline double estimate_clock_rate(void *regs, int offset)
 {
@@ -128,11 +130,12 @@ int main(int argc, char **argv)
     SET_EMIO_OUT_LVL(RXEN_EMIO, 1);
     SET_EMIO_OUT_LVL(TXEN_EMIO, 1);
 
+    xumem_write32(regs, FPGA_REG_WR_TX_TEST, 1); //enable fpga registers to TX
     xumem_write32(regs, FPGA_REG_WR_DATA_A, 0xAAAABBBB);
     xumem_write32(regs, FPGA_REG_WR_DATA_B, 0xCCCCDDDD);
-    xumem_write32(regs, FPGA_REG_WR_RX_STORE_OK, 1);
-    sleep(1);
-    xumem_write32(regs, FPGA_REG_WR_RX_STORE_OK, 0);
+    //xumem_write32(regs, FPGA_REG_WR_RX_STORE_OK, 1);
+    //sleep(1);
+    //xumem_write32(regs, FPGA_REG_WR_RX_STORE_OK, 0);
     sleep(1);
     printf("FPGA_REG_RD_DATA_A = 0x%x\n", xumem_read32(regs, FPGA_REG_RD_DATA_A));
     printf("FPGA_REG_RD_DATA_B = 0x%x\n", xumem_read32(regs, FPGA_REG_RD_DATA_B));
