@@ -1,5 +1,5 @@
 ///
-/// \file LMS7002M/LMS7002M_sxx.h
+/// \file LMS7002M_sxx.c
 ///
 /// LO tuning hooks for the LMS7002M C driver.
 /// See SXR and SXT sections in the documentation.
@@ -11,13 +11,8 @@
 /// http://www.apache.org/licenses/LICENSE-2.0
 ///
 
-#pragma once
 #include <stdlib.h>
-#include <LMS7002M/LMS7002M.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "LMS7002M_impl.h"
 
 LMS7002M_API void LMS7002M_sxx_enable(LMS7002M_t *self, const LMS7002M_dir_t direction, const bool enable)
 {
@@ -172,7 +167,3 @@ LMS7002M_API int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t dir
 
     return 0; //OK
 }
-
-#ifdef __cplusplus
-}
-#endif

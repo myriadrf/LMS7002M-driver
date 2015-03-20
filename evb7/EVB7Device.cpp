@@ -9,7 +9,6 @@
 
 #include "EVB7Device.hpp"
 #include <SoapySDR/Registry.hpp>
-#include <LMS7002M/LMS7002M_impl.h>
 
 /***********************************************************************
  * Constructor

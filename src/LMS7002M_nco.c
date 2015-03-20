@@ -1,5 +1,5 @@
 ///
-/// \file LMS7002M/LMS7002M_nco.h
+/// \file LMS7002M_nco.c
 ///
 /// Numerically controlled oscillator hooks for the LMS7002M C driver.
 ///
@@ -10,13 +10,8 @@
 /// http://www.apache.org/licenses/LICENSE-2.0
 ///
 
-#pragma once
 #include <stdlib.h>
-#include <LMS7002M/LMS7002M.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "LMS7002M_impl.h"
 
 LMS7002M_API void LMS7002M_set_nco_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, const LMS7002M_chan_t channel, const double freqRel)
 {
@@ -36,7 +31,3 @@ LMS7002M_API void LMS7002M_set_nco_freq(LMS7002M_t *self, const LMS7002M_dir_t d
     LMS7002M_regs_spi_write2(self, addrTop | 0x0042, 0x0242);
     LMS7002M_regs_spi_write2(self, addrTop | 0x0043, 0x0243);
 }
-
-#ifdef __cplusplus
-}
-#endif

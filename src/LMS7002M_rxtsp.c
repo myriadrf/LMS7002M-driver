@@ -1,5 +1,5 @@
 ///
-/// \file LMS7002M/LMS7002M_rxtsp.h
+/// \file LMS7002M_rxtsp.c
 ///
 /// RX DSP chain config for the LMS7002M C driver.
 ///
@@ -10,13 +10,8 @@
 /// http://www.apache.org/licenses/LICENSE-2.0
 ///
 
-#pragma once
 #include <stdlib.h>
-#include <LMS7002M/LMS7002M.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "LMS7002M_impl.h"
 
 LMS7002M_API void LMS7002M_rxtsp_enable(LMS7002M_t *self, const LMS7002M_chan_t channel, const bool enable)
 {
@@ -111,7 +106,3 @@ LMS7002M_API void LMS7002M_rxtsp_tsg_tone(LMS7002M_t *self, const LMS7002M_chan_
     self->regs.reg_0x0400_tsgfcw = REG_0X0400_TSGFCW_DIV8;
     LMS7002M_regs_spi_write(self, 0x0400);
 }
-
-#ifdef __cplusplus
-}
-#endif

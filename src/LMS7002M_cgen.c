@@ -1,5 +1,5 @@
 ///
-/// \file LMS7002M/LMS7002M_cgen.h
+/// \file LMS7002M_cgen.c
 ///
 /// Clock generation for the LMS7002M C driver.
 ///
@@ -10,14 +10,9 @@
 /// http://www.apache.org/licenses/LICENSE-2.0
 ///
 
-#pragma once
 #include <stdlib.h>
 #include <stdio.h>
-#include <LMS7002M/LMS7002M.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "LMS7002M_impl.h"
 
 LMS7002M_API int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, const double fout, double *factual)
 {
@@ -114,7 +109,3 @@ LMS7002M_API int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, co
 
     return 0; //OK
 }
-
-#ifdef __cplusplus
-}
-#endif

@@ -1,5 +1,5 @@
 ///
-/// \file LMS7002M/LMS7002M_cal_rbb.h
+/// \file LMS7002M_cal_rbb.c
 ///
 /// RX baseband calibration algorithms for the LMS7002M C driver.
 ///
@@ -10,19 +10,9 @@
 /// http://www.apache.org/licenses/LICENSE-2.0
 ///
 
-#pragma once
 #include <stdlib.h>
-#include <LMS7002M/LMS7002M.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-static inline void Algorithm_A_RBB(LMS7002M_t *self, unsigned char ch);
-static inline unsigned char Algorithm_B_RBB(LMS7002M_t *self, unsigned short *LowFreqAmp);
-static inline void Set_cal_path_RBB(LMS7002M_t *self, const int path);
-static inline void Set_NCO_Freq(LMS7002M_t *self, const double freq);
-static inline unsigned char Algorithm_F_RBB(LMS7002M_t *self, unsigned char Band_id, unsigned short LowFreqAmp, unsigned char ch);
+#include "LMS7002M_cal.h"
+#include "LMS7002M_impl.h"
 
 #define RBB_1_4MHZ 0
 #define RBB_3_0MHZ 1
@@ -37,7 +27,7 @@ static inline unsigned char Algorithm_F_RBB(LMS7002M_t *self, unsigned char Band
 /***********************************************************************
  * RBB config save/restore
  **********************************************************************/
-static inline void Save_config_RBB(LMS7002M_t *self, int *backup)
+void Save_config_RBB(LMS7002M_t *self, int *backup)
 {
     for (size_t i = 0;; i++)
     {
@@ -47,7 +37,7 @@ static inline void Save_config_RBB(LMS7002M_t *self, int *backup)
     }
 }
 
-static inline void Restore_config_RBB(LMS7002M_t *self, int *backup)
+void Restore_config_RBB(LMS7002M_t *self, int *backup)
 {
     for (size_t i = 0;; i++)
     {
@@ -60,7 +50,7 @@ static inline void Restore_config_RBB(LMS7002M_t *self, int *backup)
 /***********************************************************************
  * RBB calibration path
  **********************************************************************/
-static inline void Set_cal_path_RBB(LMS7002M_t *self, const int path)
+void Set_cal_path_RBB(LMS7002M_t *self, const int path)
 {
     //TODO
     //7 (RX LowBand)
@@ -70,7 +60,7 @@ static inline void Set_cal_path_RBB(LMS7002M_t *self, const int path)
 /***********************************************************************
  * NCO for DAC output
  **********************************************************************/
-static inline void Set_NCO_Freq(LMS7002M_t *self, const double freq)
+void Set_NCO_Freq(LMS7002M_t *self, const double freq)
 {
     //TODO
 }
@@ -78,7 +68,7 @@ static inline void Set_NCO_Freq(LMS7002M_t *self, const double freq)
 /***********************************************************************
  * RBB low band calibration
  **********************************************************************/
-static inline unsigned char Calibration_LowBand_RBB(LMS7002M_t *self, unsigned char ch)
+unsigned char Calibration_LowBand_RBB(LMS7002M_t *self, unsigned char ch)
 {
     unsigned char result = 0;
     unsigned short LowFreqAmp = 0;
@@ -113,7 +103,7 @@ static inline unsigned char Calibration_LowBand_RBB(LMS7002M_t *self, unsigned c
 /***********************************************************************
  * RBB high band calibration
  **********************************************************************/
-static inline unsigned char Calibration_HighBand_RBB(LMS7002M_t *self, unsigned char ch)
+unsigned char Calibration_HighBand_RBB(LMS7002M_t *self, unsigned char ch)
 {
     unsigned char result = 0;
     unsigned short LowFreqAmp = 0;
@@ -142,7 +132,7 @@ static inline unsigned char Calibration_HighBand_RBB(LMS7002M_t *self, unsigned 
 /***********************************************************************
  * RBB Algorithm A
  **********************************************************************/
-static inline void Algorithm_A_RBB(LMS7002M_t *self, unsigned char MIMO_ch)
+void Algorithm_A_RBB(LMS7002M_t *self, unsigned char MIMO_ch)
 {
     unsigned char R_CTL_LPF_RBB;
     float ratio;
@@ -157,7 +147,7 @@ static inline void Algorithm_A_RBB(LMS7002M_t *self, unsigned char MIMO_ch)
 /***********************************************************************
  * RBB Algorithm B
  **********************************************************************/
-static inline unsigned char Algorithm_B_RBB(LMS7002M_t *self, unsigned short *LowFreqAmp)
+unsigned char Algorithm_B_RBB(LMS7002M_t *self, unsigned short *LowFreqAmp)
 {
     unsigned short ADCOUT;
     unsigned char CG_IAMP_TBB, gain_inc;
@@ -203,7 +193,7 @@ static inline unsigned char Algorithm_B_RBB(LMS7002M_t *self, unsigned short *Lo
 /***********************************************************************
  * RBB Algorithm F
  **********************************************************************/
-static inline unsigned char Algorithm_F_RBB(LMS7002M_t *self, unsigned char Band_id, unsigned short LowFreqAmp, unsigned char MIMO_ch)
+unsigned char Algorithm_F_RBB(LMS7002M_t *self, unsigned char Band_id, unsigned short LowFreqAmp, unsigned char MIMO_ch)
 {
     unsigned short ADCOUT, CONTROL;
     unsigned char low_band;
@@ -239,7 +229,3 @@ static inline unsigned char Algorithm_F_RBB(LMS7002M_t *self, unsigned char Band
     self->RBB_STATUS[MIMO_ch][Band_id] = 1;
     return 1;
 }
-
-#ifdef __cplusplus
-}
-#endif

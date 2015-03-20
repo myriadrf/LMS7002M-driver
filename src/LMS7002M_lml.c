@@ -1,5 +1,5 @@
 ///
-/// \file LMS7002M/LMS7002M_lml.h
+/// \file LMS7002M_lml.c
 ///
 /// Lime-light config for the LMS7002M C driver.
 ///
@@ -10,13 +10,8 @@
 /// http://www.apache.org/licenses/LICENSE-2.0
 ///
 
-#pragma once
 #include <stdlib.h>
-#include <LMS7002M/LMS7002M.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "LMS7002M_impl.h"
 
 LMS7002M_API void LMS7002M_set_spi_mode(LMS7002M_t *self, const int numWires)
 {
@@ -204,7 +199,3 @@ LMS7002M_API void LMS7002M_set_diq_mux(LMS7002M_t *self, const LMS7002M_dir_t di
     LMS7002M_regs_spi_write(self, 0x0024);
     LMS7002M_regs_spi_write(self, 0x0027);
 }
-
-#ifdef __cplusplus
-}
-#endif

@@ -21,7 +21,7 @@
  * or building this into a library -- so define LMS7002M_API accordingly.
  */
 #ifndef LMS7002M_API
-#define LMS7002M_API static inline
+#define LMS7002M_API
 #endif
 
 //! direction constants

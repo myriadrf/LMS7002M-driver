@@ -1,5 +1,5 @@
 ///
-/// \file LMS7002M/LMS7002M_rbb.h
+/// \file LMS7002M_rbb.c
 ///
 /// RX baseband controls for the LMS7002M C driver.
 ///
@@ -10,14 +10,9 @@
 /// http://www.apache.org/licenses/LICENSE-2.0
 ///
 
-#pragma once
 #include <stdlib.h>
-#include <LMS7002M/LMS7002M.h>
+#include "LMS7002M_impl.h"
 #include <math.h> //pow
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 LMS7002M_API void LMS7002M_rbb_enable(LMS7002M_t *self, const LMS7002M_chan_t channel, const bool enable)
 {
@@ -134,7 +129,3 @@ LMS7002M_API double LMS7002M_rbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_
 
     return actual;
 }
-
-#ifdef __cplusplus
-}
-#endif

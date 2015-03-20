@@ -30,7 +30,8 @@ https://www.apache.org/licenses/LICENSE-2.0.txt)
 ## Project layout
 
 * regs/ - LMS7002M register map and register header generator
-* include/ - LMS7002M C driver interface and implementation
+* include/ - LMS7002M headers for C driver interface
+* src/ - LMS7002M C sources for implementation details
 * interfaces/ - example SPI interfaces for use in LMS7002M
 * evb7/ - example SoapySDR wrapper using the LMS7002M C driver
 * test/ - simple register access test using the LMS7002M C driver

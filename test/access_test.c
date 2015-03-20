@@ -8,7 +8,6 @@
 //
 
 #include <LMS7002M/LMS7002M.h>
-#include <LMS7002M/LMS7002M_impl.h>
 
 #include <stdio.h>
 #include <stdlib.h>

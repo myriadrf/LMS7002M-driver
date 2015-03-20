@@ -1,5 +1,5 @@
 ///
-/// \file LMS7002M/LMS7002M_trf.h
+/// \file LMS7002M_trf.c
 ///
 /// TX RF frontend controls for the LMS7002M C driver.
 ///
@@ -10,13 +10,8 @@
 /// http://www.apache.org/licenses/LICENSE-2.0
 ///
 
-#pragma once
 #include <stdlib.h>
-#include <LMS7002M/LMS7002M.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "LMS7002M_impl.h"
 
 LMS7002M_API void LMS7002M_trf_enable(LMS7002M_t *self, const LMS7002M_chan_t channel, const bool enable)
 {
@@ -44,7 +39,3 @@ LMS7002M_API void LMS7002M_trf_enable_loopback(LMS7002M_t *self, const LMS7002M_
     self->regs.reg_0x0101_en_loopb_txpad_trf = enable?0:1;
     LMS7002M_regs_spi_write(self, 0x0101);
 }
-
-#ifdef __cplusplus
-}
-#endif

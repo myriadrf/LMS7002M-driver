@@ -1,5 +1,5 @@
 ///
-/// \file LMS7002M/LMS7002M_rfe.h
+/// \file LMS7002M_rfe.c
 ///
 /// RX RF frontend controls for the LMS7002M C driver.
 ///
@@ -10,13 +10,8 @@
 /// http://www.apache.org/licenses/LICENSE-2.0
 ///
 
-#pragma once
 #include <stdlib.h>
-#include <LMS7002M/LMS7002M.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "LMS7002M_impl.h"
 
 LMS7002M_API void LMS7002M_rfe_enable(LMS7002M_t *self, const LMS7002M_chan_t channel, const bool enable)
 {
@@ -153,7 +148,3 @@ LMS7002M_API double LMS7002M_rfe_set_tia(LMS7002M_t *self, const LMS7002M_chan_t
 
     return val + gmax;
 }
-
-#ifdef __cplusplus
-}
-#endif
