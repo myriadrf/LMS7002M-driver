@@ -397,6 +397,11 @@ LMS7002M_API void LMS7002M_txtsp_tsg_tone(LMS7002M_t *self, const LMS7002M_chan_
 #define LMS7002M_TBB_LBF (int)'L'  //!< Low band filter path selected
 #define LMS7002M_TBB_HBF (int)'H'  //!< High band filter path selected
 
+#define LMS7002M_TBB_TSTIN_OFF 0 //!< Disable test input signal
+#define LMS7002M_TBB_TSTIN_LBF 1 //!< Test signal to highband
+#define LMS7002M_TBB_TSTIN_HBF 2 //!< Test signal to lowband
+#define LMS7002M_TBB_TSTIN_AMP 3 //!< Test signal to current amp
+
 #define LMS7002M_TBB_LB_DISCONNECTED 0 //!< Loopback disconnected
 #define LMS7002M_TBB_LB_DAC_CURRENT 1 //!< DAC current
 #define LMS7002M_TBB_LB_LB_LADDER 2 //!< low band ladder
@@ -420,6 +425,15 @@ LMS7002M_API void LMS7002M_tbb_enable(LMS7002M_t *self, const LMS7002M_chan_t ch
  * \param path the input path (see LMS7002M_TBB_* defines)
  */
 LMS7002M_API void LMS7002M_tbb_set_path(LMS7002M_t *self, const LMS7002M_chan_t channel, const int path);
+
+/*!
+ * Configure the test input signal to the TX BB component.
+ * The default is disabled (LMS7002M_TBB_TSTIN_OFF).
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param path the input path (see LMS7002M_TBB_TSTIN_* defines)
+ */
+LMS7002M_API void LMS7002M_tbb_set_test_in(LMS7002M_t *self, const LMS7002M_chan_t channel, const int path);
 
 /*!
  * Enable/disable the TX BB loopback to RBB.

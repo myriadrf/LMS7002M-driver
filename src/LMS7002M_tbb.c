@@ -20,6 +20,8 @@ LMS7002M_API void LMS7002M_tbb_enable(LMS7002M_t *self, const LMS7002M_chan_t ch
     LMS7002M_regs_spi_write(self, 0x0124);
 
     self->regs.reg_0x0105_en_g_tbb = enable?1:0;
+    LMS7002M_tbb_set_test_in(self, channel, LMS7002M_TBB_TSTIN_OFF);
+    LMS7002M_tbb_enable_loopback(self, channel, LMS7002M_TBB_LB_DISCONNECTED, false);
 
     LMS7002M_regs_spi_write(self, 0x0105);
 }
@@ -51,6 +53,13 @@ LMS7002M_API void LMS7002M_tbb_set_path(LMS7002M_t *self, const LMS7002M_chan_t 
 
     LMS7002M_regs_spi_write(self, 0x0105);
     LMS7002M_regs_spi_write(self, 0x010A);
+}
+
+LMS7002M_API void LMS7002M_tbb_set_test_in(LMS7002M_t *self, const LMS7002M_chan_t channel, const int path)
+{
+    LMS7002M_set_mac_ch(self, channel);
+    self->regs.reg_0x010a_tstin_tbb = path;
+    LMS7002M_regs_spi_write(self, 0x010a);
 }
 
 LMS7002M_API void LMS7002M_tbb_enable_loopback(LMS7002M_t *self, const LMS7002M_chan_t channel, const int mode, const bool swap)
