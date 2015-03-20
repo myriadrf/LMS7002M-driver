@@ -571,6 +571,15 @@ LMS7002M_API void LMS7002M_rbb_enable(LMS7002M_t *self, const LMS7002M_chan_t ch
 LMS7002M_API void LMS7002M_rbb_set_path(LMS7002M_t *self, const LMS7002M_chan_t channel, const int path);
 
 /*!
+ * Configure the test output signal from the RX BB component.
+ * The default is false meaning that the RBB outputs to the ADC.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param enable true to output RBB to pad, false for ADC
+ */
+LMS7002M_API void LMS7002M_rbb_set_test_out(LMS7002M_t *self, const LMS7002M_chan_t channel, const bool enable);
+
+/*!
  * Set the PGA gain for the RX baseband.
  * \param self an instance of the LMS7002M driver
  * \param channel the channel LMS_CHA or LMS_CHB
