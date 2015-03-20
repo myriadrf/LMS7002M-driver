@@ -139,6 +139,29 @@ int main(int argc, char **argv)
     printf("FPGA_REG_RD_DATA_A = 0x%x\n", xumem_read32(regs, FPGA_REG_RD_DATA_A));
     printf("FPGA_REG_RD_DATA_B = 0x%x\n", xumem_read32(regs, FPGA_REG_RD_DATA_B));
 
+    //enable components used for test
+    LMS7002M_rbb_enable(lms, LMS_CHAB, true);
+    LMS7002M_tbb_enable(lms, LMS_CHAB, true);
+    LMS7002M_afe_enable(lms, LMS_TX, LMS_CHAB, true);
+    LMS7002M_afe_enable(lms, LMS_RX, LMS_CHAB, true);
+    LMS7002M_txtsp_enable(lms, LMS_CHAB, true);
+
+    //setup tx dsp signal generator
+    LMS7002M_txtsp_tsg_const(lms, LMS_CHAB, 1 << 14, 1 << 14);
+    LMS7002M_txtsp_set_freq(lms, LMS_CHAB, 0.01/*relative*/);
+
+    //connect tx baseband to rx baseband loopback
+    LMS7002M_tbb_set_path(lms, LMS_CHAB, LMS7002M_TBB_BYP);
+    LMS7002M_tbb_set_test_in(lms, LMS_CHAB, LMS7002M_TBB_TSTIN_OFF);
+    //OR EXTERNAL DEBUG: LMS7002M_tbb_set_test_in(self, LMS_CHAB, LMS7002M_TBB_TSTIN_AMP);
+    LMS7002M_tbb_set_iamp(lms, LMS_CHAB, 10.0);
+    LMS7002M_tbb_enable_loopback(lms, LMS_CHAB, LMS7002M_TBB_LB_MAIN_TBB, false/*noswap*/);
+
+    //rx baseband loopback to output pad
+    LMS7002M_rbb_set_path(lms, LMS_CHAB, LMS7002M_RBB_BYP_LB);
+    LMS7002M_rbb_set_pga(lms, LMS_CHAB, 10.0);
+    LMS7002M_rbb_set_test_out(lms, LMS_CHAB, true);
+
     //power down and clean up
     LMS7002M_power_down(lms);
     LMS7002M_destroy(lms);
