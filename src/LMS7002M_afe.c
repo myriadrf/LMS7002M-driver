@@ -15,6 +15,14 @@
 
 LMS7002M_API void LMS7002M_afe_enable(LMS7002M_t *self, const LMS7002M_dir_t direction, const LMS7002M_chan_t channel, const bool enable)
 {
+    //support using LMS_CHAB to set both ADCs or DACs
+    if (channel == LMS_CHAB)
+    {
+        LMS7002M_afe_enable(self, direction, LMS_CHA, enable);
+        LMS7002M_afe_enable(self, direction, LMS_CHB, enable);
+        return;
+    }
+
     //always individual enables and both ADCs
     self->regs.reg_0x0082_en_g_afe = 1;
     self->regs.reg_0x0082_mode_interleave_afe = REG_0X0082_MODE_INTERLEAVE_AFE_2ADCS;
