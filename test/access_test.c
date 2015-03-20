@@ -11,11 +11,19 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <signal.h>
 
 #include "spidev_interface.h"
 #include "sysfs_gpio_interface.h"
 #include "xilinx_user_gpio.h"
 #include "xilinx_user_mem.h"
+
+//signal handle for ctrl+c
+static bool user_exit = false;
+void sig_handler(int s)
+{
+    user_exit = true;
+}
 
 /*
  * for testing with gpio...
@@ -162,7 +170,13 @@ int main(int argc, char **argv)
     LMS7002M_rbb_set_pga(lms, LMS_CHAB, 10.0);
     LMS7002M_rbb_set_test_out(lms, LMS_CHAB, true);
 
+    printf("Debug setup!\n");
+    printf("Press ctrl+c to exit\n");
+    signal(SIGINT, sig_handler);
+    while (!user_exit) sleep(1);
+
     //power down and clean up
+    printf("Power down!\n");
     LMS7002M_power_down(lms);
     LMS7002M_destroy(lms);
 
