@@ -25,17 +25,9 @@
 #define RBB_108_0MHZ 8//7
 
 /***********************************************************************
- * NCO for DAC output
- **********************************************************************/
-void Set_NCO_Freq(LMS7002M_t *self, const double freq)
-{
-    //TODO
-}
-
-/***********************************************************************
  * RBB low band calibration
  **********************************************************************/
-unsigned char Calibration_LowBand_RBB(LMS7002M_t *self, unsigned char ch)
+unsigned char Calibration_LowBand_RBB(LMS7002M_t *self, const LMS7002M_chan_t ch)
 {
     unsigned char result = 0;
     unsigned short LowFreqAmp = 0;
@@ -43,14 +35,14 @@ unsigned char Calibration_LowBand_RBB(LMS7002M_t *self, unsigned char ch)
     int backup[CAL_BACKUP_SIZE];
     Save_config_CAL(self, backup); //save current configuration
 
-    MIMO_Ctrl(self, ch);
+    LMS7002M_set_mac_ch(self, ch);
     Modify_SPI_Reg_bits (self, 0x040A, 13, 12, 1); // AGC Mode = 1 (RSSI mode);
 
     Algorithm_A_RBB (self, ch); // Aproximate resistor value for RBB RBANKS (Algorithm A)
 
-    LMS7002M_cal_set_path(self, (ch == 0)?LMS_CHA:LMS_CHB, 7); // Set control signals to path 7 (RX LowBand)
+    LMS7002M_cal_set_path(self, ch, 7); // Set control signals to path 7 (RX LowBand)
 
-    if (Algorithm_B_RBB (self, &LowFreqAmp) != 1) goto RESTORE; // Calibrate and Record the low frequency output amplitude (Algorithm B)
+    if (Algorithm_B_RBB (self, &LowFreqAmp, ch) != 1) goto RESTORE; // Calibrate and Record the low frequency output amplitude (Algorithm B)
 
     Algorithm_F_RBB(self, RBB_1_4MHZ, LowFreqAmp, ch);// CalibrateByCap the output cuttoff frequency at 0,7 MHz and store
     Algorithm_F_RBB(self, RBB_3_0MHZ, LowFreqAmp, ch);// CalibrateByCap the output cuttoff frequency at 1,5 MHz MHz and store
@@ -70,7 +62,7 @@ unsigned char Calibration_LowBand_RBB(LMS7002M_t *self, unsigned char ch)
 /***********************************************************************
  * RBB high band calibration
  **********************************************************************/
-unsigned char Calibration_HighBand_RBB(LMS7002M_t *self, unsigned char ch)
+unsigned char Calibration_HighBand_RBB(LMS7002M_t *self, const LMS7002M_chan_t ch)
 {
     unsigned char result = 0;
     unsigned short LowFreqAmp = 0;
@@ -78,11 +70,11 @@ unsigned char Calibration_HighBand_RBB(LMS7002M_t *self, unsigned char ch)
     int backup[CAL_BACKUP_SIZE];
     Save_config_CAL(self, backup); //save current configuration
 
-    MIMO_Ctrl(self, ch);
+    LMS7002M_set_mac_ch(self, ch);
     Modify_SPI_Reg_bits (self, 0x040A, 13, 12, 1); // AGC Mode = 1 (RSSI mode);
 
-    LMS7002M_cal_set_path(self, (ch == 0)?LMS_CHA:LMS_CHB, 8); //Set control signals to path 8 (RX HighBand)
-    if (Algorithm_B_RBB (self, &LowFreqAmp) != 1) goto RESTORE; // Calibrate and Record the low frequency output amplitude (Algorithm B)
+    LMS7002M_cal_set_path(self, ch, 8); //Set control signals to path 8 (RX HighBand)
+    if (Algorithm_B_RBB (self, &LowFreqAmp, ch) != 1) goto RESTORE; // Calibrate and Record the low frequency output amplitude (Algorithm B)
 
     Algorithm_F_RBB (self, RBB_37_0MHZ, LowFreqAmp, ch);// CalibrateByCap the output cuttoff frequency at 18,5 MHz MHz and store
     Algorithm_F_RBB (self, RBB_66_0MHZ, LowFreqAmp, ch);// CalibrateByCap the output cuttoff frequency at 33 MHz MHz and store
@@ -108,7 +100,7 @@ LMS7002M_API void LMS7002M_cal_rbb(LMS7002M_t *self, const LMS7002M_chan_t chann
 /***********************************************************************
  * RBB Algorithm A
  **********************************************************************/
-void Algorithm_A_RBB(LMS7002M_t *self, unsigned char MIMO_ch)
+void Algorithm_A_RBB(LMS7002M_t *self, const LMS7002M_chan_t ch)
 {
     unsigned char R_CTL_LPF_RBB;
     float ratio;
@@ -117,18 +109,19 @@ void Algorithm_A_RBB(LMS7002M_t *self, unsigned char MIMO_ch)
     R_CTL_LPF_RBB = (unsigned char)(16 * ratio); // Default control value multiply by ratio
     Modify_SPI_Reg_bits (self, 0x0116, 15, 11, R_CTL_LPF_RBB);
 
+    int MIMO_ch = (ch == LMS_CHA)?0:1;
     self->RBB_RBANK[MIMO_ch] = R_CTL_LPF_RBB; // Store RBANK Values (R_CTL_LPF_RBB)
 }
 
 /***********************************************************************
  * RBB Algorithm B
  **********************************************************************/
-unsigned char Algorithm_B_RBB(LMS7002M_t *self, unsigned short *LowFreqAmp)
+unsigned char Algorithm_B_RBB(LMS7002M_t *self, unsigned short *LowFreqAmp, const LMS7002M_chan_t ch)
 {
     unsigned short ADCOUT;
     unsigned char CG_IAMP_TBB, gain_inc;
 
-    Set_NCO_Freq (self, 0.1); // Set DAC output to 100kHz (0.1MHz) single tone.
+    Set_NCO_Freq(self, 0.1, ch); // Set DAC output to 100kHz (0.1MHz) single tone.
     CG_IAMP_TBB = 24; //set nominal CG_IAMP_TBB value
 
     Modify_SPI_Reg_bits (self, 0x0108, 15, 10, CG_IAMP_TBB); //write val to reg
@@ -169,7 +162,7 @@ unsigned char Algorithm_B_RBB(LMS7002M_t *self, unsigned short *LowFreqAmp)
 /***********************************************************************
  * RBB Algorithm F
  **********************************************************************/
-unsigned char Algorithm_F_RBB(LMS7002M_t *self, unsigned char Band_id, unsigned short LowFreqAmp, unsigned char MIMO_ch)
+unsigned char Algorithm_F_RBB(LMS7002M_t *self, unsigned char Band_id, unsigned short LowFreqAmp, const LMS7002M_chan_t ch)
 {
     unsigned short ADCOUT, CONTROL;
     unsigned char low_band;
@@ -188,7 +181,7 @@ unsigned char Algorithm_F_RBB(LMS7002M_t *self, unsigned char Band_id, unsigned 
         Modify_SPI_Reg_bits (self, 0x0116, 7, 0, CONTROL); // write to C_CTL_LPFH_RBB
     }
 
-    Set_NCO_Freq (self, self->RBB_CalFreq[Band_id]); // Apply a single tone frequency at CalFreq.
+    Set_NCO_Freq(self, self->RBB_CalFreq[Band_id], ch); // Apply a single tone frequency at CalFreq.
 
     while (1)
     {
@@ -201,6 +194,7 @@ unsigned char Algorithm_F_RBB(LMS7002M_t *self, unsigned char Band_id, unsigned 
         else Modify_SPI_Reg_bits (self, 0x0116, 7, 0, CONTROL); // write to C_CTL_LPFH_RBB
     }
 
+    int MIMO_ch = (ch == LMS_CHA)?0:1;
     self->RBB_CBANK[MIMO_ch][Band_id] = CONTROL; // Store CBANK Values
     self->RBB_STATUS[MIMO_ch][Band_id] = 1;
     return 1;

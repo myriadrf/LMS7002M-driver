@@ -15,18 +15,12 @@
 #include "LMS7002M_impl.h"
 
 /***********************************************************************
- * channel selection
- **********************************************************************/
-void MIMO_Ctrl(LMS7002M_t *self, unsigned char ch)
-{
-    LMS7002M_set_mac_ch(self, (ch == 0)?LMS_CHA:LMS_CHB);
-}
-
-/***********************************************************************
  * Set calibration path
  **********************************************************************/
 LMS7002M_API void LMS7002M_cal_set_path(LMS7002M_t *self, const LMS7002M_chan_t channel, const int path)
 {
+    LMS7002M_set_mac_ch(self, channel);
+
     //Current Amplifier Low Section Verification.
     //TSTIN_TBB == 0 & PD_LPFH_TBB == 0  &  LOOPB_TBB<1:0> == 1 & (PD_LPFS5_TBB == 0 OR PD_LPFLAD_TBB == 0) (Digital Pre-Emphasis = OFF)
     //INPUT_CTL_PGA_RBB == 3 & PD_LPFL_RBB == 1 & PD_LPFH_RBB == 1 & PD_TIA_RFE == 1 & OSW_PGA_RBB ==0.
@@ -249,7 +243,7 @@ void Modify_SPI_Reg_bits(LMS7002M_t *self, const int addr, const int bitHigh, co
 void Resistor_calibration(LMS7002M_t *self, float *ratio)
 {
     unsigned char RP_CALIB_BIAS, RP_CALIB_BIAS_cal;
-    unsigned short BestValue, ADCOUT;
+    unsigned short BestValue = 0, ADCOUT = 0;
     RP_CALIB_BIAS_cal = 16;
     RP_CALIB_BIAS = 0;
     Modify_SPI_Reg_bits (self, 0x0084, 10, 6, RP_CALIB_BIAS); // write RP_CALIB_BIAS value

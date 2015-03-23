@@ -17,22 +17,21 @@
 void Save_config_CAL(LMS7002M_t *self, int *backup);
 void Restore_config_CAL(LMS7002M_t *self, int *backup);
 
-void MIMO_Ctrl(LMS7002M_t *self, unsigned char ch);
 int Get_SPI_Reg_bits(LMS7002M_t *self, const int addr, const int bitHigh, const int bitLow);
 void Modify_SPI_Reg_bits(LMS7002M_t *self, const int addr, const int bitHigh, const int bitLow, const int value);
 void Resistor_calibration(LMS7002M_t *self, float *ratio);
 
-void Algorithm_A_RBB(LMS7002M_t *self, unsigned char ch);
-unsigned char Algorithm_B_RBB(LMS7002M_t *self, unsigned short *LowFreqAmp);
+void Algorithm_A_RBB(LMS7002M_t *self, const LMS7002M_chan_t ch);
+unsigned char Algorithm_B_RBB(LMS7002M_t *self, unsigned short *LowFreqAmp, const LMS7002M_chan_t ch);
 void Set_cal_path_RBB(LMS7002M_t *self, const int path);
-void Set_NCO_Freq(LMS7002M_t *self, const double freq);
-unsigned char Algorithm_F_RBB(LMS7002M_t *self, unsigned char Band_id, unsigned short LowFreqAmp, unsigned char ch);
+void Set_NCO_Freq(LMS7002M_t *self, const double freq, const LMS7002M_chan_t ch);
+unsigned char Algorithm_F_RBB(LMS7002M_t *self, unsigned char Band_id, unsigned short LowFreqAmp, const LMS7002M_chan_t ch);
 
 void Algorithm_A_TBB(LMS7002M_t *self);
-static inline  unsigned char Algorithm_B_TBB(LMS7002M_t *self, unsigned short *LowFreqAmp)
+static inline  unsigned char Algorithm_B_TBB(LMS7002M_t *self, unsigned short *LowFreqAmp, const LMS7002M_chan_t ch)
 {
-    return Algorithm_B_RBB(self, LowFreqAmp);
+    return Algorithm_B_RBB(self, LowFreqAmp, ch);
 }
-unsigned char Algorithm_C_TBB(LMS7002M_t *self, unsigned char Band_id, unsigned short LowFreqAmp, unsigned char ch);
-unsigned char Algorithm_D_TBB(LMS7002M_t *self, unsigned char Band_id, unsigned short LowFreqAmp);
-unsigned char Algorithm_E_TBB(LMS7002M_t *self, unsigned char Band_id, unsigned char MIMO_ch);
+unsigned char Algorithm_C_TBB(LMS7002M_t *self, unsigned char Band_id, unsigned short LowFreqAmp, const LMS7002M_chan_t ch);
+unsigned char Algorithm_D_TBB(LMS7002M_t *self, unsigned char Band_id, unsigned short LowFreqAmp, const LMS7002M_chan_t ch);
+unsigned char Algorithm_E_TBB(LMS7002M_t *self, unsigned char Band_id, const LMS7002M_chan_t ch);
