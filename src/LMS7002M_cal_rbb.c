@@ -25,39 +25,6 @@
 #define RBB_108_0MHZ 8//7
 
 /***********************************************************************
- * RBB config save/restore
- **********************************************************************/
-void Save_config_RBB(LMS7002M_t *self, int *backup)
-{
-    for (size_t i = 0;; i++)
-    {
-        int addr = 0x0115+i;
-        backup[i] = LMS7002M_spi_read(self, addr);
-        if (addr == 0x011B) break;
-    }
-}
-
-void Restore_config_RBB(LMS7002M_t *self, int *backup)
-{
-    for (size_t i = 0;; i++)
-    {
-        int addr = 0x0115+i;
-        LMS7002M_spi_write(self, addr, backup[i]);
-        if (addr == 0x011B) break;
-    }
-}
-
-/***********************************************************************
- * RBB calibration path
- **********************************************************************/
-void Set_cal_path_RBB(LMS7002M_t *self, const int path)
-{
-    //TODO
-    //7 (RX LowBand)
-    //8 (RX HighBand)
-}
-
-/***********************************************************************
  * NCO for DAC output
  **********************************************************************/
 void Set_NCO_Freq(LMS7002M_t *self, const double freq)
@@ -73,15 +40,15 @@ unsigned char Calibration_LowBand_RBB(LMS7002M_t *self, unsigned char ch)
     unsigned char result = 0;
     unsigned short LowFreqAmp = 0;
 
-    int backup[10];
-    Save_config_RBB (self, backup); //save current configuration
+    int backup[CAL_BACKUP_SIZE];
+    Save_config_CAL(self, backup); //save current configuration
 
     MIMO_Ctrl(self, ch);
     Modify_SPI_Reg_bits (self, 0x040A, 13, 12, 1); // AGC Mode = 1 (RSSI mode);
 
     Algorithm_A_RBB (self, ch); // Aproximate resistor value for RBB RBANKS (Algorithm A)
 
-    Set_cal_path_RBB (self, 7); // Set control signals to path 7 (RX LowBand)
+    LMS7002M_cal_set_path(self, (ch == 0)?LMS_CHA:LMS_CHB, 7); // Set control signals to path 7 (RX LowBand)
 
     if (Algorithm_B_RBB (self, &LowFreqAmp) != 1) goto RESTORE; // Calibrate and Record the low frequency output amplitude (Algorithm B)
 
@@ -95,7 +62,7 @@ unsigned char Calibration_LowBand_RBB(LMS7002M_t *self, unsigned char ch)
     result = 1;
 
     RESTORE:
-    Restore_config_RBB (self, backup); //restore configuration
+    Restore_config_CAL(self, backup); //restore configuration
 
     return result;
 }
@@ -108,13 +75,13 @@ unsigned char Calibration_HighBand_RBB(LMS7002M_t *self, unsigned char ch)
     unsigned char result = 0;
     unsigned short LowFreqAmp = 0;
 
-    int backup[10];
-    Save_config_RBB (self, backup); //save current configuration
+    int backup[CAL_BACKUP_SIZE];
+    Save_config_CAL(self, backup); //save current configuration
 
     MIMO_Ctrl(self, ch);
     Modify_SPI_Reg_bits (self, 0x040A, 13, 12, 1); // AGC Mode = 1 (RSSI mode);
 
-    Set_cal_path_RBB (self, 8); //Set control signals to path 8 (RX HighBand)
+    LMS7002M_cal_set_path(self, (ch == 0)?LMS_CHA:LMS_CHB, 8); //Set control signals to path 8 (RX HighBand)
     if (Algorithm_B_RBB (self, &LowFreqAmp) != 1) goto RESTORE; // Calibrate and Record the low frequency output amplitude (Algorithm B)
 
     Algorithm_F_RBB (self, RBB_37_0MHZ, LowFreqAmp, ch);// CalibrateByCap the output cuttoff frequency at 18,5 MHz MHz and store
@@ -124,9 +91,18 @@ unsigned char Calibration_HighBand_RBB(LMS7002M_t *self, unsigned char ch)
     result = 1;
 
     RESTORE:
-    Restore_config_RBB (self, backup); //restore configuration
+    Restore_config_CAL(self, backup); //restore configuration
 
     return result;
+}
+
+/***********************************************************************
+ * Dispatch calibration
+ **********************************************************************/
+LMS7002M_API void LMS7002M_cal_rbb(LMS7002M_t *self, const LMS7002M_chan_t channel)
+{
+    Calibration_LowBand_RBB(self, (channel == LMS_CHA)?0:1);
+    Calibration_HighBand_RBB(self, (channel == LMS_CHA)?0:1);
 }
 
 /***********************************************************************

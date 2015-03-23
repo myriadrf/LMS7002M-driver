@@ -23,6 +23,43 @@ void MIMO_Ctrl(LMS7002M_t *self, unsigned char ch)
 }
 
 /***********************************************************************
+ * Set calibration path
+ **********************************************************************/
+LMS7002M_API void LMS7002M_cal_set_path(LMS7002M_t *self, const LMS7002M_chan_t channel, const int path)
+{
+    
+}
+
+/***********************************************************************
+ * CAL config save/restore
+ **********************************************************************/
+void Save_config_CAL(LMS7002M_t *self, int *backup)
+{
+    size_t i = 0;
+    for (int addr = 0x0115; addr <= 0x011B; addr++)
+    {
+        backup[i++] = LMS7002M_spi_read(self, addr);
+    }
+    for (int addr = 0x0105; addr <= 0x010B; addr++)
+    {
+        backup[i++] = LMS7002M_spi_read(self, addr);
+    }
+}
+
+void Restore_config_CAL(LMS7002M_t *self, int *backup)
+{
+    size_t i = 0;
+    for (int addr = 0x0115; addr <= 0x011B; addr++)
+    {
+        LMS7002M_spi_write(self, addr, backup[i++]);
+    }
+    for (int addr = 0x0105; addr <= 0x010B; addr++)
+    {
+        LMS7002M_spi_write(self, addr, backup[i++]);
+    }
+}
+
+/***********************************************************************
  * spi access for cal algorithms
  **********************************************************************/
 int Get_SPI_Reg_bits(LMS7002M_t *self, const int addr, const int bitHigh, const int bitLow)

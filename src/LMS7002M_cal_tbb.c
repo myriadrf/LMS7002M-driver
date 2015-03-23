@@ -24,56 +24,23 @@
 #define TBB_54_0MHZ 7
 
 /***********************************************************************
- * TBB config save/restore
- **********************************************************************/
-void Save_config_TBB(LMS7002M_t *self, int *backup)
-{
-    for (size_t i = 0;; i++)
-    {
-        int addr = 0x0105+i;
-        backup[i] = LMS7002M_spi_read(self, addr);
-        if (addr == 0x010B) break;
-    }
-}
-
-void Restore_config_TBB(LMS7002M_t *self, int *backup)
-{
-    for (size_t i = 0;; i++)
-    {
-        int addr = 0x0105+i;
-        LMS7002M_spi_write(self, addr, backup[i]);
-        if (addr == 0x010B) break;
-    }
-}
-
-/***********************************************************************
- * TBB calibration path
- **********************************************************************/
-void Set_cal_path_TBB(LMS7002M_t *self, const int path)
-{
-    //TODO
-    //3
-    //6
-}
-
-/***********************************************************************
  * TBB low band calibration
  **********************************************************************/
 unsigned char Calibration_LowBand_TBB(LMS7002M_t *self, unsigned char ch)
 {
     unsigned char result;
-    int backup[10];
-    Save_config_TBB (self, backup); //save current configuration
+    int backup[CAL_BACKUP_SIZE];
+    Save_config_CAL(self, backup); //save current configuration
     MIMO_Ctrl (self, ch);
     Modify_SPI_Reg_bits (self, 0x040A, 13, 12, 1); // AGC Mode = 1 (RSSI mode)
 
     Algorithm_A_TBB(self);
 
-    Set_cal_path_TBB (self, 3); // Set control signals to path 3
+    LMS7002M_cal_set_path(self, (ch == 0)?LMS_CHA:LMS_CHB, 3); // Set control signals to path 3
 
     //TODO
 
-    Restore_config_TBB (self, backup);
+    Restore_config_CAL(self, backup);
     //restore configuration
     return 1;
 }
@@ -84,17 +51,26 @@ unsigned char Calibration_LowBand_TBB(LMS7002M_t *self, unsigned char ch)
 unsigned char Calibration_HighBand_TBB(LMS7002M_t *self, unsigned char ch)
 {
     unsigned char result;
-    int backup[10];
-    Save_config_TBB (self, backup); //save current configuration
+    int backup[CAL_BACKUP_SIZE];
+    Save_config_CAL(self, backup); //save current configuration
     MIMO_Ctrl (self, ch);
     Modify_SPI_Reg_bits (self, 0x040A, 13, 12, 1); // AGC Mode = 1 (RSSI mode)
-    Set_cal_path_TBB (self, 6); // Set control signals to path 6
+    LMS7002M_cal_set_path(self, (ch == 0)?LMS_CHA:LMS_CHB, 6); // Set control signals to path 6
     Algorithm_E_TBB (self, TBB_18_5MHZ, ch);// CalibrateByRes the output cutoff frequency (Algorithm E)
     Algorithm_E_TBB (self, TBB_38_0MHZ, ch);// CalibrateByRes the output cutoff frequency (Algorithm E)
     Algorithm_E_TBB (self, TBB_54_0MHZ, ch);// CalibrateByRes the output cutoff frequency (Algorithm E)
-    Restore_config_TBB (self, backup);
+    Restore_config_CAL(self, backup);
     //restore configuration
     return 1;
+}
+
+/***********************************************************************
+ * Dispatch calibration
+ **********************************************************************/
+LMS7002M_API void LMS7002M_cal_tbb(LMS7002M_t *self, const LMS7002M_chan_t channel)
+{
+    Calibration_LowBand_TBB(self, (channel == LMS_CHA)?0:1);
+    Calibration_HighBand_TBB(self, (channel == LMS_CHA)?0:1);
 }
 
 /***********************************************************************

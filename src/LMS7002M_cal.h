@@ -13,6 +13,10 @@
 #include <stdlib.h>
 #include "LMS7002M_impl.h"
 
+#define CAL_BACKUP_SIZE 20
+void Save_config_CAL(LMS7002M_t *self, int *backup);
+void Restore_config_CAL(LMS7002M_t *self, int *backup);
+
 void MIMO_Ctrl(LMS7002M_t *self, unsigned char ch);
 int Get_SPI_Reg_bits(LMS7002M_t *self, const int addr, const int bitHigh, const int bitLow);
 void Modify_SPI_Reg_bits(LMS7002M_t *self, const int addr, const int bitHigh, const int bitLow, const int value);
