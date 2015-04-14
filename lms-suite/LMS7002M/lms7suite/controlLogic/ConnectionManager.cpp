@@ -11,6 +11,7 @@
 #include "../CommonUtilities.h"
 #include "ConnectionCOM.h"
 #include "ConnectionUSB.h"
+#include "ConnectionSPI.h"
 #include "MessageLog.h"
 #include <sstream>
 #include "RegistersMap.h"
@@ -61,6 +62,7 @@ ConnectionManager::ConnectionManager(bool onlyUSB) : activeControlPort(NULL)
         m_connections[COM_PORT] = new ConnectionCOM();
         MessageLog::getInstance()->write("COM connection supported\n", LOG_INFO);
     }
+    m_connections[SPI_PORT] = new ConnectionSPI();
     m_connections[USB_PORT] = new ConnectionUSB();
     MessageLog::getInstance()->write("USB connection supported\n", LOG_INFO);
 }
@@ -226,6 +228,18 @@ int ConnectionManager::SendData(eCMD_LMS cmd, const unsigned char* data, long le
 */
 int ConnectionManager::MakeAndSendPacket( eCMD_LMS cmd, const unsigned char *data, long length)
 {
+    if (cmd == CMD_LMS7002_WR)
+    {
+        ConnectionSPI *c = (ConnectionSPI *)activeControlPort;
+        uint32_t inData = (1 << 31);
+        inData |= (data[1]) << 24;
+        inData |= (data[0]) << 16;
+        inData |= (data[3]) << 8;
+        inData |= (data[2]) << 0;
+        spidev_interface_transact(c->_spiHandle, inData, false);
+        return STATUS_COMPLETED_CMD;
+    }
+
     const int maxDataLen = cMAX_CONTROL_PACKET_SIZE-cPACKET_HEADER_SIZE;
     if(length > maxDataLen)
     {
@@ -350,6 +364,19 @@ int ConnectionManager::ReadData(unsigned char* data, long& length)
 */
 int ConnectionManager::SendReadData( eCMD_LMS cmd, const unsigned char *outData, unsigned long oLength, unsigned char *inData, unsigned long &iLength)
 {
+    if (cmd == CMD_LMS7002_RD)
+    {
+        ConnectionSPI *c = (ConnectionSPI *)activeControlPort;
+        uint32_t wordIn = 0;
+        wordIn |= (outData[1]) << 24;
+        wordIn |= (outData[0]) << 16;
+        uint32_t wordOut = spidev_interface_transact(c->_spiHandle, wordIn, true);
+        inData[1] = wordOut >> 24;
+        inData[0] = wordOut >> 16;
+        inData[3] = wordOut >> 8;
+        inData[2] = wordOut >> 0;
+        return STATUS_COMPLETED_CMD;
+    }
     if(!IsOpen())
         return STATUS_UNDEFINED;
 
@@ -460,9 +487,9 @@ int ConnectionManager::Open(unsigned i)
         //delete activeControlPort;
 		activeControlPort = m_connections[USB_PORT];
         break;
-//    case SPI_PORT:
-//        activeControlPort = new ConnectionSPI();
-//        break;
+    case SPI_PORT:
+        activeControlPort = new ConnectionSPI();
+        break;
     default:
         return 0;
     }
