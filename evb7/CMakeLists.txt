@@ -22,6 +22,20 @@ if (NOT SoapySDR_FOUND)
     return()
 endif ()
 
+set(LMS7_ROOT ../lms-suite/LMS7002M/lms7suite/controlLogic)
+include_directories(${LMS7_ROOT})
+include_directories(${LMS7_ROOT}/..)
+file(GLOB LMS7_SOURCES ${LMS7_ROOT}/*.cpp)
+list(APPEND LMS7_SOURCES ${LMS7_ROOT}/../CommonUtilities.cpp)
+
+#libraries: pthread, and usb
+#usb not really needed, but its part of the build
+#it should be ifdef'd out to reduce dependencies
+set(LMS_LIBRARIES
+    pthread
+    usb-1.0
+)
+
 if(CMAKE_COMPILER_IS_GNUCXX)
     #C++11 is a required language feature for this project
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
@@ -43,6 +57,9 @@ SOAPY_SDR_MODULE_UTIL(
     TARGET EVB7
     SOURCES
         ${LMS7002M_SOURCES}
+        ${LMS7_SOURCES}
         Streaming.cpp
         EVB7Device.cpp
+    LIBRARIES
+        ${LMS_LIBRARIES}
 )

@@ -14,8 +14,9 @@
 #include "RegistersMap.h"
 #include <stdlib.h>
 #include <fstream>
+#include <iostream>
 #include <sstream>
-#include <wx/wx.h>
+//#include <wx/wx.h>
 
 #define REF_CLK_MHZ 30.72
 float gRefClkTxTSP = 30.72;
@@ -1922,7 +1923,7 @@ unsigned long Algorithms::FindMinRSSI2(const unsigned short adr1, const char msb
             ++iteration;
             if((iteration & 0x11) == 0)
             {
-                wxYield();
+                //wxYield();
                 cout << "yield()" << endl;
             }
 
