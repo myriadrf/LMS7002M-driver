@@ -281,7 +281,7 @@ private:
 
     LMS7002M_dir_t dir2LMS(const int direction) const
     {
-        return (direction == SOAPY_SDR_RX)?LMS_RX:LMS_RX;
+        return (direction == SOAPY_SDR_RX)?LMS_RX:LMS_TX;
     }
 
     LMS7002M_chan_t ch2LMS(const size_t channel) const
