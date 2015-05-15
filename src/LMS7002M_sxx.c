@@ -28,36 +28,6 @@ LMS7002M_API int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t dir
 {
     LMS7002M_set_mac_dir(self, direction);
 
-    //select VCO based on LO freq
-    //boundaries for VCO selection determined by observing GUI
-    int SEL_VCO = 0;
-    double SXX_VCO_LO = 0;
-    double SXX_VCO_HI = 0;
-    if (fout < 1e9)
-    {
-        SEL_VCO = REG_0X0121_SEL_VCO_VCOH;
-        SXX_VCO_LO = LMS7002M_SXX_VCOH_LO;
-        SXX_VCO_HI = LMS7002M_SXX_VCOH_HI;
-    }
-    else if (fout < 2.4805e9)
-    {
-        SEL_VCO = REG_0X0121_SEL_VCO_VCOL;
-        SXX_VCO_LO = LMS7002M_SXX_VCOL_LO;
-        SXX_VCO_HI = LMS7002M_SXX_VCOL_HI;
-    }
-    else if (fout < 3.1530e9)
-    {
-        SEL_VCO = REG_0X0121_SEL_VCO_VCOM;
-        SXX_VCO_LO = LMS7002M_SXX_VCOM_LO;
-        SXX_VCO_HI = LMS7002M_SXX_VCOM_HI;
-    }
-    else
-    {
-        SEL_VCO = REG_0X0121_SEL_VCO_VCOH;
-        SXX_VCO_LO = LMS7002M_SXX_VCOH_LO;
-        SXX_VCO_HI = LMS7002M_SXX_VCOH_HI;
-    }
-
     //The equations:
     // fref * N = fvco
     // fout = Fvco / divRatio_LOCH / 2
@@ -85,12 +55,19 @@ LMS7002M_API int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t dir
         if (Ndiv > 512) return -1;
 
         //check vco boundaries
-        if (fvco < SXX_VCO_LO) continue;
-        if (fvco > SXX_VCO_HI) continue;
+        if (fvco < LMS7002M_SXX_VCOL_LO) continue;
+        if (fvco > LMS7002M_SXX_VCOH_HI) continue;
 
         break; //its good
     }
     //printf("fdiv = %d, Ndiv = %f, fvco = %f MHz\n", fdiv, Ndiv, fvco/1e6);
+
+    //select the VCO
+    int SEL_VCO = 0;
+    if (fvco <= LMS7002M_SXX_VCOH_HI && fvco >= LMS7002M_SXX_VCOH_LO) SEL_VCO = REG_0X0121_SEL_VCO_VCOH;
+    else if (fvco <= LMS7002M_SXX_VCOM_HI && fvco >= LMS7002M_SXX_VCOM_LO) SEL_VCO = REG_0X0121_SEL_VCO_VCOM;
+    else if (fvco <= LMS7002M_SXX_VCOL_HI && fvco >= LMS7002M_SXX_VCOL_LO) SEL_VCO = REG_0X0121_SEL_VCO_VCOL;
+    else return -2;
 
     //deal with VCO divider
     const int EN_DIV2 = (fvco > 5.5e9)?1:0;
@@ -163,7 +140,7 @@ LMS7002M_API int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t dir
     LMS7002M_regs_spi_write(self, 0x011c);
 
     //calculate the actual rate
-    if (factual != NULL) *factual = ((1 << EN_DIV2)/2.0) * fref * ((Nint+4) + (Nfrac/((double)(1 << 20)))) / fdiv;
+    if (factual != NULL) *factual = (1 << EN_DIV2) * fref * ((Nint+4) + (Nfrac/((double)(1 << 20)))) / fdiv;
 
     return 0; //OK
 }
