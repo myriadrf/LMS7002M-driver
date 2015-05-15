@@ -96,7 +96,7 @@ LMS7002M_API int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t dir
     const int EN_DIV2 = (fvco > 5.5e9)?1:0;
 
     //compensate for the lack of doubling when disabled
-    if (EN_DIV2 == 0) Ndiv *= 2;
+    if (EN_DIV2 != 0) Ndiv /= 2;
 
     //after a successful tune, stash the frequency
     if (direction == LMS_RX) self->sxr_freq = fout;

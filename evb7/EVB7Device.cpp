@@ -330,7 +330,7 @@ void EVB7::setFrequency(const int direction, const size_t channel, const std::st
     if (name == "RF")
     {
         double actualFreq = 0.0;
-        int ret = LMS7002M_set_lo_freq(_lms, dir2LMS(direction), _masterClockRate, frequency, &actualFreq);
+        int ret = LMS7002M_set_lo_freq(_lms, dir2LMS(direction), EXT_REF_CLK, frequency, &actualFreq);
         if (ret != 0) throw std::runtime_error("EVB7::setFrequency(" + std::to_string(frequency/1e6) + " MHz) failed - " + std::to_string(ret));
         _cachedFreqValues[direction][0][name] = actualFreq;
         _cachedFreqValues[direction][1][name] = actualFreq;
