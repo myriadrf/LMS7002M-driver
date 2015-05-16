@@ -133,6 +133,7 @@ LMS7002M_API int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t dir
     LMS7002M_regs_spi_write(self, 0x0121);
 
     //select the correct CSW for this VCO frequency
+    int csw_lowest = -1;
     self->regs.reg_0x0121_csw_vco = 0;
     for (int i = 7; i >= 0; i--)
     {
@@ -140,12 +141,49 @@ LMS7002M_API int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t dir
         LMS7002M_regs_spi_write(self, 0x0121);
         LMS7002M_regs_spi_read(self, 0x0123);
         //printf("i=%d, hi=%d, lo=%d\n", i, self->regs.reg_0x0123_vco_cmpho, self->regs.reg_0x0123_vco_cmplo);
-        if (self->regs.reg_0x0123_vco_cmpho != 0 || self->regs.reg_0x0123_vco_cmplo != 0)
+        if (self->regs.reg_0x0123_vco_cmplo != 0)
         {
             self->regs.reg_0x0121_csw_vco &= ~(1 << i); //clear bit i
         }
+        if (self->regs.reg_0x0123_vco_cmpho != 0 && self->regs.reg_0x0123_vco_cmplo == 0 && csw_lowest < 0)
+        {
+            csw_lowest = self->regs.reg_0x0121_csw_vco;
+        }
         LMS7002M_regs_spi_write(self, 0x0121);
     }
+
+    //find the midpoint for the high and low bounds
+    if (csw_lowest >= 0)
+    {
+        int csw_highest = self->regs.reg_0x0121_csw_vco;
+        if (csw_lowest == csw_highest)
+        {
+            while (csw_lowest >= 0)
+            {
+                self->regs.reg_0x0121_csw_vco = csw_lowest;
+                LMS7002M_regs_spi_write(self, 0x0121);
+                LMS7002M_regs_spi_read(self, 0x0123);
+
+                if (self->regs.reg_0x0123_vco_cmpho == 0 && self->regs.reg_0x0123_vco_cmplo == 0) break;
+                else csw_lowest--;
+            }
+            if (csw_lowest < 0) csw_lowest = 0;
+        }
+        csw_lowest += 1;
+
+        //printf("lowest CSW_VCO %i, highest CSW_VCO %i\n", csw_lowest, csw_highest);
+        self->regs.reg_0x0121_csw_vco = (csw_highest+csw_lowest)/2;
+        LMS7002M_regs_spi_write(self, 0x0121);
+    }
+
+    //check that the vco selection was successful
+    LMS7002M_regs_spi_read(self, 0x0123);
+    if (self->regs.reg_0x0123_vco_cmpho != 0 && self->regs.reg_0x0123_vco_cmplo == 0)
+    {
+        //GOOD
+    }
+    else return -3;
+
     self->regs.reg_0x011c_spdup_vco = 0; //done with fast settling
     LMS7002M_regs_spi_write(self, 0x011c);
 

@@ -88,6 +88,7 @@ LMS7002M_API int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, co
     LMS7002M_regs_spi_write(self, 0x0089);
 
     //select the correct CSW for this VCO frequency
+    int csw_lowest = -1;
     self->regs.reg_0x008b_csw_vco_cgen = 0;
     for (int i = 7; i >= 0; i--)
     {
@@ -95,12 +96,49 @@ LMS7002M_API int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, co
         LMS7002M_regs_spi_write(self, 0x008B);
         LMS7002M_regs_spi_read(self, 0x008C);
         //printf("i=%d, hi=%d, lo=%d\n", i, self->regs.reg_0x008c_vco_cmpho_cgen, self->regs.reg_0x008c_vco_cmplo_cgen);
-        if (self->regs.reg_0x008c_vco_cmpho_cgen != 0 || self->regs.reg_0x008c_vco_cmplo_cgen != 0)
+        if (self->regs.reg_0x008c_vco_cmplo_cgen != 0)
         {
             self->regs.reg_0x008b_csw_vco_cgen &= ~(1 << i); //clear bit i
         }
+        if (self->regs.reg_0x008c_vco_cmpho_cgen != 0 && self->regs.reg_0x008c_vco_cmplo_cgen == 0 && csw_lowest < 0)
+        {
+            csw_lowest = self->regs.reg_0x008b_csw_vco_cgen;
+        }
         LMS7002M_regs_spi_write(self, 0x008B);
     }
+
+    //find the midpoint for the high and low bounds
+    if (csw_lowest >= 0)
+    {
+        int csw_highest = self->regs.reg_0x008b_csw_vco_cgen;
+        if (csw_lowest == csw_highest)
+        {
+            while (csw_lowest >= 0)
+            {
+                self->regs.reg_0x008b_csw_vco_cgen = csw_lowest;
+                LMS7002M_regs_spi_write(self, 0x008B);
+                LMS7002M_regs_spi_read(self, 0x008C);
+
+                if (self->regs.reg_0x008c_vco_cmpho_cgen == 0 && self->regs.reg_0x008c_vco_cmplo_cgen == 0) break;
+                else csw_lowest--;
+            }
+            if (csw_lowest < 0) csw_lowest = 0;
+        }
+        csw_lowest += 1;
+
+        //printf("lowest CSW_VCO %i, highest CSW_VCO %i\n", csw_lowest, csw_highest);
+        self->regs.reg_0x008b_csw_vco_cgen = (csw_highest+csw_lowest)/2;
+        LMS7002M_regs_spi_write(self, 0x008B);
+    }
+
+    //check that the vco selection was successful
+    LMS7002M_regs_spi_read(self, 0x008C);
+    if (self->regs.reg_0x008c_vco_cmpho_cgen != 0 && self->regs.reg_0x008c_vco_cmplo_cgen == 0)
+    {
+        //GOOD
+    }
+    else return -3;
+
     self->regs.reg_0x0086_spdup_vco_cgen = 0; //done with fast settling
     LMS7002M_regs_spi_write(self, 0x0086);
 
