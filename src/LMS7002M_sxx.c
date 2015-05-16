@@ -62,11 +62,21 @@ LMS7002M_API int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t dir
     }
     //printf("fdiv = %d, Ndiv = %f, fvco = %f MHz\n", fdiv, Ndiv, fvco/1e6);
 
-    //select the VCO
+    //select the VCO and handle overlap -- pick the VCO that we are more within range of
+    const bool inVCOH = (fvco <= LMS7002M_SXX_VCOH_HI && fvco >= LMS7002M_SXX_VCOH_LO);
+    const bool inVCOM = (fvco <= LMS7002M_SXX_VCOM_HI && fvco >= LMS7002M_SXX_VCOM_LO);
+    const bool inVCOL = (fvco <= LMS7002M_SXX_VCOL_HI && fvco >= LMS7002M_SXX_VCOL_LO);
+    const bool prefVCOH = ((fvco - LMS7002M_SXX_VCOH_LO) > (LMS7002M_SXX_VCOM_HI - fvco));
+    const bool prefVCOM = ((fvco - LMS7002M_SXX_VCOM_LO) > (LMS7002M_SXX_VCOL_HI - fvco));
+
     int SEL_VCO = 0;
-    if (fvco <= LMS7002M_SXX_VCOH_HI && fvco >= LMS7002M_SXX_VCOH_LO) SEL_VCO = REG_0X0121_SEL_VCO_VCOH;
-    else if (fvco <= LMS7002M_SXX_VCOM_HI && fvco >= LMS7002M_SXX_VCOM_LO) SEL_VCO = REG_0X0121_SEL_VCO_VCOM;
-    else if (fvco <= LMS7002M_SXX_VCOL_HI && fvco >= LMS7002M_SXX_VCOL_LO) SEL_VCO = REG_0X0121_SEL_VCO_VCOL;
+    if      (inVCOH && !inVCOM)               SEL_VCO = REG_0X0121_SEL_VCO_VCOH;
+    else if (inVCOH && inVCOM && prefVCOH)    SEL_VCO = REG_0X0121_SEL_VCO_VCOH;
+    else if (inVCOH && inVCOM && !prefVCOH)   SEL_VCO = REG_0X0121_SEL_VCO_VCOM;
+    else if (inVCOM && !inVCOL)               SEL_VCO = REG_0X0121_SEL_VCO_VCOM;
+    else if (inVCOM && inVCOL && prefVCOM)    SEL_VCO = REG_0X0121_SEL_VCO_VCOM;
+    else if (inVCOM && inVCOL && !prefVCOM)   SEL_VCO = REG_0X0121_SEL_VCO_VCOL;
+    else if (inVCOL)                          SEL_VCO = REG_0X0121_SEL_VCO_VCOL;
     else return -2;
 
     //deal with VCO divider
