@@ -33,6 +33,8 @@ void sig_handler(int s)
 #define SEN_MIO 13
 */
 
+#define REF_FREQ (61.44e6/2)
+
 #define EMIO_OFFSET 54
 #define RESET_EMIO    (EMIO_OFFSET+0)
 #define DIG_RST_EMIO  (EMIO_OFFSET+1)
@@ -116,7 +118,7 @@ int main(int argc, char **argv)
 
     //turn the clocks on
     double actualRate = 0.0;
-    ret = LMS7002M_set_data_clock(lms, 61.44e6/2, 61.44e6/2, &actualRate);
+    ret = LMS7002M_set_data_clock(lms, REF_FREQ, 61.44e6, &actualRate);
     if (ret != 0)
     {
         printf("clock tune failure %d\n", ret);
@@ -125,18 +127,25 @@ int main(int argc, char **argv)
 
     //configure data port directions and data clock rates
     LMS7002M_configure_lml_port(lms, LMS_PORT1, LMS_TX, 2);
-    LMS7002M_configure_lml_port(lms, LMS_PORT2, LMS_RX, 1);
-    LMS7002M_invert_fclk(lms, true); //makes it read in I, Q
-    LMS7002M_setup_digital_loopback(lms);
+    LMS7002M_configure_lml_port(lms, LMS_PORT2, LMS_RX, 2);
+    //LMS7002M_invert_fclk(lms, true); //makes it read in I, Q
+    //LMS7002M_setup_digital_loopback(lms);
+
+    //external reset now that clocks are on
+    xumem_write32(regs, FPGA_REG_WR_EXT_RST, 1);
+    xumem_write32(regs, FPGA_REG_WR_EXT_RST, 0);
 
     //readback clock counters, are they alive?
+    /*
     printf("RX CLK RATE %f MHz\n", estimate_clock_rate(regs, FPGA_REG_RD_RX_CLKS)/1e6);
     printf("TX CLK RATE %f MHz\n", estimate_clock_rate(regs, FPGA_REG_RD_TX_CLKS)/1e6);
+    */
 
     //port output enables
     SET_EMIO_OUT_LVL(RXEN_EMIO, 1);
     SET_EMIO_OUT_LVL(TXEN_EMIO, 1);
 
+    /*
     xumem_write32(regs, FPGA_REG_WR_TX_TEST, 1); //enable fpga registers to TX
     xumem_write32(regs, FPGA_REG_WR_DATA_A, 0xAAAABBBB);
     xumem_write32(regs, FPGA_REG_WR_DATA_B, 0xCCCCDDDD);
@@ -146,29 +155,68 @@ int main(int argc, char **argv)
     sleep(1);
     printf("FPGA_REG_RD_DATA_A = 0x%x\n", xumem_read32(regs, FPGA_REG_RD_DATA_A));
     printf("FPGA_REG_RD_DATA_B = 0x%x\n", xumem_read32(regs, FPGA_REG_RD_DATA_B));
+    */
 
-    //enable components used for test
+    //enable components
+    LMS7002M_afe_enable(lms, LMS_TX, LMS_CHA, true);
+    LMS7002M_afe_enable(lms, LMS_TX, LMS_CHB, true);
+    LMS7002M_afe_enable(lms, LMS_RX, LMS_CHA, true);
+    LMS7002M_afe_enable(lms, LMS_RX, LMS_CHB, true);
+    LMS7002M_rxtsp_enable(lms, LMS_CHAB, true);
+    LMS7002M_txtsp_enable(lms, LMS_CHAB, true);
     LMS7002M_rbb_enable(lms, LMS_CHAB, true);
     LMS7002M_tbb_enable(lms, LMS_CHAB, true);
-    LMS7002M_afe_enable(lms, LMS_TX, LMS_CHAB, true);
-    LMS7002M_afe_enable(lms, LMS_RX, LMS_CHAB, true);
-    LMS7002M_txtsp_enable(lms, LMS_CHAB, true);
+    LMS7002M_rfe_enable(lms, LMS_CHAB, true);
+    LMS7002M_trf_enable(lms, LMS_CHAB, true);
+    LMS7002M_sxx_enable(lms, LMS_RX, true);
+    LMS7002M_sxx_enable(lms, LMS_TX, true);
+
+    //setup defaults along the chain
+    LMS7002M_rfe_select_input(lms, LMS_CHAB, LMS7002M_RFE_LNAH);
+    LMS7002M_trf_select_band(lms, LMS_CHAB, 2);
+
+    LMS7002M_rfe_set_lna(lms, LMS_CHAB, 40.0);
+    LMS7002M_rfe_set_tia(lms, LMS_CHAB, 12.0);
+    LMS7002M_rbb_set_pga(lms, LMS_CHAB, 19.0);
+
+    LMS7002M_rbb_set_filter_bw(lms, LMS_CHAB, 200e6);
+    LMS7002M_tbb_set_filter_bw(lms, LMS_CHAB, 200e6);
+
+    //tune the frontends
+    ret = LMS7002M_set_lo_freq(lms, LMS_TX, REF_FREQ, 2.500e9, &actualRate);
+    printf("%d - Actual TX LO freq %f MHz\n", ret, actualRate/1e6);
+
+    ret = LMS7002M_set_lo_freq(lms, LMS_RX, REF_FREQ, 2.500e9, &actualRate);
+    printf("%d - Actual RX LO freq %f MHz\n", ret, actualRate/1e6);
+
+    //inject test signal into TBB
+    const bool TBB_TEST_ON = false;
+    if (TBB_TEST_ON) LMS7002M_tbb_set_test_in(lms, LMS_CHAB, LMS7002M_TBB_TSTIN_AMP);
+    else LMS7002M_tbb_set_test_in(lms, LMS_CHAB, LMS7002M_TBB_TSTIN_OFF);
+
+    //output test signal from RBB
+    const bool RBB_TEST_ON = true;
+    LMS7002M_rbb_set_test_out(lms, LMS_CHAB, RBB_TEST_ON);
 
     //setup tx dsp signal generator
-    LMS7002M_txtsp_tsg_const(lms, LMS_CHAB, 1 << 14, 1 << 14);
-    LMS7002M_txtsp_set_freq(lms, LMS_CHAB, 0.01/*relative*/);
+    //LMS7002M_txtsp_tsg_tone(lms, LMS_CHAB);
+    //LMS7002M_txtsp_tsg_const(lms, LMS_CHAB, 1 << 14, 1 << 14);
+    //LMS7002M_txtsp_set_freq(lms, LMS_CHAB, 0.01/*relative*/);
 
     //connect tx baseband to rx baseband loopback
-    LMS7002M_tbb_set_path(lms, LMS_CHAB, LMS7002M_TBB_BYP);
-    LMS7002M_tbb_set_test_in(lms, LMS_CHAB, LMS7002M_TBB_TSTIN_OFF);
+    //LMS7002M_tbb_set_path(lms, LMS_CHAB, LMS7002M_TBB_BYP);
+    //LMS7002M_tbb_set_test_in(lms, LMS_CHAB, LMS7002M_TBB_TSTIN_OFF);
     //OR EXTERNAL DEBUG: LMS7002M_tbb_set_test_in(self, LMS_CHAB, LMS7002M_TBB_TSTIN_AMP);
-    LMS7002M_tbb_set_iamp(lms, LMS_CHAB, 10.0);
-    LMS7002M_tbb_enable_loopback(lms, LMS_CHAB, LMS7002M_TBB_LB_MAIN_TBB, false/*noswap*/);
+    //LMS7002M_tbb_set_iamp(lms, LMS_CHAB, 10.0);
+    //LMS7002M_tbb_enable_loopback(lms, LMS_CHAB, LMS7002M_TBB_LB_MAIN_TBB, false/*noswap*/);
 
     //rx baseband loopback to output pad
-    LMS7002M_rbb_set_path(lms, LMS_CHAB, LMS7002M_RBB_BYP_LB);
-    LMS7002M_rbb_set_pga(lms, LMS_CHAB, 10.0);
-    LMS7002M_rbb_set_test_out(lms, LMS_CHAB, true);
+    //LMS7002M_rbb_set_path(lms, LMS_CHAB, LMS7002M_RBB_BYP_LB);
+    //LMS7002M_rbb_set_pga(lms, LMS_CHAB, 10.0);
+    //LMS7002M_rbb_set_test_out(lms, LMS_CHAB, true);
+
+    //LMS7002M_load_ini(lms, "/root/src/TxTSP_test_2.ini");
+    //LMS7002M_load_ini(lms, "/root/src/RFE_RBB_SXR_test_1.ini");
 
     printf("Debug setup!\n");
     printf("Press ctrl+c to exit\n");
