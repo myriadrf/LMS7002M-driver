@@ -13,21 +13,21 @@
 #include <stdlib.h>
 #include "LMS7002M_impl.h"
 
-LMS7002M_API void LMS7002M_set_spi_mode(LMS7002M_t *self, const int numWires)
+void LMS7002M_set_spi_mode(LMS7002M_t *self, const int numWires)
 {
     if (numWires == 3) self->regs.reg_0x0021_spimode = REG_0X0021_SPIMODE_3WIRE;
     if (numWires == 4) self->regs.reg_0x0021_spimode = REG_0X0021_SPIMODE_4WIRE;
     LMS7002M_regs_spi_write(self, 0x0021);
 }
 
-LMS7002M_API void LMS7002M_reset(LMS7002M_t *self)
+void LMS7002M_reset(LMS7002M_t *self)
 {
     LMS7002M_spi_write(self, 0x0020, 0x0);
     LMS7002M_regs_spi_write(self, 0x0020);
     LMS7002M_regs_spi_write(self, 0x002E);//must write
 }
 
-LMS7002M_API void LMS7002M_power_down(LMS7002M_t *self)
+void LMS7002M_power_down(LMS7002M_t *self)
 {
     self->regs.reg_0x0020_rxen_a = 0;
     self->regs.reg_0x0020_rxen_b = 0;
@@ -36,7 +36,7 @@ LMS7002M_API void LMS7002M_power_down(LMS7002M_t *self)
     LMS7002M_regs_spi_write(self, 0x0020);
 }
 
-LMS7002M_API void LMS7002M_configure_lml_port(LMS7002M_t *self, const LMS7002M_port_t portNo, const LMS7002M_dir_t direction, const int mclkDiv)
+void LMS7002M_configure_lml_port(LMS7002M_t *self, const LMS7002M_port_t portNo, const LMS7002M_dir_t direction, const int mclkDiv)
 {
     //set TRXIQ on both ports
     if (portNo == LMS_PORT1)
@@ -114,14 +114,14 @@ LMS7002M_API void LMS7002M_configure_lml_port(LMS7002M_t *self, const LMS7002M_p
     LMS7002M_regs_spi_write(self, 0x002C);
 }
 
-LMS7002M_API void LMS7002M_invert_fclk(LMS7002M_t *self, const bool invert)
+void LMS7002M_invert_fclk(LMS7002M_t *self, const bool invert)
 {
     self->regs.reg_0x002b_fclk1_inv = invert?1:0;
     self->regs.reg_0x002b_fclk2_inv = invert?1:0;
     LMS7002M_regs_spi_write(self, 0x002B);
 }
 
-LMS7002M_API void LMS7002M_setup_digital_loopback(LMS7002M_t *self)
+void LMS7002M_setup_digital_loopback(LMS7002M_t *self)
 {
     self->regs.reg_0x002a_rx_mux = REG_0X002A_RX_MUX_TXFIFO;
     //self->regs.reg_0x002a_rx_mux = REG_0X002A_RX_MUX_LFSR;
@@ -136,7 +136,7 @@ LMS7002M_API void LMS7002M_setup_digital_loopback(LMS7002M_t *self)
     LMS7002M_regs_spi_write(self, 0x002A);
 }
 
-LMS7002M_API void LMS7002M_set_mac_ch(LMS7002M_t *self, const LMS7002M_chan_t channel)
+void LMS7002M_set_mac_ch(LMS7002M_t *self, const LMS7002M_chan_t channel)
 {
     int newValue = REG_0X0020_MAC_CHAB;
     if (channel == LMS_CHA) newValue = REG_0X0020_MAC_CHA;
@@ -147,7 +147,7 @@ LMS7002M_API void LMS7002M_set_mac_ch(LMS7002M_t *self, const LMS7002M_chan_t ch
     LMS7002M_regs_spi_write(self, 0x0020);
 }
 
-LMS7002M_API void LMS7002M_set_mac_dir(LMS7002M_t *self, const LMS7002M_dir_t direction)
+void LMS7002M_set_mac_dir(LMS7002M_t *self, const LMS7002M_dir_t direction)
 {
     //SPI Regs r19 p10:
     //The special case is frequency synthesizers SXR and SXT. Register addresses are the
@@ -168,7 +168,7 @@ static inline int __lms7002m_diq_index(const int search, const int positions[4])
     return 0; //dont care
 }
 
-LMS7002M_API void LMS7002M_set_diq_mux(LMS7002M_t *self, const LMS7002M_dir_t direction, const int positions[4])
+void LMS7002M_set_diq_mux(LMS7002M_t *self, const LMS7002M_dir_t direction, const int positions[4])
 {
     //set the same config on both ports, only one is used as per port config
 

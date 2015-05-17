@@ -14,7 +14,7 @@
 #include "LMS7002M_impl.h"
 #include <math.h> //pow
 
-LMS7002M_API void LMS7002M_rbb_enable(LMS7002M_t *self, const LMS7002M_chan_t channel, const bool enable)
+void LMS7002M_rbb_enable(LMS7002M_t *self, const LMS7002M_chan_t channel, const bool enable)
 {
     LMS7002M_set_mac_ch(self, channel);
     self->regs.reg_0x0124_en_dir_rbb = 1;
@@ -26,7 +26,7 @@ LMS7002M_API void LMS7002M_rbb_enable(LMS7002M_t *self, const LMS7002M_chan_t ch
     LMS7002M_regs_spi_write(self, 0x0115);
 }
 
-LMS7002M_API void LMS7002M_rbb_set_path(LMS7002M_t *self, const LMS7002M_chan_t channel, const int path)
+void LMS7002M_rbb_set_path(LMS7002M_t *self, const LMS7002M_chan_t channel, const int path)
 {
     LMS7002M_set_mac_ch(self, channel);
 
@@ -74,7 +74,7 @@ LMS7002M_API void LMS7002M_rbb_set_path(LMS7002M_t *self, const LMS7002M_chan_t 
     LMS7002M_regs_spi_write(self, 0x0118);
 }
 
-LMS7002M_API void LMS7002M_rbb_set_test_out(LMS7002M_t *self, const LMS7002M_chan_t channel, const bool enable)
+void LMS7002M_rbb_set_test_out(LMS7002M_t *self, const LMS7002M_chan_t channel, const bool enable)
 {
     LMS7002M_set_mac_ch(self, channel);
 
@@ -83,7 +83,7 @@ LMS7002M_API void LMS7002M_rbb_set_test_out(LMS7002M_t *self, const LMS7002M_cha
     LMS7002M_regs_spi_write(self, 0x0119);
 }
 
-LMS7002M_API double LMS7002M_rbb_set_pga(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain)
+double LMS7002M_rbb_set_pga(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain)
 {
     LMS7002M_set_mac_ch(self, channel);
 
@@ -105,7 +105,7 @@ LMS7002M_API double LMS7002M_rbb_set_pga(LMS7002M_t *self, const LMS7002M_chan_t
     return G_PGA_RBB - 12.0;
 }
 
-LMS7002M_API double LMS7002M_rbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, const double bw)
+double LMS7002M_rbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, const double bw)
 {
     LMS7002M_set_mac_ch(self, channel);
 

@@ -75,7 +75,7 @@ unsigned char Calibration_HighBand_TBB(LMS7002M_t *self, const LMS7002M_chan_t c
 /***********************************************************************
  * Dispatch calibration
  **********************************************************************/
-LMS7002M_API void LMS7002M_cal_tbb(LMS7002M_t *self, const LMS7002M_chan_t ch)
+void LMS7002M_cal_tbb(LMS7002M_t *self, const LMS7002M_chan_t ch)
 {
     Calibration_LowBand_TBB(self, ch);
     Calibration_HighBand_TBB(self, ch);

@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include "LMS7002M_impl.h"
 
-LMS7002M_API int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, const double fout, double *factual)
+int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, const double fout, double *factual)
 {
     //The equations:
     // fref * N = fvco

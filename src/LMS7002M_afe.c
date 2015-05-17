@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include "LMS7002M_impl.h"
 
-LMS7002M_API void LMS7002M_afe_enable(LMS7002M_t *self, const LMS7002M_dir_t direction, const LMS7002M_chan_t channel, const bool enable)
+void LMS7002M_afe_enable(LMS7002M_t *self, const LMS7002M_dir_t direction, const LMS7002M_chan_t channel, const bool enable)
 {
     //support using LMS_CHAB to set both ADCs or DACs
     if (channel == LMS_CHAB)

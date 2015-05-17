@@ -91,7 +91,7 @@ unsigned char Calibration_HighBand_RBB(LMS7002M_t *self, const LMS7002M_chan_t c
 /***********************************************************************
  * Dispatch calibration
  **********************************************************************/
-LMS7002M_API void LMS7002M_cal_rbb(LMS7002M_t *self, const LMS7002M_chan_t channel)
+void LMS7002M_cal_rbb(LMS7002M_t *self, const LMS7002M_chan_t channel)
 {
     Calibration_LowBand_RBB(self, (channel == LMS_CHA)?0:1);
     Calibration_HighBand_RBB(self, (channel == LMS_CHA)?0:1);

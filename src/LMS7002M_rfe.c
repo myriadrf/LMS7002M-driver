@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include "LMS7002M_impl.h"
 
-LMS7002M_API void LMS7002M_rfe_enable(LMS7002M_t *self, const LMS7002M_chan_t channel, const bool enable)
+void LMS7002M_rfe_enable(LMS7002M_t *self, const LMS7002M_chan_t channel, const bool enable)
 {
     LMS7002M_set_mac_ch(self, channel);
     self->regs.reg_0x0124_en_dir_rfe = 1;
@@ -29,7 +29,7 @@ LMS7002M_API void LMS7002M_rfe_enable(LMS7002M_t *self, const LMS7002M_chan_t ch
     LMS7002M_regs_spi_write(self, 0x010C);
 }
 
-LMS7002M_API void LMS7002M_rfe_select_input(LMS7002M_t *self, const LMS7002M_chan_t channel, const int path)
+void LMS7002M_rfe_select_input(LMS7002M_t *self, const LMS7002M_chan_t channel, const int path)
 {
     LMS7002M_set_mac_ch(self, channel);
     self->regs.reg_0x010c_pd_lna_rfe = 1;
@@ -76,7 +76,7 @@ LMS7002M_API void LMS7002M_rfe_select_input(LMS7002M_t *self, const LMS7002M_cha
     LMS7002M_regs_spi_write(self, 0x010D);
 }
 
-LMS7002M_API double LMS7002M_rfe_set_lna(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain)
+double LMS7002M_rfe_set_lna(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain)
 {
     const double gmax = 30;
     double val = gain - gmax;
@@ -104,7 +104,7 @@ LMS7002M_API double LMS7002M_rfe_set_lna(LMS7002M_t *self, const LMS7002M_chan_t
     return val + gmax;
 }
 
-LMS7002M_API double LMS7002M_rfe_set_loopback_lna(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain)
+double LMS7002M_rfe_set_loopback_lna(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain)
 {
     const double gmax = 40;
     double val = gain - gmax;
@@ -133,7 +133,7 @@ LMS7002M_API double LMS7002M_rfe_set_loopback_lna(LMS7002M_t *self, const LMS700
     return val + gmax;
 }
 
-LMS7002M_API double LMS7002M_rfe_set_tia(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain)
+double LMS7002M_rfe_set_tia(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain)
 {
     const double gmax = 12;
     double val = gain - gmax;

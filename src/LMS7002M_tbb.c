@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include "LMS7002M_impl.h"
 
-LMS7002M_API void LMS7002M_tbb_enable(LMS7002M_t *self, const LMS7002M_chan_t channel, const bool enable)
+void LMS7002M_tbb_enable(LMS7002M_t *self, const LMS7002M_chan_t channel, const bool enable)
 {
     LMS7002M_set_mac_ch(self, channel);
     self->regs.reg_0x0124_en_dir_tbb = 1;
@@ -26,7 +26,7 @@ LMS7002M_API void LMS7002M_tbb_enable(LMS7002M_t *self, const LMS7002M_chan_t ch
     LMS7002M_regs_spi_write(self, 0x0105);
 }
 
-LMS7002M_API void LMS7002M_tbb_set_path(LMS7002M_t *self, const LMS7002M_chan_t channel, const int path)
+void LMS7002M_tbb_set_path(LMS7002M_t *self, const LMS7002M_chan_t channel, const int path)
 {
     LMS7002M_set_mac_ch(self, channel);
 
@@ -55,14 +55,14 @@ LMS7002M_API void LMS7002M_tbb_set_path(LMS7002M_t *self, const LMS7002M_chan_t 
     LMS7002M_regs_spi_write(self, 0x010A);
 }
 
-LMS7002M_API void LMS7002M_tbb_set_test_in(LMS7002M_t *self, const LMS7002M_chan_t channel, const int path)
+void LMS7002M_tbb_set_test_in(LMS7002M_t *self, const LMS7002M_chan_t channel, const int path)
 {
     LMS7002M_set_mac_ch(self, channel);
     self->regs.reg_0x010a_tstin_tbb = path;
     LMS7002M_regs_spi_write(self, 0x010a);
 }
 
-LMS7002M_API void LMS7002M_tbb_enable_loopback(LMS7002M_t *self, const LMS7002M_chan_t channel, const int mode, const bool swap)
+void LMS7002M_tbb_enable_loopback(LMS7002M_t *self, const LMS7002M_chan_t channel, const int mode, const bool swap)
 {
     LMS7002M_set_mac_ch(self, channel);
 
@@ -72,7 +72,7 @@ LMS7002M_API void LMS7002M_tbb_enable_loopback(LMS7002M_t *self, const LMS7002M_
     LMS7002M_regs_spi_write(self, 0x0105);
 }
 
-LMS7002M_API double LMS7002M_tbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, const double bw)
+double LMS7002M_tbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, const double bw)
 {
     LMS7002M_set_mac_ch(self, channel);
 
@@ -104,7 +104,7 @@ LMS7002M_API double LMS7002M_tbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_
     return actual;
 }
 
-LMS7002M_API double LMS7002M_tbb_set_iamp(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain)
+double LMS7002M_tbb_set_iamp(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain)
 {
     LMS7002M_set_mac_ch(self, channel);
     int value = (int)(gain + 0.5);

@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include "LMS7002M_impl.h"
 
-LMS7002M_API void LMS7002M_txtsp_enable(LMS7002M_t *self, const LMS7002M_chan_t channel, const bool enable)
+void LMS7002M_txtsp_enable(LMS7002M_t *self, const LMS7002M_chan_t channel, const bool enable)
 {
     LMS7002M_set_mac_ch(self, channel);
 
@@ -38,7 +38,7 @@ LMS7002M_API void LMS7002M_txtsp_enable(LMS7002M_t *self, const LMS7002M_chan_t 
     LMS7002M_regs_spi_write(self, 0x0208);
 }
 
-LMS7002M_API void LMS7002M_txtsp_set_interp(LMS7002M_t *self, const LMS7002M_chan_t channel, const size_t interp)
+void LMS7002M_txtsp_set_interp(LMS7002M_t *self, const LMS7002M_chan_t channel, const size_t interp)
 {
     LMS7002M_set_mac_ch(self, channel);
 
@@ -52,7 +52,7 @@ LMS7002M_API void LMS7002M_txtsp_set_interp(LMS7002M_t *self, const LMS7002M_cha
     LMS7002M_regs_spi_write(self, 0x0203);
 }
 
-LMS7002M_API void LMS7002M_txtsp_set_freq(LMS7002M_t *self, const LMS7002M_chan_t channel, const double freqRel)
+void LMS7002M_txtsp_set_freq(LMS7002M_t *self, const LMS7002M_chan_t channel, const double freqRel)
 {
     LMS7002M_set_mac_ch(self, channel);
     self->regs.reg_0x0208_cmix_byp = 0;
@@ -60,7 +60,7 @@ LMS7002M_API void LMS7002M_txtsp_set_freq(LMS7002M_t *self, const LMS7002M_chan_
     LMS7002M_set_nco_freq(self, LMS_TX, channel, freqRel);
 }
 
-LMS7002M_API void LMS7002M_txtsp_tsg_const(LMS7002M_t *self, const LMS7002M_chan_t channel, const int valI, const int valQ)
+void LMS7002M_txtsp_tsg_const(LMS7002M_t *self, const LMS7002M_chan_t channel, const int valI, const int valQ)
 {
     LMS7002M_set_mac_ch(self, channel);
 
@@ -91,7 +91,7 @@ LMS7002M_API void LMS7002M_txtsp_tsg_const(LMS7002M_t *self, const LMS7002M_chan
     LMS7002M_regs_spi_write(self, 0x0200);
 }
 
-LMS7002M_API void LMS7002M_txtsp_tsg_tone(LMS7002M_t *self, const LMS7002M_chan_t channel)
+void LMS7002M_txtsp_tsg_tone(LMS7002M_t *self, const LMS7002M_chan_t channel)
 {
     LMS7002M_set_mac_ch(self, channel);
 

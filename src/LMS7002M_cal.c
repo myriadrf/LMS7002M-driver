@@ -17,7 +17,7 @@
 /***********************************************************************
  * Set calibration path
  **********************************************************************/
-LMS7002M_API void LMS7002M_cal_set_path(LMS7002M_t *self, const LMS7002M_chan_t channel, const int path)
+void LMS7002M_cal_set_path(LMS7002M_t *self, const LMS7002M_chan_t channel, const int path)
 {
     LMS7002M_set_mac_ch(self, channel);
 

@@ -21,7 +21,7 @@
 /***********************************************************************
  * Create/destroy implementations
  **********************************************************************/
-LMS7002M_API LMS7002M_t *LMS7002M_create(LMS7002M_spi_transact_t transact, void *handle)
+LMS7002M_t *LMS7002M_create(LMS7002M_spi_transact_t transact, void *handle)
 {
     LMS7002M_t *self = (LMS7002M_t *)malloc(sizeof(LMS7002M_t));
     if (self == NULL) return NULL;
@@ -37,7 +37,7 @@ LMS7002M_API LMS7002M_t *LMS7002M_create(LMS7002M_spi_transact_t transact, void 
     return self;
 }
 
-LMS7002M_API void LMS7002M_destroy(LMS7002M_t *self)
+void LMS7002M_destroy(LMS7002M_t *self)
 {
     free(self);
 }
@@ -45,39 +45,39 @@ LMS7002M_API void LMS7002M_destroy(LMS7002M_t *self)
 /***********************************************************************
  * Helper calls to format SPI transactions
  **********************************************************************/
-LMS7002M_API void LMS7002M_spi_write(LMS7002M_t *self, const int addr, const int value)
+void LMS7002M_spi_write(LMS7002M_t *self, const int addr, const int value)
 {
     uint32_t data = (((uint32_t)1) << 31) | (((uint32_t)addr) << 16) | (value & 0xffff);
     self->spi_transact(self->spi_transact_handle, data, false/*no readback*/);
 }
 
-LMS7002M_API int LMS7002M_spi_read(LMS7002M_t *self, const int addr)
+int LMS7002M_spi_read(LMS7002M_t *self, const int addr)
 {
     uint32_t data = (((uint32_t)addr) << 16);
     return self->spi_transact(self->spi_transact_handle, data, true/*readback*/) & 0xffff;
 }
 
-LMS7002M_API void LMS7002M_regs_spi_write(LMS7002M_t *self, const int addr)
+void LMS7002M_regs_spi_write(LMS7002M_t *self, const int addr)
 {
     LMS7002M_spi_write(self, addr, LMS7002M_regs_get(&self->regs, addr));
 }
 
-LMS7002M_API void LMS7002M_regs_spi_write2(LMS7002M_t *self, const int addr, const int regAddr)
+void LMS7002M_regs_spi_write2(LMS7002M_t *self, const int addr, const int regAddr)
 {
     LMS7002M_spi_write(self, addr, LMS7002M_regs_get(&self->regs, regAddr));
 }
 
-LMS7002M_API void LMS7002M_regs_spi_read(LMS7002M_t *self, const int addr)
+void LMS7002M_regs_spi_read(LMS7002M_t *self, const int addr)
 {
     LMS7002M_regs_set(&self->regs, addr, LMS7002M_spi_read(self, addr));
 }
 
-LMS7002M_API LMS7002M_regs_t *LMS7002M_regs(LMS7002M_t *self)
+LMS7002M_regs_t *LMS7002M_regs(LMS7002M_t *self)
 {
     return &self->regs;
 }
 
-LMS7002M_API int LMS7002M_dump_ini(LMS7002M_t *self, const char *path)
+int LMS7002M_dump_ini(LMS7002M_t *self, const char *path)
 {
     FILE *p = fopen(path, "w");
     if (p == NULL) return -1;
@@ -120,7 +120,7 @@ LMS7002M_API int LMS7002M_dump_ini(LMS7002M_t *self, const char *path)
     return fclose(p);
 }
 
-LMS7002M_API int LMS7002M_load_ini(LMS7002M_t *self, const char *path)
+int LMS7002M_load_ini(LMS7002M_t *self, const char *path)
 {
     FILE *p = fopen(path, "r");
     if (p == NULL) return -1;
