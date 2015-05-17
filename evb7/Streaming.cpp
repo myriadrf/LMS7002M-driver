@@ -88,8 +88,8 @@ SoapySDR::Stream *EVB7::setupStream(
     //use the channel to configure the mux
     //since the streamer is only using the first two sample positions
     std::vector<int> chMux;
-    if (channel == 0) chMux = {LMS7002M_LML_AQ, LMS7002M_LML_AI, LMS7002M_LML_BQ, LMS7002M_LML_BI};
-    if (channel == 1) chMux = {LMS7002M_LML_BQ, LMS7002M_LML_BI, LMS7002M_LML_AQ, LMS7002M_LML_AI};
+    if (channel == 0) chMux = {LMS7002M_LML_AI, LMS7002M_LML_AQ, LMS7002M_LML_BI, LMS7002M_LML_BQ};
+    if (channel == 1) chMux = {LMS7002M_LML_BI, LMS7002M_LML_BQ, LMS7002M_LML_AI, LMS7002M_LML_AQ};
     LMS7002M_set_diq_mux(_lms, dir2LMS(direction), chMux.data());
 
     //store the format
