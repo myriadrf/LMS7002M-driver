@@ -11,11 +11,13 @@
 ///
 
 #include <stdlib.h>
-#include <stdio.h>
 #include "LMS7002M_impl.h"
+#include <LMS7002M/LMS7002M_logger.h>
 
 LMS7002M_API int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, const double fout, double *factual)
 {
+    LMS7_logf(LMS7_INFO, "CGEN tune %f MHz begin", fout/1e6);
+
     //The equations:
     // fref * N = fvco
     // fvco / fdiv = fout
@@ -32,7 +34,7 @@ LMS7002M_API int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, co
 
         Ndiv = fout*fdiv/fref;
         fvco = fout*fdiv;
-        //printf("fdiv = %d, fvco = %f MHz\n", fdiv, fvco/1e6);
+        LMS7_logf(LMS7_DEBUG, "fdiv = %d, fvco = %f MHz", fdiv, fvco/1e6);
 
         //check dividers and vco in range...
         if (fdiv > 512) return -1;
@@ -45,7 +47,7 @@ LMS7002M_API int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, co
 
         break; //its good
     }
-    //printf("fdiv = %d, fvco = %f MHz\n", fdiv, fvco/1e6);
+    LMS7_logf(LMS7_DEBUG, "fdiv = %d, fvco = %f MHz", fdiv, fvco/1e6);
 
     //stash the freq now that we know the loop above passed
     self->cgen_freq = fout;
@@ -78,7 +80,7 @@ LMS7002M_API int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, co
     self->regs.reg_0x0087_frac_sdm_cgen = (Nfrac-1) & 0xffff; //lower 16 bits
     self->regs.reg_0x0088_frac_sdm_cgen = (Nfrac-1) >> 16; //upper 4 bits
     self->regs.reg_0x0088_int_sdm_cgen = Nint-1;
-    //printf("fdiv = %d, Ndiv = %f, Nint = %d, Nfrac = %d, fvco = %f MHz\n", fdiv, Ndiv, Nint, Nfrac, fvco/1e6);
+    LMS7_logf(LMS7_DEBUG, "fdiv = %d, Ndiv = %f, Nint = %d, Nfrac = %d, fvco = %f MHz", fdiv, Ndiv, Nint, Nfrac, fvco/1e6);
     LMS7002M_regs_spi_write(self, 0x0087);
     LMS7002M_regs_spi_write(self, 0x0088);
 
@@ -95,7 +97,7 @@ LMS7002M_API int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, co
         self->regs.reg_0x008b_csw_vco_cgen |= 1 << i;
         LMS7002M_regs_spi_write(self, 0x008B);
         LMS7002M_regs_spi_read(self, 0x008C);
-        //printf("i=%d, hi=%d, lo=%d\n", i, self->regs.reg_0x008c_vco_cmpho_cgen, self->regs.reg_0x008c_vco_cmplo_cgen);
+        LMS7_logf(LMS7_DEBUG, "i=%d, hi=%d, lo=%d", i, self->regs.reg_0x008c_vco_cmpho_cgen, self->regs.reg_0x008c_vco_cmplo_cgen);
         if (self->regs.reg_0x008c_vco_cmplo_cgen != 0)
         {
             self->regs.reg_0x008b_csw_vco_cgen &= ~(1 << i); //clear bit i
@@ -126,7 +128,7 @@ LMS7002M_API int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, co
         }
         csw_lowest += 1;
 
-        //printf("lowest CSW_VCO %i, highest CSW_VCO %i\n", csw_lowest, csw_highest);
+        LMS7_logf(LMS7_INFO, "lowest CSW_VCO %i, highest CSW_VCO %i", csw_lowest, csw_highest);
         self->regs.reg_0x008b_csw_vco_cgen = (csw_highest+csw_lowest)/2;
         LMS7002M_regs_spi_write(self, 0x008B);
     }
@@ -135,9 +137,13 @@ LMS7002M_API int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, co
     LMS7002M_regs_spi_read(self, 0x008C);
     if (self->regs.reg_0x008c_vco_cmpho_cgen != 0 && self->regs.reg_0x008c_vco_cmplo_cgen == 0)
     {
-        //GOOD
+        LMS7_log(LMS7_INFO, "CGEN VCO OK");
     }
-    else return -3;
+    else
+    {
+        LMS7_log(LMS7_ERROR, "CGEN VCO select FAIL");
+        return -3;
+    }
 
     self->regs.reg_0x0086_spdup_vco_cgen = 0; //done with fast settling
     LMS7002M_regs_spi_write(self, 0x0086);

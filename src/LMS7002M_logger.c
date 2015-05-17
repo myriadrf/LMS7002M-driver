@@ -59,13 +59,13 @@ void LMS7_set_log_level(const LMS7_log_level_t level)
 
 LMS7002M_API void LMS7_log(const LMS7_log_level_t level, const char *message)
 {
-    if (level < _log_level) return;
+    if (level > _log_level) return;
     _log_handler(level, message);
 }
 
 void LMS7_vlogf(const LMS7_log_level_t level, const char *format, va_list args)
 {
-    if (level < _log_level) return;
+    if (level > _log_level) return;
     char *message;
     vasprintf(&message, format, args);
     LMS7_log(level, message);

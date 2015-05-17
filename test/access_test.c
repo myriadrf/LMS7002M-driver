@@ -8,6 +8,7 @@
 //
 
 #include <LMS7002M/LMS7002M.h>
+#include <LMS7002M/LMS7002M_logger.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -78,6 +79,8 @@ static inline double estimate_clock_rate(void *regs, int offset)
 
 int main(int argc, char **argv)
 {
+    LMS7_set_log_level(LMS7_DEBUG);
+
     printf("=========================================================\n");
     printf("== Test LMS7002M access                                  \n");
     printf("=========================================================\n");

@@ -29,7 +29,7 @@ typedef enum
 
 /*!
  * Set module/process-wide logger level.
- * Anything below this level will be discarded.
+ * Anything above this level will be discarded.
  * \param level a possible logging level
  */
 LMS7002M_API void LMS7_set_log_level(const LMS7_log_level_t level);

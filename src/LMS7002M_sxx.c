@@ -13,6 +13,7 @@
 
 #include <stdlib.h>
 #include "LMS7002M_impl.h"
+#include <LMS7002M/LMS7002M_logger.h>
 
 LMS7002M_API void LMS7002M_sxx_enable(LMS7002M_t *self, const LMS7002M_dir_t direction, const bool enable)
 {
@@ -26,6 +27,8 @@ LMS7002M_API void LMS7002M_sxx_enable(LMS7002M_t *self, const LMS7002M_dir_t dir
 
 LMS7002M_API int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, const double fref, const double fout, double *factual)
 {
+    LMS7_logf(LMS7_INFO, "SXX tune %f MHz begin", fout/1e6);
+
     LMS7002M_set_mac_dir(self, direction);
 
     //The equations:
@@ -47,7 +50,7 @@ LMS7002M_API int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t dir
 
         Ndiv = fout*fdiv/fref;
         fvco = fout*fdiv;
-        //printf("fdiv = %d, Ndiv = %f, fvco = %f MHz\n", fdiv, Ndiv, fvco/1e6);
+        LMS7_logf(LMS7_DEBUG, "fdiv = %d, Ndiv = %f, fvco = %f MHz", fdiv, Ndiv, fvco/1e6);
 
         //check dividers and vco in range...
         if (fdiv > 128) return -1;
@@ -60,7 +63,7 @@ LMS7002M_API int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t dir
 
         break; //its good
     }
-    //printf("fdiv = %d, Ndiv = %f, fvco = %f MHz\n", fdiv, Ndiv, fvco/1e6);
+    LMS7_logf(LMS7_DEBUG, "fdiv = %d, Ndiv = %f, fvco = %f MHz", fdiv, Ndiv, fvco/1e6);
 
     //select the VCO and handle overlap -- pick the VCO that we are more within range of
     const bool inVCOH = (fvco <= LMS7002M_SXX_VCOH_HI && fvco >= LMS7002M_SXX_VCOH_LO);
@@ -77,7 +80,11 @@ LMS7002M_API int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t dir
     else if (inVCOM && inVCOL && prefVCOM)    SEL_VCO = REG_0X0121_SEL_VCO_VCOM;
     else if (inVCOM && inVCOL && !prefVCOM)   SEL_VCO = REG_0X0121_SEL_VCO_VCOL;
     else if (inVCOL)                          SEL_VCO = REG_0X0121_SEL_VCO_VCOL;
-    else return -2;
+    else
+    {
+        LMS7_logf(LMS7_ERROR, "SXX no available VCO for %f MHz", fvco/1e6);
+        return -2;
+    }
 
     //deal with VCO divider
     const int EN_DIV2 = (fvco > 5.5e9)?1:0;
@@ -119,7 +126,7 @@ LMS7002M_API int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t dir
     self->regs.reg_0x011d_frac_sdm = (Nfrac) & 0xffff; //lower 16 bits
     self->regs.reg_0x011e_frac_sdm = (Nfrac) >> 16; //upper 4 bits
     self->regs.reg_0x011e_int_sdm = Nint;
-    //printf("fdiv = %d, Ndiv = %f, Nint = %d, Nfrac = %d, DIV_LOCH_SX = %d, SEL_VCO = %d, fvco = %f MHz\n", fdiv, Ndiv, Nint, Nfrac, DIV_LOCH_SX, SEL_VCO, fvco/1e6);
+    LMS7_logf(LMS7_DEBUG, "fdiv = %d, Ndiv = %f, Nint = %d, Nfrac = %d, DIV_LOCH_SX = %d, SEL_VCO = %d, fvco = %f MHz", fdiv, Ndiv, Nint, Nfrac, DIV_LOCH_SX, SEL_VCO, fvco/1e6);
     LMS7002M_regs_spi_write(self, 0x011d);
     LMS7002M_regs_spi_write(self, 0x011e);
 
@@ -140,7 +147,7 @@ LMS7002M_API int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t dir
         self->regs.reg_0x0121_csw_vco |= 1 << i;
         LMS7002M_regs_spi_write(self, 0x0121);
         LMS7002M_regs_spi_read(self, 0x0123);
-        //printf("i=%d, hi=%d, lo=%d\n", i, self->regs.reg_0x0123_vco_cmpho, self->regs.reg_0x0123_vco_cmplo);
+        LMS7_logf(LMS7_DEBUG, "i=%d, hi=%d, lo=%d", i, self->regs.reg_0x0123_vco_cmpho, self->regs.reg_0x0123_vco_cmplo);
         if (self->regs.reg_0x0123_vco_cmplo != 0)
         {
             self->regs.reg_0x0121_csw_vco &= ~(1 << i); //clear bit i
@@ -171,7 +178,7 @@ LMS7002M_API int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t dir
         }
         csw_lowest += 1;
 
-        //printf("lowest CSW_VCO %i, highest CSW_VCO %i\n", csw_lowest, csw_highest);
+        LMS7_logf(LMS7_INFO, "lowest CSW_VCO %i, highest CSW_VCO %i", csw_lowest, csw_highest);
         self->regs.reg_0x0121_csw_vco = (csw_highest+csw_lowest)/2;
         LMS7002M_regs_spi_write(self, 0x0121);
     }
@@ -180,9 +187,13 @@ LMS7002M_API int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t dir
     LMS7002M_regs_spi_read(self, 0x0123);
     if (self->regs.reg_0x0123_vco_cmpho != 0 && self->regs.reg_0x0123_vco_cmplo == 0)
     {
-        //GOOD
+        LMS7_log(LMS7_INFO, "SXX VCO OK");
     }
-    else return -3;
+    else
+    {
+        LMS7_log(LMS7_ERROR, "SXX VCO select FAIL");
+        return -3;
+    }
 
     self->regs.reg_0x011c_spdup_vco = 0; //done with fast settling
     LMS7002M_regs_spi_write(self, 0x011c);
