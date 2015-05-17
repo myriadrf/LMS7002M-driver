@@ -13,16 +13,8 @@
 #pragma once
 #include <stdint.h>
 #include <stdbool.h>
+#include <LMS7002M/LMS7002M_config.h>
 #include <LMS7002M/LMS7002M_regs.h>
-
-/*!
- * API export macro to declare linkage for driver functions:
- * We want to support including implementation headers for private use
- * or building this into a library -- so define LMS7002M_API accordingly.
- */
-#ifndef LMS7002M_API
-#define LMS7002M_API
-#endif
 
 //! direction constants
 typedef enum

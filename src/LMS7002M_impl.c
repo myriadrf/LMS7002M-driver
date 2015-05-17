@@ -13,10 +13,10 @@
 ///
 
 #include <stdlib.h>
-#include <stdio.h>
 #include <ctype.h>
 #include <string.h>
 #include "LMS7002M_impl.h"
+#include <LMS7002M/LMS7002M_logger.h>
 
 /***********************************************************************
  * Create/destroy implementations
@@ -149,13 +149,13 @@ int LMS7002M_load_ini(LMS7002M_t *self, const char *path)
         {
             if (strcmp(line, "[LMS7002 registers ch.A]") == 0)
             {
-                printf("Found section %s\n", line);
+                LMS7_logf(LMS7_INFO, "Found section %s", line);
                 write_reg_ok = true;
                 chan = LMS_CHA;
             }
             else if (strcmp(line, "[LMS7002 registers ch.B]") == 0)
             {
-                printf("Found section %s\n", line);
+                LMS7_logf(LMS7_INFO, "Found section %s", line);
                 write_reg_ok = true;
                 chan = LMS_CHB;
             }
@@ -172,7 +172,7 @@ int LMS7002M_load_ini(LMS7002M_t *self, const char *path)
                 LMS7002M_set_mac_ch(self, chan);
                 LMS7002M_spi_write(self, addr, value);
                 LMS7002M_regs_set(LMS7002M_regs(self), addr, value);
-                //printf("Load: 0x%04x=0x%04x\n", addr, value);
+                LMS7_logf(LMS7_DEBUG, "Load: 0x%04x=0x%04x", addr, value);
             }
         }
 
