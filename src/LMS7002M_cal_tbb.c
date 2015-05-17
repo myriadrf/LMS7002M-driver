@@ -12,189 +12,139 @@
 
 #include <stdlib.h>
 #include "LMS7002M_cal.h"
-#include "LMS7002M_impl.h"
+#include <LMS7002M/LMS7002M_logger.h>
 
-#define TBB_2_4MHZ 0
-#define TBB_2_74MHZ 1
-#define TBB_5_5MHZ 2
-#define TBB_8_2MHZ 3
-#define TBB_11_0MHZ 4
-#define TBB_18_5MHZ 5
-#define TBB_38_0MHZ 6
-#define TBB_54_0MHZ 7
-
-/***********************************************************************
- * NCO for DAC output
- **********************************************************************/
-void Set_NCO_Freq(LMS7002M_t *self, const double freq, const LMS7002M_chan_t ch)
-{
-    LMS7002M_txtsp_set_freq(self, ch, freq/self->cgen_freq);
-}
-
-/***********************************************************************
- * TBB low band calibration
- **********************************************************************/
-unsigned char Calibration_LowBand_TBB(LMS7002M_t *self, const LMS7002M_chan_t ch)
-{
-    //unsigned char result;
-    int backup[CAL_BACKUP_SIZE];
-    Save_config_CAL(self, backup); //save current configuration
-    LMS7002M_set_mac_ch (self, ch);
-    Modify_SPI_Reg_bits (self, 0x040A, 13, 12, 1); // AGC Mode = 1 (RSSI mode)
-
-    Algorithm_A_TBB(self);
-
-    LMS7002M_cal_set_path(self, ch, 3); // Set control signals to path 3
-
-    //TODO
-
-    Restore_config_CAL(self, backup);
-    //restore configuration
-    return 1;
-}
-
-/***********************************************************************
- * TBB high band calibration
- **********************************************************************/
-unsigned char Calibration_HighBand_TBB(LMS7002M_t *self, const LMS7002M_chan_t ch)
-{
-    //unsigned char result;
-    int backup[CAL_BACKUP_SIZE];
-    Save_config_CAL(self, backup); //save current configuration
-    LMS7002M_set_mac_ch (self, ch);
-    Modify_SPI_Reg_bits (self, 0x040A, 13, 12, 1); // AGC Mode = 1 (RSSI mode)
-    LMS7002M_cal_set_path(self, ch, 6); // Set control signals to path 6
-    Algorithm_E_TBB (self, TBB_18_5MHZ, ch);// CalibrateByRes the output cutoff frequency (Algorithm E)
-    Algorithm_E_TBB (self, TBB_38_0MHZ, ch);// CalibrateByRes the output cutoff frequency (Algorithm E)
-    Algorithm_E_TBB (self, TBB_54_0MHZ, ch);// CalibrateByRes the output cutoff frequency (Algorithm E)
-    Restore_config_CAL(self, backup);
-    //restore configuration
-    return 1;
-}
+const float TBB_CalFreq[TBB_ALL] = {18.5, 38.0, 54.0};
 
 /***********************************************************************
  * Dispatch calibration
  **********************************************************************/
 void LMS7002M_cal_tbb(LMS7002M_t *self, const LMS7002M_chan_t ch)
 {
-    Calibration_LowBand_TBB(self, ch);
-    Calibration_HighBand_TBB(self, ch);
+    self->MIMO_ch = ch; //stash for table storage offset later
+    //NOT IMPLEMENTED! Calibration_LowBand_TBB(self, (ch==LMS_CHA)?0:1);
+    Calibration_HighBand_TBB(self, (ch==LMS_CHA)?0:1);
 }
 
 /***********************************************************************
- * TBB Algorithm A
+ * TBB low band calibration
  **********************************************************************/
-void Algorithm_A_TBB(LMS7002M_t *self)
+int Calibration_LowBand_TBB(LMS7002M_t *self, unsigned char ch)
 {
-    unsigned char RCAL_LPFLAD_TBB;
-    float ratio;
-    Resistor_calibration(self, &ratio);
-    RCAL_LPFLAD_TBB = (unsigned char)(193 * ratio); // default control value )193 - when 11MHz) Multiply by ratio
-    Modify_SPI_Reg_bits (self, 0x0109, 7, 0, RCAL_LPFLAD_TBB);
+    MIMO_Ctrl (self, ch);
+    //#warning Not finished!!!
+    //not finished!!!!
+    LMS7_log(LMS7_WARNING, "Calibration_LowBand_TBB not implemented");
+    return -1;
 }
 
 /***********************************************************************
- * TBB Algorithm C
+ * TBB high band calibration
  **********************************************************************/
-unsigned char Algorithm_C_TBB(LMS7002M_t *self, unsigned char Band_id, unsigned short LowFreqAmp, const LMS7002M_chan_t ch)
+int Calibration_HighBand_TBB(LMS7002M_t *self, unsigned char ch)
 {
-    unsigned short ADCOUT/*, LowFreqAmp*/;
-    unsigned char CONTROL;
-    Set_NCO_Freq (self, self->TBB_CalFreq[Band_id], ch); // 1 Apply a single tone frequency at CalFreq.
-    CONTROL = 31; // 2 Set the CCAL_LPFLAD_TBB to maximum value.
-    Modify_SPI_Reg_bits (self, 0x010A, 12, 8, CONTROL);
+    MIMO_Ctrl (self, ch);
 
-    while (1)
+    Set_cal_path_TBB (self, 6); // Set control signals to path 6
+
+    Algorithm_E_TBB (self, TBB_18_5MHZ);// CalibrateByRes the output cutoff frequency (Algorithm E)
+    Algorithm_E_TBB (self, TBB_38_0MHZ);// CalibrateByRes the output cutoff frequency (Algorithm E)
+    Algorithm_E_TBB (self, TBB_54_0MHZ);// CalibrateByRes the output cutoff frequency (Algorithm E)
+    return 0;
+}
+
+/***********************************************************************
+ * TBB calibration path
+ **********************************************************************/
+void Set_cal_path_TBB (LMS7002M_t *self, unsigned char path_no)
+{
+    switch (path_no)
     {
-        ADCOUT = Get_SPI_Reg_bits(self, 0x040B, 15, 0); //RSSI value // Measure the value of the amplitude at the ADC input. This value should be lower
-
-        if (ADCOUT >= LowFreqAmp) break; //If amplitude is lower than LowFreqAmp repeat cycle
-        if (CONTROL == 0) return 0;
-        CONTROL--; // Decrease the control value CCAL_LPFLAD_TBB by one step.
-        Modify_SPI_Reg_bits (self, 0x010A, 12, 8, CONTROL);
-    }
-
-    int MIMO_ch = (ch == LMS_CHA)?0:1;
-    self->TBB_CBANK[MIMO_ch] = CONTROL; // Store the value of CCAL_LPFLAD_TBB as the calibrated CBANK value of TBB.
-
-    return 1;
-}
-
-/***********************************************************************
- * TBB Algorithm D
- **********************************************************************/
-unsigned char Algorithm_D_TBB(LMS7002M_t *self, unsigned char Band_id, unsigned short LowFreqAmp, const LMS7002M_chan_t ch)
-{
-    unsigned short ADCOUT;
-    unsigned char inc, Zero_Freq = 127;
-    Set_NCO_Freq(self, self->TBB_CalFreq[Band_id], ch); // 1 Apply a single tone at frequency equal to CalFreq
-    ADCOUT = Get_SPI_Reg_bits(self, 0x040B, 15, 0); //RSSI value
-    if(ADCOUT > LowFreqAmp) inc = 0; //If greater, then the pre-emphasis zero is faster than the real pole
-    else inc = 1;
-    while (1)
-    {
-        ADCOUT = Get_SPI_Reg_bits(self, 0x040B, 15, 0); //RSSI value // Measure the output level at the ADC input
-
-        if (inc)
-        {
-            if(ADCOUT >= 52428) break;
-        }
-        else
-        {
-            if(ADCOUT <= 52428) break;
-        }
-
-        if( (Zero_Freq == 0) || (Zero_Freq == 255)) //gain limit reached
-        {
-            return 0;
+        case 1: // Current Amplifier Low Section Verification.
             break;
-        }
 
-        if(inc) Zero_Freq++;
-        else Zero_Freq--;
+        case 2: // Current Amplifier High Section testing.
+            break;
+
+        case 3: // TX LPFLADDER Low Section testing.
+            break;
+
+        case 4: // TX REALPOLE Low Section testing
+            break;
+
+        case 5: // TX Lowband testing
+            break;
+
+        case 6: // TX BIQUAD High Section testing
+            Modify_SPI_Reg_bits (self, 0x010A, 15, 14, 0); // TSTIN_TBB == 0
+            Modify_SPI_Reg_bits (self, 0x0105, 4, 4, 0); // PD_LPFH_TBB == 0
+            Modify_SPI_Reg_bits (self, 0x0105, 14, 12, 3); // LOOPB_TBB<1:0> == 3
+            Modify_SPI_Reg_bits (self, 0x0105, 1, 1, 1); // PD_LPFS5_TBB == 1
+            Modify_SPI_Reg_bits (self, 0x0105, 2, 2, 1); // PD_LPFLAD_TBB == 1
+            Modify_SPI_Reg_bits (self, 0x010A, 13, 13, 0); // BYPLADDER_TBB == 0 (Digital Pre-Emphasis = "OFF")
+            break;
     }
 
-    return 1;
+    //RBB Control Bits
+    Modify_SPI_Reg_bits (self, 0x0118, 15, 13, 3); // INPUT_CTL_PGA_RBB == 3
+    Modify_SPI_Reg_bits (self, 0x0115, 2, 2, 1); // PD_LPFL_RBB == 1
+    Modify_SPI_Reg_bits (self, 0x0115, 3, 3, 1); // PD_LPFH_RBB == 1
+    Modify_SPI_Reg_bits (self, 0x010C, 1, 1, 1); // PD_TIA_RFE == 1
+    Modify_SPI_Reg_bits (self, 0x0119, 15, 15, 0); // OSW_PGA_RBB ==0
 }
 
 /***********************************************************************
  * TBB Algorithm E
  **********************************************************************/
-unsigned char Algorithm_E_TBB(LMS7002M_t *self, unsigned char Band_id, const LMS7002M_chan_t ch)
+void Algorithm_E_TBB (LMS7002M_t *self, unsigned char Band_id)
 {
-    unsigned short ADCOUT, LowFreqAmp;
+    unsigned short ADCOUT;
+    unsigned short LowFreqAmp;
     unsigned char low_band, CONTROL;
-    CONTROL = 0; // Set the CONTROL to zero. This should bring the output cutt-off frequency to minimum.
 
-    if(Band_id <= TBB_11_0MHZ) //If(CalFreq) <=11MHz, then CONTROL=RCAL_LPFLAD_TBB, else, CONTROL=RCAL_LPFH_TBB
+    Set_NCO_Freq (self, TBB_CalFreq[Band_id], self->cgen_freq/1e6, false); // Set CalFreq
+
+    Modify_SPI_Reg_bits (self, 0x040A, 13, 12, 1); // AGC Mode = 1 (RSSI mode)
+
+    if(Band_id <= TBB_11_0MHZ) //If("CalFreq") <=11MHz, then CONTROL=RCAL_LPFLAD_TBB, else, CONTROL=RCAL_LPFH_TBB
     {
         low_band = 1; // CONTROL=RCAL_LPFLAD_TBB
-        Modify_SPI_Reg_bits (self, 0x0109, 7, 0, CONTROL); // write to RCAL_LPFLAD_TBB
     }
     else
     {
         low_band = 0; // CONTROL=RCAL_LPFH_TBB
-        Modify_SPI_Reg_bits (self, 0x0109, 15, 8, CONTROL); // write to RCAL_LPFH_TBB
     }
 
-    if (Algorithm_B_TBB (self, &LowFreqAmp, ch) != 1) return 0; // Calibrate and Record the low frequency output amplitude (Algorithm B)
-    Set_NCO_Freq(self, self->TBB_CalFreq[Band_id], ch); // Apply a single tone frequency at CalFreq.
+    CONTROL = 0; // Set the CONTROL to zero. This should bring the output cutt-off frequency to minimum.
+
+    if (low_band) Modify_SPI_Reg_bits (self, 0x0109, 7, 0, CONTROL); // write to RCAL_LPFLAD_TBB
+        else Modify_SPI_Reg_bits (self, 0x0109, 15, 8, CONTROL); // write to RCAL_LPFH_TBB
+
+    LowFreqAmp = Algorithm_B_TBB (self); // Apply (Algorithm B).
+    Set_NCO_Freq (self, TBB_CalFreq[Band_id], self->cgen_freq/1e6, false); // Apply a single tone frequency at "CalFreq".
 
     while (1)
     {
-        ADCOUT = Get_SPI_Reg_bits(self, 0x040B, 15, 0); //RSSI value // Measure the value of the amplitude at the ADC input. This value should be lower
+        if (low_band) Modify_SPI_Reg_bits (self, 0x0117, 10, 0, CONTROL); // write to C_CTL_LPFL_RBB
+            else Modify_SPI_Reg_bits (self, 0x0116, 7, 0, CONTROL); // write to C_CTL_LPFH_RBB
 
-        if (ADCOUT >= LowFreqAmp) break; //If it is lower than LowFreqAmp repeat cycle
+        ADCOUT = Get_SPI_Reg_bits(self, 0x040B, 15, 0); //RSSI value // Measure the value of the amplitude at the ADC input. This value should be lower than "LowFreqAmp".
+
+        if (! (ADCOUT < LowFreqAmp)) break; //If it is lower than "LowFreqAmp" repeat cycle
         if (CONTROL == 0xFF) break;
         CONTROL++; // Increase the CONTROL value by one.
-
-        if (low_band) Modify_SPI_Reg_bits (self, 0x0109, 7, 0, CONTROL); // write to RCAL_LPFLAD_TBB
-        else Modify_SPI_Reg_bits (self, 0x0109, 15, 8, CONTROL); // write to RCAL_LPFH_TBB
     }
 
     // 8 Return the value of CONTROL.
-    int MIMO_ch = (ch == LMS_CHA)?0:1;
-    self->TBB_RBANK[MIMO_ch][Band_id] = CONTROL; // Store RBANK Values
+    self->TBB_RBANK[self->MIMO_ch][Band_id] = CONTROL; // Store RBANK Values
+}
 
-    return 1;
+/***********************************************************************
+ * TBB Algorithm B
+ **********************************************************************/
+unsigned short Algorithm_B_TBB (LMS7002M_t *self)
+{
+    //same algorith as rbb???
+    //JB: then call B_RBB....
+    return 0;
 }
