@@ -126,6 +126,11 @@ float Resistor_calibration (LMS7002M_t *self)
         Modify_SPI_Reg_bits(self, 0x0400, 15, 15, 1); //Capture 1
         ADCOUT = (Get_SPI_Reg_bits(self, 0x040F, 15, 0) << 2) | Get_SPI_Reg_bits(self, 0x040E, 1, 0); //RSSI value
 
+        //REG: debug
+        unsigned long capd_lo = LMS7002M_spi_read(self, 0x40E);
+        unsigned long capd_hi = LMS7002M_spi_read(self, 0x40F);
+        LMS7_logf(LMS7_DEBUG, "%s: RP_CALIB_BIAS = %d, ADCOUT, = %d, CAPD = %X.%X", __FUNCTION__, RP_CALIB_BIAS, ADCOUT, capd_hi, capd_lo);
+
         if(RP_CALIB_BIAS == 0)
         {
             BestValue = ADCOUT;
@@ -142,7 +147,7 @@ float Resistor_calibration (LMS7002M_t *self)
     }
     Modify_SPI_Reg_bits(self, 0x0400, 15, 15, 0); //Capture 0
     Modify_SPI_Reg_bits (self, 0x0084, 10, 6, RP_CALIB_BIAS_cal); // set the control RP_CAL_BIAS to stored calibrated value
-    ratio = 16/RP_CALIB_BIAS_cal; //calculate ratio
-    LMS7_log(LMS7_INFO, "Resistor calibration finished");
+    ratio = 16.0/RP_CALIB_BIAS_cal; //calculate ratio
+    LMS7_logf(LMS7_INFO, "%s: Resistor calibration finished = %f", __FUNCTION__, ratio);
     return ratio;
 }

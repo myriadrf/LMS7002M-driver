@@ -201,6 +201,12 @@ int main(int argc, char **argv)
     const bool RBB_TEST_ON = true;
     LMS7002M_rbb_set_test_out(lms, LMS_CHAB, RBB_TEST_ON);
 
+    //REG: testing my code...
+    printf("===> Running RBB calibration for CHAN A...\n");
+    LMS7002M_cal_rbb(lms, LMS_CHA);
+    printf("===> Running RBB calibration for CHAN B...\n");
+    LMS7002M_cal_rbb(lms, LMS_CHB);
+
     //setup tx dsp signal generator
     //LMS7002M_txtsp_tsg_tone(lms, LMS_CHAB);
     //LMS7002M_txtsp_tsg_const(lms, LMS_CHAB, 1 << 14, 1 << 14);
