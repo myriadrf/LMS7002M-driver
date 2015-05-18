@@ -45,4 +45,5 @@ SOAPY_SDR_MODULE_UTIL(
         ${LMS7002M_SOURCES}
         Streaming.cpp
         EVB7Device.cpp
+    LIBRARIES m
 )
