@@ -392,6 +392,12 @@ size_t EVB7::getNumDirectAccessBuffers(SoapySDR::Stream *)
     return DATA_NUM_BUFFS;
 }
 
+int EVB7::getDirectAccessBufferAddrs(SoapySDR::Stream *stream, const size_t handle, void **buffs)
+{
+    buffs[0] = ((uint32_t *)pzdud_addr(reinterpret_cast<pzdud_t *>(stream), handle)) + 4;
+    return 0;
+}
+
 int EVB7::acquireReadBuffer(
     SoapySDR::Stream *stream,
     size_t &handleOut,
