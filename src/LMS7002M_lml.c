@@ -149,10 +149,6 @@ void LMS7002M_set_mac_ch(LMS7002M_t *self, const LMS7002M_chan_t channel)
 
 void LMS7002M_set_mac_dir(LMS7002M_t *self, const LMS7002M_dir_t direction)
 {
-    //SPI Regs r19 p10:
-    //The special case is frequency synthesizers SXR and SXT. Register addresses are the
-    //same for SXR and SXT. To control SXT we have to set MAC[1:0] to the "01" and MAC[1:0]
-    //to the "10" for SXR.
     const int newValue = (direction == LMS_RX)?1:2;
     if (self->regs.reg_0x0020_mac == newValue) return;
     self->regs.reg_0x0020_mac = newValue;
