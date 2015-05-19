@@ -28,7 +28,7 @@ int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, const double fo
     // fref * N = fvco
     // fvco / fdiv = fout
     // fref * N = fout * fdiv
-    int fdiv = 0;
+    int fdiv = 512+2;
     double Ndiv = 0;
     double fvco = 0;
 
@@ -36,16 +36,17 @@ int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, const double fo
     while (true)
     {
         //try the next even divider
-        fdiv += 2;
+        fdiv -= 2;
 
         Ndiv = fout*fdiv/fref;
         fvco = fout*fdiv;
-        LMS7_logf(LMS7_DEBUG, "fdiv = %d, fvco = %f MHz", fdiv, fvco/1e6);
+        LMS7_logf(LMS7_TRACE, "Trying: fdiv = %d, Ndiv = %f, fvco = %f MHz", fdiv, Ndiv, fvco/1e6);
 
         //check dividers and vco in range...
-        if (fdiv > 512) return -1;
-        if (Ndiv < 4) continue;
-        if (Ndiv > 512) return -1;
+        if (fdiv < 2) return -1;
+        if (fdiv > 512) continue;
+        if (Ndiv < 4) return -1;
+        if (Ndiv > 512) continue;
 
         //check vco boundaries
         if (fvco < LMS7002M_CGEN_VCO_LO) continue;
@@ -53,7 +54,7 @@ int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, const double fo
 
         break; //its good
     }
-    LMS7_logf(LMS7_DEBUG, "fdiv = %d, fvco = %f MHz", fdiv, fvco/1e6);
+    LMS7_logf(LMS7_DEBUG, "Using: fdiv = %d, Ndiv = %f, fvco = %f MHz", fdiv, Ndiv, fvco/1e6);
 
     //stash the freq now that we know the loop above passed
     self->cgen_freq = fout;
@@ -83,8 +84,8 @@ int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, const double fo
     //program the N divider
     const int Nint = (int)Ndiv;
     const int Nfrac = (int)((Ndiv-Nint)*(1 << 20));
-    self->regs.reg_0x0087_frac_sdm_cgen = (Nfrac-1) & 0xffff; //lower 16 bits
-    self->regs.reg_0x0088_frac_sdm_cgen = (Nfrac-1) >> 16; //upper 4 bits
+    self->regs.reg_0x0087_frac_sdm_cgen = (Nfrac) & 0xffff; //lower 16 bits
+    self->regs.reg_0x0088_frac_sdm_cgen = (Nfrac) >> 16; //upper 4 bits
     self->regs.reg_0x0088_int_sdm_cgen = Nint-1;
     LMS7_logf(LMS7_DEBUG, "fdiv = %d, Ndiv = %f, Nint = %d, Nfrac = %d, fvco = %f MHz", fdiv, Ndiv, Nint, Nfrac, fvco/1e6);
     LMS7002M_regs_spi_write(self, 0x0087);
