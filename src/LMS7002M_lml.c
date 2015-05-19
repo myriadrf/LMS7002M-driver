@@ -25,6 +25,20 @@ void LMS7002M_reset(LMS7002M_t *self)
     LMS7002M_spi_write(self, 0x0020, 0x0);
     LMS7002M_regs_spi_write(self, 0x0020);
     LMS7002M_regs_spi_write(self, 0x002E);//must write
+
+    /*
+    LMS7002M_set_mac_ch(self, LMS_CHA);
+    for (const int *addrp = LMS7002M_regs_addrs(); *addrp != 0; addrp++)
+    {
+        LMS7002M_regs_spi_write(self, *addrp);
+    }
+
+    LMS7002M_set_mac_ch(self, LMS_CHB);
+    for (const int *addrp = LMS7002M_regs_addrs(); *addrp != 0; addrp++)
+    {
+        LMS7002M_regs_spi_write(self, *addrp);
+    }
+    */
 }
 
 void LMS7002M_power_down(LMS7002M_t *self)

@@ -12,7 +12,13 @@
 
 #include <stdlib.h>
 #include "LMS7002M_impl.h"
+#include <LMS7002M/LMS7002M_time.h>
 #include <LMS7002M/LMS7002M_logger.h>
+
+static long long cgen_cmp_sleep_ticks(void)
+{
+    return (50*LMS7_time_tps())/1000000; //50 us -> ticks
+}
 
 int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, const double fout, double *factual)
 {
@@ -96,7 +102,9 @@ int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, const double fo
     {
         self->regs.reg_0x008b_csw_vco_cgen |= 1 << i;
         LMS7002M_regs_spi_write(self, 0x008B);
+        LMS7_sleep_for(cgen_cmp_sleep_ticks());
         LMS7002M_regs_spi_read(self, 0x008C);
+
         LMS7_logf(LMS7_DEBUG, "i=%d, hi=%d, lo=%d", i, self->regs.reg_0x008c_vco_cmpho_cgen, self->regs.reg_0x008c_vco_cmplo_cgen);
         if (self->regs.reg_0x008c_vco_cmplo_cgen != 0)
         {
@@ -119,6 +127,7 @@ int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, const double fo
             {
                 self->regs.reg_0x008b_csw_vco_cgen = csw_lowest;
                 LMS7002M_regs_spi_write(self, 0x008B);
+                LMS7_sleep_for(cgen_cmp_sleep_ticks());
                 LMS7002M_regs_spi_read(self, 0x008C);
 
                 if (self->regs.reg_0x008c_vco_cmpho_cgen == 0 && self->regs.reg_0x008c_vco_cmplo_cgen == 0) break;
@@ -134,6 +143,7 @@ int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, const double fo
     }
 
     //check that the vco selection was successful
+    LMS7_sleep_for(cgen_cmp_sleep_ticks());
     LMS7002M_regs_spi_read(self, 0x008C);
     if (self->regs.reg_0x008c_vco_cmpho_cgen != 0 && self->regs.reg_0x008c_vco_cmplo_cgen == 0)
     {
