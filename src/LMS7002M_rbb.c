@@ -17,11 +17,11 @@
 void LMS7002M_rbb_enable(LMS7002M_t *self, const LMS7002M_chan_t channel, const bool enable)
 {
     LMS7002M_set_mac_ch(self, channel);
-    self->regs.reg_0x0124_en_dir_rbb = 1;
+    self->regs->reg_0x0124_en_dir_rbb = 1;
     LMS7002M_regs_spi_write(self, 0x0124);
 
-    self->regs.reg_0x0115_en_g_rbb = enable?1:0;
-    self->regs.reg_0x0115_pd_pga_rbb = 0;
+    self->regs->reg_0x0115_en_g_rbb = enable?1:0;
+    self->regs->reg_0x0115_pd_pga_rbb = 0;
 
     LMS7002M_regs_spi_write(self, 0x0115);
 }
@@ -30,43 +30,43 @@ void LMS7002M_rbb_set_path(LMS7002M_t *self, const LMS7002M_chan_t channel, cons
 {
     LMS7002M_set_mac_ch(self, channel);
 
-    self->regs.reg_0x0115_pd_lpfh_rbb = 1;
-    self->regs.reg_0x0115_pd_lpfl_rbb = 1;
-    self->regs.reg_0x0115_en_lb_lpfh_rbb = 0;
-    self->regs.reg_0x0115_en_lb_lpfl_rbb = 0;
+    self->regs->reg_0x0115_pd_lpfh_rbb = 1;
+    self->regs->reg_0x0115_pd_lpfl_rbb = 1;
+    self->regs->reg_0x0115_en_lb_lpfh_rbb = 0;
+    self->regs->reg_0x0115_en_lb_lpfl_rbb = 0;
 
     switch (path)
     {
     case LMS7002M_RBB_BYP:
-        self->regs.reg_0x0118_input_ctl_pga_rbb = REG_0X0118_INPUT_CTL_PGA_RBB_BYPASS;
+        self->regs->reg_0x0118_input_ctl_pga_rbb = REG_0X0118_INPUT_CTL_PGA_RBB_BYPASS;
         break;
 
     case LMS7002M_RBB_LBF:
-        self->regs.reg_0x0115_pd_lpfl_rbb = 0;
-        self->regs.reg_0x0115_en_lb_lpfl_rbb = 1;
-        self->regs.reg_0x0118_input_ctl_pga_rbb = REG_0X0118_INPUT_CTL_PGA_RBB_LPFL;
+        self->regs->reg_0x0115_pd_lpfl_rbb = 0;
+        self->regs->reg_0x0115_en_lb_lpfl_rbb = 1;
+        self->regs->reg_0x0118_input_ctl_pga_rbb = REG_0X0118_INPUT_CTL_PGA_RBB_LPFL;
         break;
 
     case LMS7002M_RBB_HBF:
-        self->regs.reg_0x0115_pd_lpfh_rbb = 0;
-        self->regs.reg_0x0115_en_lb_lpfh_rbb = 1;
-        self->regs.reg_0x0118_input_ctl_pga_rbb = REG_0X0118_INPUT_CTL_PGA_RBB_LPFH;
+        self->regs->reg_0x0115_pd_lpfh_rbb = 0;
+        self->regs->reg_0x0115_en_lb_lpfh_rbb = 1;
+        self->regs->reg_0x0118_input_ctl_pga_rbb = REG_0X0118_INPUT_CTL_PGA_RBB_LPFH;
         break;
 
     case LMS7002M_RBB_BYP_LB:
-        self->regs.reg_0x0118_input_ctl_pga_rbb = REG_0X0118_INPUT_CTL_PGA_RBB_TX;
+        self->regs->reg_0x0118_input_ctl_pga_rbb = REG_0X0118_INPUT_CTL_PGA_RBB_TX;
         break;
 
     case LMS7002M_RBB_LBF_LB:
-        self->regs.reg_0x0115_pd_lpfl_rbb = 0;
-        self->regs.reg_0x0115_en_lb_lpfl_rbb = 1;
-        self->regs.reg_0x0118_input_ctl_pga_rbb = REG_0X0118_INPUT_CTL_PGA_RBB_LPFL;
+        self->regs->reg_0x0115_pd_lpfl_rbb = 0;
+        self->regs->reg_0x0115_en_lb_lpfl_rbb = 1;
+        self->regs->reg_0x0118_input_ctl_pga_rbb = REG_0X0118_INPUT_CTL_PGA_RBB_LPFL;
         break;
 
     case LMS7002M_RBB_HBF_LB:
-        self->regs.reg_0x0115_pd_lpfh_rbb = 0;
-        self->regs.reg_0x0115_en_lb_lpfh_rbb = 1;
-        self->regs.reg_0x0118_input_ctl_pga_rbb = REG_0X0118_INPUT_CTL_PGA_RBB_LPFH;
+        self->regs->reg_0x0115_pd_lpfh_rbb = 0;
+        self->regs->reg_0x0115_en_lb_lpfh_rbb = 1;
+        self->regs->reg_0x0118_input_ctl_pga_rbb = REG_0X0118_INPUT_CTL_PGA_RBB_LPFH;
         break;
     }
 
@@ -78,7 +78,7 @@ void LMS7002M_rbb_set_test_out(LMS7002M_t *self, const LMS7002M_chan_t channel, 
 {
     LMS7002M_set_mac_ch(self, channel);
 
-    self->regs.reg_0x0119_osw_pga_rbb = enable?1:0;
+    self->regs->reg_0x0119_osw_pga_rbb = enable?1:0;
 
     LMS7002M_regs_spi_write(self, 0x0119);
 }
@@ -90,14 +90,14 @@ double LMS7002M_rbb_set_pga(LMS7002M_t *self, const LMS7002M_chan_t channel, con
     int G_PGA_RBB = (int)(gain + 12.5);
     if (G_PGA_RBB > 0x1f) G_PGA_RBB = 0x1f;
     if (G_PGA_RBB < 0) G_PGA_RBB = 0;
-    self->regs.reg_0x0119_g_pga_rbb = G_PGA_RBB;
+    self->regs->reg_0x0119_g_pga_rbb = G_PGA_RBB;
 
-    self->regs.reg_0x011a_rcc_ctl_pga_rbb = (430.0*pow(0.65, (G_PGA_RBB/10.0))-110.35)/20.4516 + 16;
+    self->regs->reg_0x011a_rcc_ctl_pga_rbb = (430.0*pow(0.65, (G_PGA_RBB/10.0))-110.35)/20.4516 + 16;
 
-    if (0 <= G_PGA_RBB && G_PGA_RBB < 8) self->regs.reg_0x011a_c_ctl_pga_rbb = 3;
-    if (8 <= G_PGA_RBB && G_PGA_RBB < 13) self->regs.reg_0x011a_c_ctl_pga_rbb = 2;
-    if (13 <= G_PGA_RBB && G_PGA_RBB < 21) self->regs.reg_0x011a_c_ctl_pga_rbb = 1;
-    if (21 <= G_PGA_RBB) self->regs.reg_0x011a_c_ctl_pga_rbb = 0;
+    if (0 <= G_PGA_RBB && G_PGA_RBB < 8) self->regs->reg_0x011a_c_ctl_pga_rbb = 3;
+    if (8 <= G_PGA_RBB && G_PGA_RBB < 13) self->regs->reg_0x011a_c_ctl_pga_rbb = 2;
+    if (13 <= G_PGA_RBB && G_PGA_RBB < 21) self->regs->reg_0x011a_c_ctl_pga_rbb = 1;
+    if (21 <= G_PGA_RBB) self->regs->reg_0x011a_c_ctl_pga_rbb = 0;
 
     LMS7002M_regs_spi_write(self, 0x0119);
     LMS7002M_regs_spi_write(self, 0x011A);
@@ -126,8 +126,8 @@ double LMS7002M_rbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channe
     else bypass = true;
 
     //only one filter is actually used
-    self->regs.reg_0x0117_rcc_ctl_lpfl_rbb = val;
-    self->regs.reg_0x0116_rcc_ctl_lpfh_rbb = val;
+    self->regs->reg_0x0117_rcc_ctl_lpfl_rbb = val;
+    self->regs->reg_0x0116_rcc_ctl_lpfh_rbb = val;
     LMS7002M_regs_spi_write(self, 0x0116);
     LMS7002M_regs_spi_write(self, 0x0117);
 

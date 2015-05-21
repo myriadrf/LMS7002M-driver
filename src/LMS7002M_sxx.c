@@ -24,10 +24,10 @@ static long long sxx_cmp_sleep_ticks(void)
 void LMS7002M_sxx_enable(LMS7002M_t *self, const LMS7002M_dir_t direction, const bool enable)
 {
     LMS7002M_set_mac_dir(self, direction);
-    self->regs.reg_0x0124_en_dir_sxx = 1;
+    self->regs->reg_0x0124_en_dir_sxx = 1;
     LMS7002M_regs_spi_write(self, 0x0124);
 
-    self->regs.reg_0x011c_en_g = enable?1:0;
+    self->regs->reg_0x011c_en_g = enable?1:0;
     LMS7002M_regs_spi_write(self, 0x011c);
 }
 
@@ -105,64 +105,64 @@ int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, const
     if (direction == LMS_TX) self->sxt_fref = fref;
 
     //reset
-    self->regs.reg_0x011c_reset_n = 0;
+    self->regs->reg_0x011c_reset_n = 0;
     LMS7002M_regs_spi_write(self, 0x011c);
-    self->regs.reg_0x011c_reset_n = 1;
+    self->regs->reg_0x011c_reset_n = 1;
     LMS7002M_regs_spi_write(self, 0x011c);
 
     //configure and enable synthesizer
-    self->regs.reg_0x011c_en_intonly_sdm = 0; //support frac-N
-    self->regs.reg_0x011c_en_sdm_clk = 1; //enable
-    self->regs.reg_0x011c_pd_cp = 0; //enable
-    self->regs.reg_0x011c_pd_fbdiv = 0; //enable
-    self->regs.reg_0x011c_pd_fdiv = 0; //enable
-    self->regs.reg_0x011c_pd_sdm = 0; //enable
-    self->regs.reg_0x011c_pd_vco = 0; //enable
-    self->regs.reg_0x011c_pd_vco_comp = 0; //enable
-    self->regs.reg_0x011c_en_g = 1;
-    self->regs.reg_0x011c_en_coarsepll = 0;
-    self->regs.reg_0x0121_coarse_start = 0;
-    self->regs.reg_0x011c_en_div2_divprog = EN_DIV2;
-    self->regs.reg_0x011c_spdup_vco = 1; //fast settling
+    self->regs->reg_0x011c_en_intonly_sdm = 0; //support frac-N
+    self->regs->reg_0x011c_en_sdm_clk = 1; //enable
+    self->regs->reg_0x011c_pd_cp = 0; //enable
+    self->regs->reg_0x011c_pd_fbdiv = 0; //enable
+    self->regs->reg_0x011c_pd_fdiv = 0; //enable
+    self->regs->reg_0x011c_pd_sdm = 0; //enable
+    self->regs->reg_0x011c_pd_vco = 0; //enable
+    self->regs->reg_0x011c_pd_vco_comp = 0; //enable
+    self->regs->reg_0x011c_en_g = 1;
+    self->regs->reg_0x011c_en_coarsepll = 0;
+    self->regs->reg_0x0121_coarse_start = 0;
+    self->regs->reg_0x011c_en_div2_divprog = EN_DIV2;
+    self->regs->reg_0x011c_spdup_vco = 1; //fast settling
     LMS7002M_regs_spi_write(self, 0x011c);
 
     //program the N divider
     const int Nint = (int)Ndiv - 4;
     const int Nfrac = (int)((Ndiv-((int)(Ndiv)))*(1 << 20));
-    self->regs.reg_0x011d_frac_sdm = (Nfrac) & 0xffff; //lower 16 bits
-    self->regs.reg_0x011e_frac_sdm = (Nfrac) >> 16; //upper 4 bits
-    self->regs.reg_0x011e_int_sdm = Nint;
+    self->regs->reg_0x011d_frac_sdm = (Nfrac) & 0xffff; //lower 16 bits
+    self->regs->reg_0x011e_frac_sdm = (Nfrac) >> 16; //upper 4 bits
+    self->regs->reg_0x011e_int_sdm = Nint;
     LMS7_logf(LMS7_DEBUG, "fdiv = %d, Ndiv = %f, Nint = %d, Nfrac = %d, DIV_LOCH_SX = %d, SEL_VCO = %d, fvco = %f MHz", fdiv, Ndiv, Nint, Nfrac, DIV_LOCH_SX, SEL_VCO, fvco/1e6);
     LMS7002M_regs_spi_write(self, 0x011d);
     LMS7002M_regs_spi_write(self, 0x011e);
 
     //program the feedback divider
-    self->regs.reg_0x011f_sel_sdmclk = REG_0X011F_SEL_SDMCLK_CLK_DIV;
-    self->regs.reg_0x011f_div_loch = DIV_LOCH_SX;
+    self->regs->reg_0x011f_sel_sdmclk = REG_0X011F_SEL_SDMCLK_CLK_DIV;
+    self->regs->reg_0x011f_div_loch = DIV_LOCH_SX;
     LMS7002M_regs_spi_write(self, 0x011f);
 
     //select vco based on freq
-    self->regs.reg_0x0121_sel_vco = SEL_VCO;
+    self->regs->reg_0x0121_sel_vco = SEL_VCO;
     LMS7002M_regs_spi_write(self, 0x0121);
 
     //select the correct CSW for this VCO frequency
     int csw_lowest = -1;
-    self->regs.reg_0x0121_csw_vco = 0;
+    self->regs->reg_0x0121_csw_vco = 0;
     for (int i = 7; i >= 0; i--)
     {
-        self->regs.reg_0x0121_csw_vco |= 1 << i;
+        self->regs->reg_0x0121_csw_vco |= 1 << i;
         LMS7002M_regs_spi_write(self, 0x0121);
         LMS7_sleep_for(sxx_cmp_sleep_ticks());
         LMS7002M_regs_spi_read(self, 0x0123);
 
-        LMS7_logf(LMS7_DEBUG, "i=%d, hi=%d, lo=%d", i, self->regs.reg_0x0123_vco_cmpho, self->regs.reg_0x0123_vco_cmplo);
-        if (self->regs.reg_0x0123_vco_cmplo != 0)
+        LMS7_logf(LMS7_DEBUG, "i=%d, hi=%d, lo=%d", i, self->regs->reg_0x0123_vco_cmpho, self->regs->reg_0x0123_vco_cmplo);
+        if (self->regs->reg_0x0123_vco_cmplo != 0)
         {
-            self->regs.reg_0x0121_csw_vco &= ~(1 << i); //clear bit i
+            self->regs->reg_0x0121_csw_vco &= ~(1 << i); //clear bit i
         }
-        if (self->regs.reg_0x0123_vco_cmpho != 0 && self->regs.reg_0x0123_vco_cmplo == 0 && csw_lowest < 0)
+        if (self->regs->reg_0x0123_vco_cmpho != 0 && self->regs->reg_0x0123_vco_cmplo == 0 && csw_lowest < 0)
         {
-            csw_lowest = self->regs.reg_0x0121_csw_vco;
+            csw_lowest = self->regs->reg_0x0121_csw_vco;
         }
         LMS7002M_regs_spi_write(self, 0x0121);
     }
@@ -170,17 +170,17 @@ int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, const
     //find the midpoint for the high and low bounds
     if (csw_lowest >= 0)
     {
-        int csw_highest = self->regs.reg_0x0121_csw_vco;
+        int csw_highest = self->regs->reg_0x0121_csw_vco;
         if (csw_lowest == csw_highest)
         {
             while (csw_lowest >= 0)
             {
-                self->regs.reg_0x0121_csw_vco = csw_lowest;
+                self->regs->reg_0x0121_csw_vco = csw_lowest;
                 LMS7002M_regs_spi_write(self, 0x0121);
                 LMS7_sleep_for(sxx_cmp_sleep_ticks());
                 LMS7002M_regs_spi_read(self, 0x0123);
 
-                if (self->regs.reg_0x0123_vco_cmpho == 0 && self->regs.reg_0x0123_vco_cmplo == 0) break;
+                if (self->regs->reg_0x0123_vco_cmpho == 0 && self->regs->reg_0x0123_vco_cmplo == 0) break;
                 else csw_lowest--;
             }
             if (csw_lowest < 0) csw_lowest = 0;
@@ -188,14 +188,14 @@ int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, const
         csw_lowest += 1;
 
         LMS7_logf(LMS7_INFO, "lowest CSW_VCO %i, highest CSW_VCO %i", csw_lowest, csw_highest);
-        self->regs.reg_0x0121_csw_vco = (csw_highest+csw_lowest)/2;
+        self->regs->reg_0x0121_csw_vco = (csw_highest+csw_lowest)/2;
         LMS7002M_regs_spi_write(self, 0x0121);
     }
 
     //check that the vco selection was successful
     LMS7_sleep_for(sxx_cmp_sleep_ticks());
     LMS7002M_regs_spi_read(self, 0x0123);
-    if (self->regs.reg_0x0123_vco_cmpho != 0 && self->regs.reg_0x0123_vco_cmplo == 0)
+    if (self->regs->reg_0x0123_vco_cmpho != 0 && self->regs->reg_0x0123_vco_cmplo == 0)
     {
         LMS7_log(LMS7_INFO, "SXX VCO OK");
     }
@@ -205,7 +205,7 @@ int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, const
         return -3;
     }
 
-    self->regs.reg_0x011c_spdup_vco = 0; //done with fast settling
+    self->regs->reg_0x011c_spdup_vco = 0; //done with fast settling
     LMS7002M_regs_spi_write(self, 0x011c);
 
     //calculate the actual rate

@@ -3,7 +3,8 @@ CFLAGS= \
 	-D_GNU_SOURCE \
 	-std=c99 \
 	-I$(CURDIR)/../include \
-	-I$(CURDIR)/../interfaces
+	-I$(CURDIR)/../interfaces \
+	-Wall
 
 LMS7_SOURCES := $(wildcard $(CURDIR)/../src/LMS7002M_*.c)
 LMS7_HEADERS := $(wildcard $(CURDIR)/../include/LMS7002M/*.h)

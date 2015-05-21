@@ -23,16 +23,19 @@ void LMS7002M_afe_enable(LMS7002M_t *self, const LMS7002M_dir_t direction, const
         return;
     }
 
+    //always use the channel A shadow, AFE is a global register
+    LMS7002M_set_mac_ch(self, LMS_CHA);
+
     //always individual enables and both ADCs
-    self->regs.reg_0x0082_en_g_afe = 1;
-    self->regs.reg_0x0082_mode_interleave_afe = REG_0X0082_MODE_INTERLEAVE_AFE_2ADCS;
-    self->regs.reg_0x0082_pd_afe = 0;
+    self->regs->reg_0x0082_en_g_afe = 1;
+    self->regs->reg_0x0082_mode_interleave_afe = REG_0X0082_MODE_INTERLEAVE_AFE_2ADCS;
+    self->regs->reg_0x0082_pd_afe = 0;
 
     //conditional power downs
-    if (direction == LMS_TX && channel == LMS_CHA) self->regs.reg_0x0082_pd_tx_afe1 = enable?0:1;
-    if (direction == LMS_TX && channel == LMS_CHB) self->regs.reg_0x0082_pd_tx_afe2 = enable?0:1;
-    if (direction == LMS_RX && channel == LMS_CHA) self->regs.reg_0x0082_pd_rx_afe1 = enable?0:1;
-    if (direction == LMS_RX && channel == LMS_CHB) self->regs.reg_0x0082_pd_rx_afe2 = enable?0:1;
+    if (direction == LMS_TX && channel == LMS_CHA) self->regs->reg_0x0082_pd_tx_afe1 = enable?0:1;
+    if (direction == LMS_TX && channel == LMS_CHB) self->regs->reg_0x0082_pd_tx_afe2 = enable?0:1;
+    if (direction == LMS_RX && channel == LMS_CHA) self->regs->reg_0x0082_pd_rx_afe1 = enable?0:1;
+    if (direction == LMS_RX && channel == LMS_CHB) self->regs->reg_0x0082_pd_rx_afe2 = enable?0:1;
 
     LMS7002M_regs_spi_write(self, 0x0082);
 }

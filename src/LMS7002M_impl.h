@@ -35,7 +35,12 @@ struct LMS7002M_struct
 {
     LMS7002M_spi_transact_t spi_transact;
     void *spi_transact_handle;
-    LMS7002M_regs_t regs;
+
+    //register shadows per channel (actual data)
+    LMS7002M_regs_t _regs[2];
+
+    //active register shadow ptr based on MIMO channel setting
+    LMS7002M_regs_t *regs;
 
     double cgen_freq; //!< last written CGEN frequency in Hz
     double sxr_freq; //!< last written RX frequency in Hz
