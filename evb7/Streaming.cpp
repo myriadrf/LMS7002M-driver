@@ -74,6 +74,8 @@ SoapySDR::Stream *EVB7::setupStream(
     const std::vector<size_t> &channels,
     const SoapySDR::Kwargs &)
 {
+    std::lock_guard<std::mutex> lock(_mutex);
+
     //check the format config
     StreamFormat f;
     if (format == "CS16") f = SF_CS16;

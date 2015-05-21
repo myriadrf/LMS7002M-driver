@@ -29,6 +29,9 @@ if(CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
 endif()
 
+add_compile_options(-Wall)
+#add_compile_options(-Werror)
+
 add_compile_options(-mfloat-abi=hard -mfpu=neon)
 
 include_directories(../include)
