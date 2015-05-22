@@ -95,12 +95,18 @@ EVB7::EVB7(void):
     LMS7002M_afe_enable(_lms, LMS_TX, LMS_CHB, true);
     LMS7002M_afe_enable(_lms, LMS_RX, LMS_CHA, true);
     LMS7002M_afe_enable(_lms, LMS_RX, LMS_CHB, true);
-    LMS7002M_rxtsp_enable(_lms, LMS_CHAB, true);
-    LMS7002M_txtsp_enable(_lms, LMS_CHAB, true);
-    LMS7002M_rbb_enable(_lms, LMS_CHAB, true);
-    LMS7002M_tbb_enable(_lms, LMS_CHAB, true);
-    LMS7002M_rfe_enable(_lms, LMS_CHAB, true);
-    LMS7002M_trf_enable(_lms, LMS_CHAB, true);
+    LMS7002M_rxtsp_enable(_lms, LMS_CHA, true);
+    LMS7002M_rxtsp_enable(_lms, LMS_CHB, true);
+    LMS7002M_txtsp_enable(_lms, LMS_CHA, true);
+    LMS7002M_txtsp_enable(_lms, LMS_CHB, true);
+    LMS7002M_rbb_enable(_lms, LMS_CHA, true);
+    LMS7002M_rbb_enable(_lms, LMS_CHB, true);
+    LMS7002M_tbb_enable(_lms, LMS_CHA, true);
+    LMS7002M_tbb_enable(_lms, LMS_CHB, true);
+    LMS7002M_rfe_enable(_lms, LMS_CHA, true);
+    LMS7002M_rfe_enable(_lms, LMS_CHB, true);
+    LMS7002M_trf_enable(_lms, LMS_CHA, true);
+    LMS7002M_trf_enable(_lms, LMS_CHB, true);
     LMS7002M_sxx_enable(_lms, LMS_RX, true);
     LMS7002M_sxx_enable(_lms, LMS_TX, true);
 
@@ -145,7 +151,8 @@ EVB7::EVB7(void):
     //LMS7002M_rbb_select_input(_lms, LMS_CHAB, LMS7002M_RBB_BYP_LB);
 
     //tone from tx dsp
-    //LMS7002M_txtsp_tsg_tone(_lms, LMS_CHAB);
+    //LMS7002M_txtsp_tsg_tone(_lms, LMS_CHA);
+    //LMS7002M_txtsp_tsg_tone(_lms, LMS_CHB);
 
 /*
     LMS7002M_rxtsp_tsg_tone(_lms, LMS_CHA);
