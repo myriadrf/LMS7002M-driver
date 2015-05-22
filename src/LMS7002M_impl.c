@@ -27,7 +27,9 @@ LMS7002M_t *LMS7002M_create(LMS7002M_spi_transact_t transact, void *handle)
     if (self == NULL) return NULL;
     self->spi_transact = transact;
     self->spi_transact_handle = handle;
-    LMS7002M_regs_init(&self->regs);
+    LMS7002M_regs_init(&self->_regs[0]);
+    LMS7002M_regs_init(&self->_regs[1]);
+    self->regs = self->_regs;
     self->cgen_freq = 0.0;
     self->sxr_freq = 0.0;
     self->sxt_freq = 0.0;
@@ -59,22 +61,22 @@ int LMS7002M_spi_read(LMS7002M_t *self, const int addr)
 
 void LMS7002M_regs_spi_write(LMS7002M_t *self, const int addr)
 {
-    LMS7002M_spi_write(self, addr, LMS7002M_regs_get(&self->regs, addr));
+    LMS7002M_spi_write(self, addr, LMS7002M_regs_get(self->regs, addr));
 }
 
 void LMS7002M_regs_spi_write2(LMS7002M_t *self, const int addr, const int regAddr)
 {
-    LMS7002M_spi_write(self, addr, LMS7002M_regs_get(&self->regs, regAddr));
+    LMS7002M_spi_write(self, addr, LMS7002M_regs_get(self->regs, regAddr));
 }
 
 void LMS7002M_regs_spi_read(LMS7002M_t *self, const int addr)
 {
-    LMS7002M_regs_set(&self->regs, addr, LMS7002M_spi_read(self, addr));
+    LMS7002M_regs_set(self->regs, addr, LMS7002M_spi_read(self, addr));
 }
 
 LMS7002M_regs_t *LMS7002M_regs(LMS7002M_t *self)
 {
-    return &self->regs;
+    return self->regs;
 }
 
 int LMS7002M_dump_ini(LMS7002M_t *self, const char *path)
@@ -171,7 +173,7 @@ int LMS7002M_load_ini(LMS7002M_t *self, const char *path)
             {
                 LMS7002M_set_mac_ch(self, chan);
                 LMS7002M_spi_write(self, addr, value);
-                LMS7002M_regs_set(LMS7002M_regs(self), addr, value);
+                LMS7002M_regs_set(self->regs, addr, value);
                 LMS7_logf(LMS7_DEBUG, "Load: 0x%04x=0x%04x", addr, value);
             }
         }

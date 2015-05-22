@@ -17,6 +17,7 @@
 #include <SoapySDR/Device.hpp>
 #include <SoapySDR/Logger.hpp>
 #include <pothos_zynq_dma_driver.h>
+#include <mutex>
 #include <cstring>
 #include <cstdlib>
 #include <stdexcept>
@@ -298,4 +299,7 @@ private:
     pzdud_t *_tx_data_dma;
     pzdud_t *_tx_stat_dma;
     double _masterClockRate;
+
+    //register protection
+    std::mutex _mutex;
 };

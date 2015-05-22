@@ -17,13 +17,13 @@ void LMS7002M_set_nco_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, con
 {
     LMS7002M_set_mac_ch(self, channel);
 
-    self->regs.reg_0x0240_sel = 0; //table entry 0 will be used
-    self->regs.reg_0x0240_mode = REG_0X0240_MODE_FCW;
+    self->regs->reg_0x0240_sel = 0; //table entry 0 will be used
+    self->regs->reg_0x0240_mode = REG_0X0240_MODE_FCW;
 
     //load 32-bit frequency word into table entry 0
     uint32_t freqWord = (int32_t)(freqRel*4294967296.0);
-    self->regs.reg_0x0242_fcw0_hi = freqWord >> 16;
-    self->regs.reg_0x0243_fcw0_lo = freqWord & 0xffff;
+    self->regs->reg_0x0242_fcw0_hi = freqWord >> 16;
+    self->regs->reg_0x0243_fcw0_lo = freqWord & 0xffff;
 
     //write the registers
     const int addrTop = (direction==LMS_RX)?0x0400:0x0200;

@@ -77,7 +77,7 @@ void Modify_SPI_Reg_bits (LMS7002M_t *self, unsigned short SPI_reg_addr, unsigne
     //modifiedRegs.insert(SPI_reg_addr);
 
     //apply new value to the local register struct
-    LMS7002M_regs_set(&self->regs, SPI_reg_addr, SPI_reg_data);
+    LMS7002M_regs_set(self->regs, SPI_reg_addr, SPI_reg_data);
 }
 
 unsigned short Get_SPI_Reg_bits (LMS7002M_t *self, unsigned short SPI_reg_addr, unsigned char MSB_bit, unsigned char LSB_bit)

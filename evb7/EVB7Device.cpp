@@ -95,12 +95,18 @@ EVB7::EVB7(void):
     LMS7002M_afe_enable(_lms, LMS_TX, LMS_CHB, true);
     LMS7002M_afe_enable(_lms, LMS_RX, LMS_CHA, true);
     LMS7002M_afe_enable(_lms, LMS_RX, LMS_CHB, true);
-    LMS7002M_rxtsp_enable(_lms, LMS_CHAB, true);
-    LMS7002M_txtsp_enable(_lms, LMS_CHAB, true);
-    LMS7002M_rbb_enable(_lms, LMS_CHAB, true);
-    LMS7002M_tbb_enable(_lms, LMS_CHAB, true);
-    LMS7002M_rfe_enable(_lms, LMS_CHAB, true);
-    LMS7002M_trf_enable(_lms, LMS_CHAB, true);
+    LMS7002M_rxtsp_enable(_lms, LMS_CHA, true);
+    LMS7002M_rxtsp_enable(_lms, LMS_CHB, true);
+    LMS7002M_txtsp_enable(_lms, LMS_CHA, true);
+    LMS7002M_txtsp_enable(_lms, LMS_CHB, true);
+    LMS7002M_rbb_enable(_lms, LMS_CHA, true);
+    LMS7002M_rbb_enable(_lms, LMS_CHB, true);
+    LMS7002M_tbb_enable(_lms, LMS_CHA, true);
+    LMS7002M_tbb_enable(_lms, LMS_CHB, true);
+    LMS7002M_rfe_enable(_lms, LMS_CHA, true);
+    LMS7002M_rfe_enable(_lms, LMS_CHB, true);
+    LMS7002M_trf_enable(_lms, LMS_CHA, true);
+    LMS7002M_trf_enable(_lms, LMS_CHB, true);
     LMS7002M_sxx_enable(_lms, LMS_RX, true);
     LMS7002M_sxx_enable(_lms, LMS_TX, true);
 
@@ -145,7 +151,8 @@ EVB7::EVB7(void):
     //LMS7002M_rbb_select_input(_lms, LMS_CHAB, LMS7002M_RBB_BYP_LB);
 
     //tone from tx dsp
-    //LMS7002M_txtsp_tsg_tone(_lms, LMS_CHAB);
+    //LMS7002M_txtsp_tsg_tone(_lms, LMS_CHA);
+    //LMS7002M_txtsp_tsg_tone(_lms, LMS_CHB);
 
 /*
     LMS7002M_rxtsp_tsg_tone(_lms, LMS_CHA);
@@ -235,6 +242,8 @@ std::vector<std::string> EVB7::listAntennas(const int direction, const size_t) c
 
 void EVB7::setAntenna(const int direction, const size_t channel, const std::string &name)
 {
+    std::lock_guard<std::mutex> lock(_mutex);
+
     if (direction == SOAPY_SDR_RX)
     {
         int path = LMS7002M_RFE_NONE;
@@ -281,6 +290,8 @@ std::vector<std::string> EVB7::listGains(const int direction, const size_t) cons
 
 void EVB7::setGain(const int direction, const size_t channel, const std::string &name, const double value)
 {
+    std::lock_guard<std::mutex> lock(_mutex);
+
     SoapySDR::logf(SOAPY_SDR_INFO, "EVB7::setGain(%d, ch%d, %s, %f dB)", direction, channel, name.c_str(), value);
 
     double &actualValue = _cachedGainValues[direction][channel][name];
@@ -325,6 +336,8 @@ SoapySDR::Range EVB7::getGainRange(const int direction, const size_t channel, co
  ******************************************************************/
 void EVB7::setFrequency(const int direction, const size_t channel, const std::string &name, const double frequency, const SoapySDR::Kwargs &)
 {
+    std::lock_guard<std::mutex> lock(_mutex);
+
     SoapySDR::logf(SOAPY_SDR_INFO, "EVB7::setFrequency(%d, ch%d, %s, %f MHz)", direction, channel, name.c_str(), frequency/1e6);
 
     if (name == "RF")
@@ -377,6 +390,8 @@ SoapySDR::RangeList EVB7::getFrequencyRange(const int direction, const size_t, c
  ******************************************************************/
 void EVB7::setSampleRate(const int direction, const size_t, const double rate)
 {
+    std::lock_guard<std::mutex> lock(_mutex);
+
     const double baseRate = this->getTSPRate(direction);
     const double factor = baseRate/rate;
     SoapySDR::logf(SOAPY_SDR_INFO, "EVB7::setSampleRate(%d, %f MHz), baseRate %f MHz, factor %f", direction, rate/1e6, baseRate/1e6, factor);
@@ -424,6 +439,8 @@ std::vector<double> EVB7::listSampleRates(const int direction, const size_t) con
  ******************************************************************/
 void EVB7::setBandwidth(const int direction, const size_t channel, const double bw)
 {
+    std::lock_guard<std::mutex> lock(_mutex);
+
     double &actualBw = _cachedFilterBws[direction][channel];
     if (direction == SOAPY_SDR_RX)
     {
@@ -481,6 +498,8 @@ double EVB7::getTSPRate(const int direction) const
 
 void EVB7::setMasterClockRate(const double rate)
 {
+    std::lock_guard<std::mutex> lock(_mutex);
+
     int ret = LMS7002M_set_data_clock(_lms, EXT_REF_CLK, rate, &_masterClockRate);
     if (ret != 0)
     {
