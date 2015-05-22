@@ -126,6 +126,8 @@ SoapySDR::Stream *EVB7::setupStream(
 
     if (direction == SOAPY_SDR_TX)
     {
+        _userHandlesTxStatus = false;
+
         //allocate dma memory
         int ret = 0;
         ret = pzdud_alloc(_tx_data_dma, DATA_NUM_BUFFS, DATA_BUFF_SIZE);

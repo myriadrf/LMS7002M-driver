@@ -63,6 +63,7 @@ EVB7::EVB7(void):
     //configure data port directions and data clock rates
     LMS7002M_configure_lml_port(_lms, LMS_PORT1, LMS_TX, 1);
     LMS7002M_configure_lml_port(_lms, LMS_PORT2, LMS_RX, 1);
+    LMS7002M_invert_fclk(_lms, true);
 
     //external reset now that clocks are on
     this->writeRegister(FPGA_REG_WR_EXT_RST, 1);
