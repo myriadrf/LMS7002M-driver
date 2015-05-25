@@ -483,6 +483,15 @@ LMS7002M_API void LMS7002M_trf_select_band(LMS7002M_t *self, const LMS7002M_chan
  */
 LMS7002M_API void LMS7002M_trf_enable_loopback(LMS7002M_t *self, const LMS7002M_chan_t channel, const bool enable);
 
+/*!
+ * Set the PAD gain (loss) for the TX RF frontend.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param gain the gain value in dB -52.0 to 0.0
+ * \return the actual gain value in dB
+ */
+LMS7002M_API double LMS7002M_trf_set_pad(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain);
+
 //=====================================================================//
 // RxTSP (receive DSP chain)
 //=====================================================================//

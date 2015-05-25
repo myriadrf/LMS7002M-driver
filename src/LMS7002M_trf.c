@@ -39,3 +39,27 @@ void LMS7002M_trf_enable_loopback(LMS7002M_t *self, const LMS7002M_chan_t channe
     self->regs->reg_0x0101_en_loopb_txpad_trf = enable?0:1;
     LMS7002M_regs_spi_write(self, 0x0101);
 }
+
+double LMS7002M_trf_set_pad(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain)
+{
+    const double pmax = 0;
+    double loss = pmax-gain;
+
+    //different scaling realm
+    if (loss > 10) loss = (loss+10)/2;
+
+    //clip
+    if (loss > 31) loss = 31;
+    if (loss < 0) loss = 0;
+
+    //integer round
+    int loss_int = (int)(loss + 0.5);
+
+    LMS7002M_set_mac_ch(self, channel);
+    self->regs->reg_0x0101_loss_lin_txpad_trf = loss_int;
+    self->regs->reg_0x0101_loss_main_txpad_trf = loss_int;
+    LMS7002M_regs_spi_write(self, 0x0101);
+
+    if (loss_int > 10) return pmax-10-2*(loss_int-10);
+    return pmax-loss_int;
+}
