@@ -72,7 +72,7 @@ SoapySDR::Stream *EVB7::setupStream(
     const int direction,
     const std::string &format,
     const std::vector<size_t> &channels,
-    const SoapySDR::Kwargs &)
+    const SoapySDR::Kwargs &args)
 {
     std::lock_guard<std::mutex> lock(_mutex);
 
@@ -127,6 +127,12 @@ SoapySDR::Stream *EVB7::setupStream(
     if (direction == SOAPY_SDR_TX)
     {
         _userHandlesTxStatus = false;
+
+        //set tx idle level (can be used for test signal when framer in-active)
+        //the "IDLE" value is a double between 1.0 (full scale) and 0.0 (default)
+        const auto idleStr = (args.count("IDLE") != 0)?args.at("IDLE"):"0.0";
+        const auto idleLevel = std::lround(std::stod(idleStr)*double(1 << 15));
+        this->writeRegister(FPGA_REG_WR_TX_CHA, idleLevel); //use A regardless of channel
 
         //allocate dma memory
         int ret = 0;

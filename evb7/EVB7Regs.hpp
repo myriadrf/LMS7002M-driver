@@ -53,6 +53,7 @@
 #define FPGA_REG_WR_TX_CHA 28
 #define FPGA_REG_WR_TX_CHB 32
 #define FPGA_REG_WR_TX_TEST 36
+#define FPGA_REG_WR_TX_PHASE 40
 
 /***********************************************************************
  * Settings for the AXI DMA and framer/deframer

@@ -366,6 +366,13 @@ void EVB7::setFrequency(const int direction, const size_t channel, const std::st
         if (direction == SOAPY_SDR_TX) LMS7002M_txtsp_set_freq(_lms, ch2LMS(channel), frequency/baseRate);
         _cachedFreqValues[direction][channel][name] = frequency;
     }
+
+    if (name == "SIGGEN" and direction == SOAPY_SDR_TX)
+    {
+        const double baseRate = this->getSampleRate(direction, channel);
+        this->writeRegister(FPGA_REG_WR_TX_PHASE, std::lround((frequency/baseRate)*4294967296.0));
+        _cachedFreqValues[direction][channel][name] = frequency;
+    }
 }
 
 double EVB7::getFrequency(const int direction, const size_t channel, const std::string &name) const
@@ -373,15 +380,16 @@ double EVB7::getFrequency(const int direction, const size_t channel, const std::
     return _cachedFreqValues.at(direction).at(channel).at(name);
 }
 
-std::vector<std::string> EVB7::listFrequencies(const int, const size_t) const
+std::vector<std::string> EVB7::listFrequencies(const int direction, const size_t) const
 {
     std::vector<std::string> opts;
     opts.push_back("RF");
     opts.push_back("BB");
+    if (direction == SOAPY_SDR_TX) opts.push_back("SIGGEN");
     return opts;
 }
 
-SoapySDR::RangeList EVB7::getFrequencyRange(const int direction, const size_t, const std::string &name) const
+SoapySDR::RangeList EVB7::getFrequencyRange(const int direction, const size_t channel, const std::string &name) const
 {
     SoapySDR::RangeList ranges;
     if (name == "RF")
@@ -391,6 +399,11 @@ SoapySDR::RangeList EVB7::getFrequencyRange(const int direction, const size_t, c
     if (name == "BB")
     {
         const double rate = this->getTSPRate(direction);
+        ranges.push_back(SoapySDR::Range(-rate/2, rate/2));
+    }
+    if (name == "SIGGEN" and direction == SOAPY_SDR_TX)
+    {
+        const double rate = this->getSampleRate(direction, channel);
         ranges.push_back(SoapySDR::Range(-rate/2, rate/2));
     }
     return ranges;
