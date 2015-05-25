@@ -178,6 +178,8 @@ EVB7::EVB7(void):
         this->setGain(SOAPY_SDR_RX, i, "LNA", 0.0);
         this->setGain(SOAPY_SDR_RX, i, "TIA", 0.0);
         this->setGain(SOAPY_SDR_RX, i, "PGA", 0.0);
+        this->setGain(SOAPY_SDR_TX, i, "PAD", 0.0);
+        this->setGain(SOAPY_SDR_TX, i, "IAMP", 0.0);
         this->setBandwidth(SOAPY_SDR_RX, i, 200e6);
         this->setBandwidth(SOAPY_SDR_TX, i, 200e6);
     }
@@ -284,6 +286,7 @@ std::vector<std::string> EVB7::listGains(const int direction, const size_t) cons
     }
     if (direction == SOAPY_SDR_TX)
     {
+        gains.push_back("PAD");
         gains.push_back("IAMP");
     }
     return gains;
@@ -312,6 +315,11 @@ void EVB7::setGain(const int direction, const size_t channel, const std::string 
         actualValue = LMS7002M_rbb_set_pga(_lms, ch2LMS(channel), value);
     }
 
+    if (direction == SOAPY_SDR_TX and name == "PAD")
+    {
+        actualValue = LMS7002M_trf_set_pad(_lms, ch2LMS(channel), value);
+    }
+
     if (direction == SOAPY_SDR_TX and name == "IAMP")
     {
         actualValue = LMS7002M_tbb_set_iamp(_lms, ch2LMS(channel), value);
@@ -328,6 +336,7 @@ SoapySDR::Range EVB7::getGainRange(const int direction, const size_t channel, co
     if (direction == SOAPY_SDR_RX and name == "LNA") return SoapySDR::Range(0.0, 30.0);
     if (direction == SOAPY_SDR_RX and name == "TIA") return SoapySDR::Range(0.0, 12.0);
     if (direction == SOAPY_SDR_RX and name == "PGA") return SoapySDR::Range(-12.0, 19.0);
+    if (direction == SOAPY_SDR_TX and name == "PAD") return SoapySDR::Range(-52.0, 0.0);
     if (direction == SOAPY_SDR_TX and name == "IAMP") return SoapySDR::Range(0.0, 63.0);
     return SoapySDR::Device::getGainRange(direction, channel, name);
 }
