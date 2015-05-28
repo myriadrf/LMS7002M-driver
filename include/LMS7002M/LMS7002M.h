@@ -313,8 +313,9 @@ LMS7002M_API void LMS7002M_set_nco_freq(LMS7002M_t *self, const LMS7002M_dir_t d
  * then the specified filter will be bypassed,
  * otherwise, the specified filter is enabled.
  *
- * An error will be returned when the taps size is too large,
+ * An error will be returned when the taps size is incorrect,
  * or if a non-existent filter is selected (use 1, 2, or 3).
+ * Filters 1 and 2 are 40 taps, while filter 3 is 120 taps.
  *
  * \param self an instance of the LMS7002M driver
  * \param direction the direction LMS_TX or LMS_RX
