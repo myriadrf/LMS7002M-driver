@@ -541,6 +541,14 @@ LMS7002M_API void LMS7002M_rxtsp_tsg_const(LMS7002M_t *self, const LMS7002M_chan
  */
 LMS7002M_API void LMS7002M_rxtsp_tsg_tone(LMS7002M_t *self, const LMS7002M_chan_t channel);
 
+/*!
+ * Read the digital RSSI indicator in the Rx TSP chain.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \return the RSSI as a fraction of the full scale (max 1.0)
+ */
+LMS7002M_API double LMS7002M_rxtsp_read_rssi(LMS7002M_t *self, const LMS7002M_chan_t channel);
+
 //=====================================================================//
 // RBB (receive baseband chain)
 //=====================================================================//
