@@ -291,12 +291,12 @@ LMS7002M_API void LMS7002M_afe_enable(LMS7002M_t *self, const LMS7002M_dir_t dir
 LMS7002M_API int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, const double fout, double *factual);
 
 //=====================================================================//
-// NCO (numerically controlled oscillators)
-// Frequency offset generation in the DSP chain.
+// Shared helper functions for Rx and TX tsp
 //=====================================================================//
 
 /*!
  * Set the frequency for the specified NCO.
+ * Most users should use LMS7002M_xxtsp_set_freq() to handle bypasses.
  * Note: there is a size 16 table for every NCO, we are just using entry 0.
  * Math: freqHz = freqRel * sampleRate
  * \param self an instance of the LMS7002M driver
@@ -305,6 +305,33 @@ LMS7002M_API int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, co
  * \param freqRel a fractional frequency in (-0.5, 0.5)
  */
 LMS7002M_API void LMS7002M_set_nco_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, const LMS7002M_chan_t channel, const double freqRel);
+
+/*!
+ * Set the filter taps for one of the TSP FIR filters.
+ *
+ * If the taps array is NULL or the ntaps is 0,
+ * then the specified filter will be bypassed,
+ * otherwise, the specified filter is enabled.
+ *
+ * An error will be returned when the taps size is incorrect,
+ * or if a non-existent filter is selected (use 1, 2, or 3).
+ * Filters 1 and 2 are 40 taps, while filter 3 is 120 taps.
+ *
+ * \param self an instance of the LMS7002M driver
+ * \param direction the direction LMS_TX or LMS_RX
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param which which FIR filter 1, 2, or 3
+ * \param taps a pointer to an array of taps
+ * \param ntaps the size of the taps array
+ * \return 0 for success or error code on failure
+ */
+LMS7002M_API int LMS7002M_set_gfir_taps(
+    LMS7002M_t *self,
+    const LMS7002M_dir_t direction,
+    const LMS7002M_chan_t channel,
+    const int which,
+    const short *taps,
+    const size_t ntaps);
 
 //=====================================================================//
 // SXR and SXT (LO synthesizers)
