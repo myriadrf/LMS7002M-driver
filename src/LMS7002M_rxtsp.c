@@ -132,3 +132,38 @@ double LMS7002M_rxtsp_read_rssi(LMS7002M_t *self, const LMS7002M_chan_t channel)
     //a full scale DC input level be 1.0 RSSI
     return rssi_int/((double)(1 << 16));
 }
+
+void LMS7002M_rxtsp_set_dc_correction(
+    LMS7002M_t *self,
+    const LMS7002M_chan_t channel,
+    const bool enabled,
+    const int window)
+{
+    LMS7002M_set_mac_ch(self, channel);
+
+    self->regs->reg_0x040c_dc_byp = (enabled)?0:1;
+    LMS7002M_regs_spi_write(self, 0x040c);
+
+    self->regs->reg_0x0404_dccorr_avg = window;
+    LMS7002M_regs_spi_write(self, 0x0404);
+}
+
+void LMS7002M_rxtsp_set_iq_correction(
+    LMS7002M_t *self,
+    const LMS7002M_chan_t channel,
+    const double phase,
+    const double gain)
+{
+    LMS7002M_set_mac_ch(self, channel);
+
+    const bool bypassPhase = (phase == 0.0);
+    const bool bypassGain = (gain == 0.0);
+    self->regs->reg_0x040c_ph_byp = bypassPhase?1:0;
+    self->regs->reg_0x040c_gc_byp = bypassGain?1:0;
+    LMS7002M_regs_spi_write(self, 0x040c);
+
+    //TODO
+    //self->regs->reg_0x0403_iqcorr = 
+    //self->regs->reg_0x0402_gcorri = 
+    //self->regs->reg_0x0401_gcorrq = 
+}

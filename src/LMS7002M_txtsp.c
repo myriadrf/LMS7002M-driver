@@ -103,3 +103,40 @@ void LMS7002M_txtsp_tsg_tone(LMS7002M_t *self, const LMS7002M_chan_t channel)
     self->regs->reg_0x0200_tsgfcw = REG_0X0200_TSGFCW_DIV8;
     LMS7002M_regs_spi_write(self, 0x0200);
 }
+
+void LMS7002M_txtsp_set_dc_correction(
+    LMS7002M_t *self,
+    const LMS7002M_chan_t channel,
+    const double valI,
+    const double valQ)
+{
+    LMS7002M_set_mac_ch(self, channel);
+
+    const bool bypass = (valI == 0.0) && (valQ == 0.0);
+    self->regs->reg_0x0208_dc_byp = bypass?1:0;
+    LMS7002M_regs_spi_write(self, 0x0208);
+
+    self->regs->reg_0x0204_dccorri = (int)(valI*128);
+    self->regs->reg_0x0204_dccorrq = (int)(valQ*128);
+    LMS7002M_regs_spi_write(self, 0x0204);
+}
+
+void LMS7002M_txtsp_set_iq_correction(
+    LMS7002M_t *self,
+    const LMS7002M_chan_t channel,
+    const double phase,
+    const double gain)
+{
+    LMS7002M_set_mac_ch(self, channel);
+
+    const bool bypassPhase = (phase == 0.0);
+    const bool bypassGain = (gain == 0.0);
+    self->regs->reg_0x0208_ph_byp = bypassPhase?1:0;
+    self->regs->reg_0x0208_gc_byp = bypassGain?1:0;
+    LMS7002M_regs_spi_write(self, 0x0208);
+
+    //TODO
+    //self->regs->reg_0x0203_iqcorr = 
+    //self->regs->reg_0x0202_gcorri = 
+    //self->regs->reg_0x0201_gcorrq = 
+}

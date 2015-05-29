@@ -381,6 +381,34 @@ LMS7002M_API void LMS7002M_txtsp_tsg_const(LMS7002M_t *self, const LMS7002M_chan
  */
 LMS7002M_API void LMS7002M_txtsp_tsg_tone(LMS7002M_t *self, const LMS7002M_chan_t channel);
 
+/*!
+ * DC offset correction value for Tx TSP chain.
+ * Correction values are maximum 1.0 (full scale).
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param valI the I correction value
+ * \param valQ the Q correction value
+ */
+LMS7002M_API void LMS7002M_txtsp_set_dc_correction(
+    LMS7002M_t *self,
+    const LMS7002M_chan_t channel,
+    const double valI,
+    const double valQ);
+
+/*!
+ * IQ imbalance correction value for Tx TSP chain.
+ * Correction values are maximum 1.0 (full scale).
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param phase the phase correction [-1.0, 1.0]
+ * \param gain the magnitude correction [-1.0, 1.0]
+ */
+LMS7002M_API void LMS7002M_txtsp_set_iq_correction(
+    LMS7002M_t *self,
+    const LMS7002M_chan_t channel,
+    const double phase,
+    const double gain);
+
 //=====================================================================//
 // TBB (transmit baseband chain)
 //=====================================================================//
@@ -548,6 +576,35 @@ LMS7002M_API void LMS7002M_rxtsp_tsg_tone(LMS7002M_t *self, const LMS7002M_chan_
  * \return the RSSI as a fraction of the full scale (max 1.0)
  */
 LMS7002M_API double LMS7002M_rxtsp_read_rssi(LMS7002M_t *self, const LMS7002M_chan_t channel);
+
+
+/*!
+ * DC offset correction value for Rx TSP chain.
+ * This subtracts out the average signal level.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param enabled true to enable correction
+ * \param window average window length 0-7 (def 0)
+ */
+LMS7002M_API void LMS7002M_rxtsp_set_dc_correction(
+    LMS7002M_t *self,
+    const LMS7002M_chan_t channel,
+    const bool enabled,
+    const int window);
+
+/*!
+ * IQ imbalance correction value for Rx TSP chain.
+ * Correction values are maximum 1.0 (full scale).
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param phase the phase correction [-1.0, 1.0]
+ * \param gain the magnitude correction [-1.0, 1.0]
+ */
+LMS7002M_API void LMS7002M_rxtsp_set_iq_correction(
+    LMS7002M_t *self,
+    const LMS7002M_chan_t channel,
+    const double phase,
+    const double gain);
 
 //=====================================================================//
 // RBB (receive baseband chain)
