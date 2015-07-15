@@ -189,6 +189,8 @@ EVB7::EVB7(void):
 
 EVB7::~EVB7(void)
 {
+    SoapySDR::log(SOAPY_SDR_INFO, "Power down and cleanup");
+
     //power down and clean up
     LMS7002M_afe_enable(_lms, LMS_TX, LMS_CHA, false);
     LMS7002M_afe_enable(_lms, LMS_TX, LMS_CHB, false);
@@ -560,6 +562,39 @@ void EVB7::setHardwareTime(const long long timeNs, const std::string &)
     this->writeRegister(FPGA_REG_WR_TIME_HI, ticks >> 32);
     this->writeRegister(FPGA_REG_WR_TIME_LATCH, 1);
     this->writeRegister(FPGA_REG_WR_TIME_LATCH, 0);
+}
+
+/*******************************************************************
+ * Settings API
+ ******************************************************************/
+void EVB7::writeSetting(const std::string &key, const std::string &value)
+{
+    SoapySDR::logf(SOAPY_SDR_INFO, "EVB7::writeSetting(%s, %s)", key.c_str(), value.c_str());
+
+    //undo any changes caused by one of the other keys with these enable calls
+    if (key == "RXTSP_ENABLE") LMS7002M_rxtsp_enable(_lms, LMS_CHAB, value == "TRUE");
+    else if (key == "TXTSP_ENABLE") LMS7002M_txtsp_enable(_lms, LMS_CHAB, value == "TRUE");
+    else if (key == "RBB_ENABLE") LMS7002M_rbb_enable(_lms, LMS_CHAB, value == "TRUE");
+    else if (key == "TBB_ENABLE") LMS7002M_tbb_enable(_lms, LMS_CHAB, value == "TRUE");
+    else if (key == "RXTSP_TSP_CONST")
+    {
+        const int ampl = atoi(value.c_str());
+        LMS7002M_rxtsp_tsg_const(_lms, LMS_CHAB, ampl, ampl);
+    }
+    else if (key == "TXTSP_TSP_CONST")
+    {
+        const int ampl = atoi(value.c_str());
+        LMS7002M_txtsp_tsg_const(_lms, LMS_CHAB, ampl, ampl);
+    }
+    else if (key == "TBB_ENABLE_LOOPBACK")
+    {
+        LMS7002M_tbb_enable_loopback(_lms, LMS_CHAB, LMS7002M_TBB_LB_MAIN_TBB, false);
+    }
+    else if (key == "RBB_SELECT_INPUT")
+    {
+        LMS7002M_rbb_set_path(_lms, LMS_CHAB, LMS7002M_RBB_BYP_LB);
+    }
+    else throw std::runtime_error("EVB7::writeSetting("+key+", "+value+") unknown key");
 }
 
 /***********************************************************************
