@@ -572,16 +572,17 @@ void EVB7::writeSetting(const std::string &key, const std::string &value)
     SoapySDR::logf(SOAPY_SDR_INFO, "EVB7::writeSetting(%s, %s)", key.c_str(), value.c_str());
 
     //undo any changes caused by one of the other keys with these enable calls
-    if (key == "RXTSP_ENABLE") LMS7002M_rxtsp_enable(_lms, LMS_CHAB, value == "TRUE");
+    if (key == "FPGA_TX_TEST") this->writeRegister(FPGA_REG_WR_TX_TEST, (value == "TRUE")?1:0);
+    else if (key == "RXTSP_ENABLE") LMS7002M_rxtsp_enable(_lms, LMS_CHAB, value == "TRUE");
     else if (key == "TXTSP_ENABLE") LMS7002M_txtsp_enable(_lms, LMS_CHAB, value == "TRUE");
     else if (key == "RBB_ENABLE") LMS7002M_rbb_enable(_lms, LMS_CHAB, value == "TRUE");
     else if (key == "TBB_ENABLE") LMS7002M_tbb_enable(_lms, LMS_CHAB, value == "TRUE");
-    else if (key == "RXTSP_TSP_CONST")
+    else if (key == "RXTSP_TSG_CONST")
     {
         const int ampl = atoi(value.c_str());
         LMS7002M_rxtsp_tsg_const(_lms, LMS_CHAB, ampl, ampl);
     }
-    else if (key == "TXTSP_TSP_CONST")
+    else if (key == "TXTSP_TSG_CONST")
     {
         const int ampl = atoi(value.c_str());
         LMS7002M_txtsp_tsg_const(_lms, LMS_CHAB, ampl, ampl);
@@ -593,6 +594,12 @@ void EVB7::writeSetting(const std::string &key, const std::string &value)
     else if (key == "RBB_SELECT_INPUT")
     {
         LMS7002M_rbb_set_path(_lms, LMS_CHAB, LMS7002M_RBB_BYP_LB);
+    }
+    else if (key == "FPGA_TSG_CONST")
+    {
+        const uint32_t ampl = atol(value.c_str());
+        this->writeRegister(FPGA_REG_WR_TX_CHA, ampl);
+        this->writeRegister(FPGA_REG_WR_TX_CHB, ampl);
     }
     else throw std::runtime_error("EVB7::writeSetting("+key+", "+value+") unknown key");
 }
