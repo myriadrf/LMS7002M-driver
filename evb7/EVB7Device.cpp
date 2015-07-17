@@ -580,12 +580,12 @@ void EVB7::writeSetting(const std::string &key, const std::string &value)
     else if (key == "RXTSP_TSG_CONST")
     {
         const int ampl = atoi(value.c_str());
-        LMS7002M_rxtsp_tsg_const(_lms, LMS_CHAB, ampl, ampl);
+        LMS7002M_rxtsp_tsg_const(_lms, LMS_CHAB, ampl, 0);
     }
     else if (key == "TXTSP_TSG_CONST")
     {
         const int ampl = atoi(value.c_str());
-        LMS7002M_txtsp_tsg_const(_lms, LMS_CHAB, ampl, ampl);
+        LMS7002M_txtsp_tsg_const(_lms, LMS_CHAB, ampl, 0);
     }
     else if (key == "TBB_ENABLE_LOOPBACK")
     {
@@ -605,9 +605,9 @@ void EVB7::writeSetting(const std::string &key, const std::string &value)
     }
     else if (key == "FPGA_TSG_CONST")
     {
-        const uint32_t ampl = atol(value.c_str());
-        this->writeRegister(FPGA_REG_WR_TX_CHA, ampl);
-        this->writeRegister(FPGA_REG_WR_TX_CHB, ampl);
+        const int ampl = atoi(value.c_str());
+        this->writeRegister(FPGA_REG_WR_TX_CHA, ampl << 16);
+        this->writeRegister(FPGA_REG_WR_TX_CHB, ampl << 16);
     }
     else throw std::runtime_error("EVB7::writeSetting("+key+", "+value+") unknown key");
 }
