@@ -589,11 +589,19 @@ void EVB7::writeSetting(const std::string &key, const std::string &value)
     }
     else if (key == "TBB_ENABLE_LOOPBACK")
     {
-        LMS7002M_tbb_enable_loopback(_lms, LMS_CHAB, LMS7002M_TBB_LB_MAIN_TBB, false);
+        LMS7002M_tbb_enable_loopback(_lms, LMS_CHAB, LMS7002M_TBB_LB_MAIN_TBB, (value == "SWAP"));
     }
-    else if (key == "RBB_SELECT_INPUT")
+    else if (key == "RBB_SET_PATH")
     {
-        LMS7002M_rbb_set_path(_lms, LMS_CHAB, LMS7002M_RBB_BYP_LB);
+        int path = 0;
+        if (value == "BYP") path = LMS7002M_RBB_BYP;
+        else if (value == "LBF") path = LMS7002M_RBB_LBF;
+        else if (value == "HBF") path = LMS7002M_RBB_HBF;
+        else if (value == "BYP_LB") path = LMS7002M_RBB_BYP_LB;
+        else if (value == "LBF_LB") path = LMS7002M_RBB_LBF_LB;
+        else if (value == "HBF_LB") path = LMS7002M_RBB_HBF_LB;
+        else throw std::runtime_error("EVB7::writeSetting("+key+", "+value+") unknown value");
+        LMS7002M_rbb_set_path(_lms, LMS_CHAB, path);
     }
     else if (key == "FPGA_TSG_CONST")
     {
