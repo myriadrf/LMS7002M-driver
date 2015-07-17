@@ -262,6 +262,46 @@ public:
     /*******************************************************************
      * Settings API
      ******************************************************************/
+
+    /*!
+     * Write arbitrary settings in the form of key/value pairs
+     * that are otherwise not covered by the other API calls.
+     * Example: setting loopback and test modes.
+     *
+     * - FPGA_TX_TEST(TRUE/FALSE) - in test mode, the normal TX path is bypassed,
+     *   and a constant level configured by FPGA_TSG_CONST is driven into TX DIQ.
+     *   When test mode is off, this value drives the input to the CORDIC when idle.
+     *
+     * - RXTSP_ENABLE(TRUE/FALSE) - call the RX TSP enable routine.
+     *   Call with TRUE (enable) to reapply default settings.
+     *
+     * - TXTSP_ENABLE(TRUE/FALSE) - call the TX TSP enable routine.
+     *   Call with TRUE (enable) to reapply default settings.
+     *
+     * - RBB_ENABLE(TRUE/FALSE) - call the RX baseband enable routine.
+     *   Call with TRUE (enable) to reapply default settings.
+     *
+     * - TBB_ENABLE(TRUE/FALSE) - call the TX baseband enable routine.
+     *   Call with TRUE (enable) to reapply default settings.
+     *
+     * - RXTSP_TSG_CONST(amplitude) - set the RX digital signal generator
+     *   for a constant valued output.
+     *
+     * - TXTSP_TSG_CONST(amplitude) - set the TX digital signal generator
+     *   for a constant valued output.
+     *
+     * - TBB_ENABLE_LOOPBACK(swap) - enable TX baseband loopback.
+     *   When the value is "SWAP", I and Q are swapped.
+     *
+     * - RBB_SET_PATH(path) set the RX baseband input path.
+     *   Use BYP, LBF, HBF for bypassing or filter path.
+     *   Use BYP_LB, LBF_LB, HBF_LB for loopback versions.
+     *
+     * - FPGA_TSG_CONST(amplitude) - set the FPGA's TX digital signal generator
+     *   for a constant valued output. When FPGA_TX_TEST is FALSE,
+     *   this value drives the TX FPGA CORDIC when no user stream is applied.
+     *   When FPGA_TX_TEST is TRUE, this value directly drives the TX DIQ bus.
+     */
     void writeSetting(const std::string &key, const std::string &value);
 
     /*******************************************************************
