@@ -37,7 +37,7 @@ void LMS7002M_trf_select_band(LMS7002M_t *self, const LMS7002M_chan_t channel, c
 void LMS7002M_trf_enable_loopback(LMS7002M_t *self, const LMS7002M_chan_t channel, const bool enable)
 {
     LMS7002M_set_mac_ch(self, channel);
-    self->regs->reg_0x0101_en_loopb_txpad_trf = enable?0:1;
+    self->regs->reg_0x0101_en_loopb_txpad_trf = enable?1:0;
     LMS7002M_regs_spi_write(self, 0x0101);
 }
 
