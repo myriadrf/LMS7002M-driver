@@ -236,6 +236,8 @@ std::vector<std::string> EVB7::listAntennas(const int direction, const size_t) c
         ants.push_back("LNAH");
         ants.push_back("LNAL");
         ants.push_back("LNAW");
+        ants.push_back("LB1");
+        ants.push_back("LB2");
     }
     if (direction == SOAPY_SDR_TX)
     {
@@ -255,8 +257,10 @@ void EVB7::setAntenna(const int direction, const size_t channel, const std::stri
         if (name == "LNAH") path = LMS7002M_RFE_LNAH;
         else if (name == "LNAL") path = LMS7002M_RFE_LNAL;
         else if (name == "LNAW") path = LMS7002M_RFE_LNAW;
+        else if (name == "LB1") path = LMS7002M_RFE_LB1;
+        else if (name == "LB2") path = LMS7002M_RFE_LB2;
         else throw std::runtime_error("EVB7::setAntenna(RX, "+name+") - unknown antenna name");
-        LMS7002M_rfe_select_input(_lms, ch2LMS(channel), path);
+        LMS7002M_rfe_set_path(_lms, ch2LMS(channel), path);
     }
     if (direction == SOAPY_SDR_TX)
     {
@@ -307,6 +311,11 @@ void EVB7::setGain(const int direction, const size_t channel, const std::string 
         actualValue = LMS7002M_rfe_set_lna(_lms, ch2LMS(channel), value);
     }
 
+    if (direction == SOAPY_SDR_RX and name == "LB_LNA")
+    {
+        actualValue = LMS7002M_rfe_set_loopback_lna(_lms, ch2LMS(channel), value);
+    }
+
     if (direction == SOAPY_SDR_RX and name == "TIA")
     {
         actualValue = LMS7002M_rfe_set_tia(_lms, ch2LMS(channel), value);
@@ -320,6 +329,11 @@ void EVB7::setGain(const int direction, const size_t channel, const std::string 
     if (direction == SOAPY_SDR_TX and name == "PAD")
     {
         actualValue = LMS7002M_trf_set_pad(_lms, ch2LMS(channel), value);
+    }
+
+    if (direction == SOAPY_SDR_TX and name == "LB_PAD")
+    {
+        actualValue = LMS7002M_trf_set_loopback_pad(_lms, ch2LMS(channel), value);
     }
 
     if (direction == SOAPY_SDR_TX and name == "IAMP")
@@ -336,9 +350,11 @@ double EVB7::getGain(const int direction, const size_t channel, const std::strin
 SoapySDR::Range EVB7::getGainRange(const int direction, const size_t channel, const std::string &name) const
 {
     if (direction == SOAPY_SDR_RX and name == "LNA") return SoapySDR::Range(0.0, 30.0);
+    if (direction == SOAPY_SDR_RX and name == "LB_LNA") return SoapySDR::Range(0.0, 40.0);
     if (direction == SOAPY_SDR_RX and name == "TIA") return SoapySDR::Range(0.0, 12.0);
     if (direction == SOAPY_SDR_RX and name == "PGA") return SoapySDR::Range(-12.0, 19.0);
     if (direction == SOAPY_SDR_TX and name == "PAD") return SoapySDR::Range(-52.0, 0.0);
+    if (direction == SOAPY_SDR_TX and name == "LB_PAD") return SoapySDR::Range(-24.0, 0.0);
     if (direction == SOAPY_SDR_TX and name == "IAMP") return SoapySDR::Range(0.0, 63.0);
     return SoapySDR::Device::getGainRange(direction, channel, name);
 }
