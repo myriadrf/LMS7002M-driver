@@ -11,6 +11,7 @@
 ///
 
 #include <stdlib.h>
+#include <math.h> //exp
 #include "LMS7002M_impl.h"
 
 void LMS7002M_trf_enable(LMS7002M_t *self, const LMS7002M_chan_t channel, const bool enable)
@@ -62,4 +63,30 @@ double LMS7002M_trf_set_pad(LMS7002M_t *self, const LMS7002M_chan_t channel, con
 
     if (loss_int > 10) return pmax-10-2*(loss_int-10);
     return pmax-loss_int;
+}
+
+double LMS7002M_trf_set_loopback_pad(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain)
+{
+    const double pmax = 0;
+    double loss = pmax-gain;
+
+    //clip
+    if (loss > 24) loss = 24;
+    if (loss < 0) loss = 0;
+
+    //integer round
+    int loss_int = (int)((pow(10, loss/20)/5) + 0.5);
+
+    LMS7002M_set_mac_ch(self, channel);
+    self->regs->reg_0x0101_l_loopb_txpad_trf = loss_int;
+    LMS7002M_regs_spi_write(self, 0x0101);
+
+    switch(loss_int)
+    {
+    case 0: return pmax-0.0;
+    case 1: return pmax-20*log10(5.0);
+    case 2: return pmax-20*log10(11.0);
+    case 3: return pmax-20*log10(16.0);
+    }
+    return 0.0;
 }

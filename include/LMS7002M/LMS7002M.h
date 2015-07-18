@@ -547,6 +547,15 @@ LMS7002M_API void LMS7002M_trf_enable_loopback(LMS7002M_t *self, const LMS7002M_
  */
 LMS7002M_API double LMS7002M_trf_set_pad(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain);
 
+/*!
+ * Set the PAD gain (loss) for the TX RF frontend (in RX loopback mode).
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param gain the gain value in dB -24.0 to 0.0
+ * \return the actual gain value in dB
+ */
+LMS7002M_API double LMS7002M_trf_set_loopback_pad(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain);
+
 //=====================================================================//
 // RxTSP (receive DSP chain)
 //=====================================================================//
@@ -716,7 +725,7 @@ LMS7002M_API void LMS7002M_rfe_enable(LMS7002M_t *self, const LMS7002M_chan_t ch
  * \param channel the channel LMS_CHA or LMS_CHB
  * \param path the input path (see LMS7002M_RFE_* defines)
  */
-LMS7002M_API void LMS7002M_rfe_select_input(LMS7002M_t *self, const LMS7002M_chan_t channel, const int path);
+LMS7002M_API void LMS7002M_rfe_set_path(LMS7002M_t *self, const LMS7002M_chan_t channel, const int path);
 
 /*!
  * Set the LNA gain for the RX RF frontend.
