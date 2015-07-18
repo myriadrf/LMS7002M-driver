@@ -589,12 +589,18 @@ void EVB7::writeSetting(const std::string &key, const std::string &value)
     }
     else if (key == "TBB_ENABLE_LOOPBACK")
     {
-        LMS7002M_tbb_enable_loopback(_lms, LMS_CHAB, LMS7002M_TBB_LB_MAIN_TBB, (value == "SWAP"));
+        int path = 0;
+        if      (value == "LB_DISCONNECTED") path = LMS7002M_TBB_LB_DISCONNECTED;
+        else if (value == "LB_DAC_CURRENT") path = LMS7002M_TBB_LB_DAC_CURRENT;
+        else if (value == "LB_LB_LADDER") path = LMS7002M_TBB_LB_LB_LADDER;
+        else if (value == "LB_MAIN_TBB") path = LMS7002M_TBB_LB_MAIN_TBB;
+        else throw std::runtime_error("EVB7::writeSetting("+key+", "+value+") unknown value");
+        LMS7002M_tbb_enable_loopback(_lms, LMS_CHAB, path, false);
     }
     else if (key == "RBB_SET_PATH")
     {
         int path = 0;
-        if (value == "BYP") path = LMS7002M_RBB_BYP;
+        if      (value == "BYP") path = LMS7002M_RBB_BYP;
         else if (value == "LBF") path = LMS7002M_RBB_LBF;
         else if (value == "HBF") path = LMS7002M_RBB_HBF;
         else if (value == "BYP_LB") path = LMS7002M_RBB_BYP_LB;

@@ -290,8 +290,8 @@ public:
      * - TXTSP_TSG_CONST(amplitude) - set the TX digital signal generator
      *   for a constant valued output.
      *
-     * - TBB_ENABLE_LOOPBACK(swap) - enable TX baseband loopback.
-     *   When the value is "SWAP", I and Q are swapped.
+     * - TBB_ENABLE_LOOPBACK(path) - enable TX baseband loopback.
+     *   Use LB_DISCONNECTED, LB_DAC_CURRENT, LB_LB_LADDER, or LB_MAIN_TBB for the path.
      *
      * - RBB_SET_PATH(path) set the RX baseband input path.
      *   Use BYP, LBF, HBF for bypassing or filter path.
