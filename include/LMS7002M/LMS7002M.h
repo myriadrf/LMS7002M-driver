@@ -649,9 +649,9 @@ LMS7002M_API void LMS7002M_rxtsp_set_iq_correction(
 #define LMS7002M_RBB_BYP (int)'B'  //!< Bypass filters path selected
 #define LMS7002M_RBB_LBF (int)'L'  //!< Low band filter path selected
 #define LMS7002M_RBB_HBF (int)'H'  //!< High band filter path selected
-#define LMS7002M_RBB_BYP_LB 0      //!< Bypass filters with loopback from TXBB
-#define LMS7002M_RBB_LBF_LB 1      //!< Low band filter with loopback from TXBB
-#define LMS7002M_RBB_HBF_LB 2      //!< High band filter with loopback from TXBB
+#define LMS7002M_RBB_LB_BYP 0      //!< Bypass filters with loopback from TXBB
+#define LMS7002M_RBB_LB_LBF 1      //!< Low band filter with loopback from TXBB
+#define LMS7002M_RBB_LB_HBF 2      //!< High band filter with loopback from TXBB
 
 /*!
  * Enable/disable the RX baseband.

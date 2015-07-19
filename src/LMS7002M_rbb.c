@@ -51,17 +51,17 @@ void LMS7002M_rbb_set_path(LMS7002M_t *self, const LMS7002M_chan_t channel, cons
         self->regs->reg_0x0118_input_ctl_pga_rbb = REG_0X0118_INPUT_CTL_PGA_RBB_LPFH;
         break;
 
-    case LMS7002M_RBB_BYP_LB:
+    case LMS7002M_RBB_LB_BYP:
         self->regs->reg_0x0118_input_ctl_pga_rbb = REG_0X0118_INPUT_CTL_PGA_RBB_TBB;
         break;
 
-    case LMS7002M_RBB_LBF_LB:
+    case LMS7002M_RBB_LB_LBF:
         self->regs->reg_0x0115_pd_lpfl_rbb = 0;
         self->regs->reg_0x0115_en_lb_lpfl_rbb = 1;
         self->regs->reg_0x0118_input_ctl_pga_rbb = REG_0X0118_INPUT_CTL_PGA_RBB_LPFL;
         break;
 
-    case LMS7002M_RBB_HBF_LB:
+    case LMS7002M_RBB_LB_HBF:
         self->regs->reg_0x0115_pd_lpfh_rbb = 0;
         self->regs->reg_0x0115_en_lb_lpfh_rbb = 1;
         self->regs->reg_0x0118_input_ctl_pga_rbb = REG_0X0118_INPUT_CTL_PGA_RBB_LPFH;

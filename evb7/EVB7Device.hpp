@@ -295,7 +295,7 @@ public:
      *
      * - RBB_SET_PATH(path) set the RX baseband input path.
      *   Use BYP, LBF, HBF for bypassing or filter path.
-     *   Use BYP_LB, LBF_LB, HBF_LB for loopback versions.
+     *   Use LB_BYP, LB_LBF, LB_HBF for loopback versions.
      *
      * - FPGA_TSG_CONST(amplitude) - set the FPGA's TX digital signal generator
      *   for a constant valued output. When FPGA_TX_TEST is FALSE,

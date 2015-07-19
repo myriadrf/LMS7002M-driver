@@ -619,9 +619,9 @@ void EVB7::writeSetting(const std::string &key, const std::string &value)
         if      (value == "BYP") path = LMS7002M_RBB_BYP;
         else if (value == "LBF") path = LMS7002M_RBB_LBF;
         else if (value == "HBF") path = LMS7002M_RBB_HBF;
-        else if (value == "BYP_LB") path = LMS7002M_RBB_BYP_LB;
-        else if (value == "LBF_LB") path = LMS7002M_RBB_LBF_LB;
-        else if (value == "HBF_LB") path = LMS7002M_RBB_HBF_LB;
+        else if (value == "LB_BYP") path = LMS7002M_RBB_LB_BYP;
+        else if (value == "LB_LBF") path = LMS7002M_RBB_LB_LBF;
+        else if (value == "LB_HBF") path = LMS7002M_RBB_LB_HBF;
         else throw std::runtime_error("EVB7::writeSetting("+key+", "+value+") unknown value");
         LMS7002M_rbb_set_path(_lms, LMS_CHAB, path);
     }
