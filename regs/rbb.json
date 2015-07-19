@@ -35,7 +35,7 @@
             "LPFL":0,
             "LPFH":1,
             "BYPASS":2,
-            "TX":3,
+            "TBB":3,
             "PDET":4
         }},
         "ICT_LPF_IN_RBB" : {"bits":"9:5"},
