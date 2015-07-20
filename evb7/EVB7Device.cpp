@@ -279,6 +279,59 @@ std::string EVB7::getAntenna(const int direction, const size_t channel) const
 }
 
 /*******************************************************************
+ * Frontend corrections API
+ ******************************************************************/
+void EVB7::setDCOffsetMode(const int direction, const size_t channel, const bool automatic)
+{
+    if (direction == SOAPY_SDR_RX)
+    {
+        LMS7002M_rxtsp_set_dc_correction(_lms, ch2LMS(channel), automatic, 7/*max*/);
+        _rxDCOffsetMode = automatic;
+    }
+    else
+    {
+        SoapySDR::Device::setDCOffsetMode(direction, channel, automatic);
+    }
+}
+
+bool EVB7::getDCOffsetMode(const int direction, const size_t channel) const
+{
+    if (direction == SOAPY_SDR_RX)
+    {
+        return _rxDCOffsetMode;
+    }
+    else
+    {
+        return SoapySDR::Device::getDCOffsetMode(direction, channel);
+    }
+}
+
+void EVB7::setDCOffset(const int direction, const size_t channel, const std::complex<double> &offset)
+{
+    if (direction == SOAPY_SDR_TX)
+    {
+        LMS7002M_txtsp_set_dc_correction(_lms, ch2LMS(channel), offset.real(), offset.imag());
+        _txDCOffset = offset;
+    }
+    else
+    {
+        SoapySDR::Device::setDCOffset(direction, channel, offset);
+    }
+}
+
+std::complex<double> EVB7::getDCOffset(const int direction, const size_t channel) const
+{
+    if (direction == SOAPY_SDR_TX)
+    {
+        return _txDCOffset;
+    }
+    else
+    {
+        return SoapySDR::Device::getDCOffset(direction, channel);
+    }
+}
+
+/*******************************************************************
  * Gain API
  ******************************************************************/
 std::vector<std::string> EVB7::listGains(const int direction, const size_t) const

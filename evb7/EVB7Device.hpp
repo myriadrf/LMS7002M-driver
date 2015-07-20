@@ -170,6 +170,16 @@ public:
     /*******************************************************************
      * Frontend corrections API
      ******************************************************************/
+    bool _rxDCOffsetMode;
+    std::complex<double> _txDCOffset;
+
+    void setDCOffsetMode(const int direction, const size_t channel, const bool automatic);
+
+    bool getDCOffsetMode(const int direction, const size_t channel) const;
+
+    void setDCOffset(const int direction, const size_t channel, const std::complex<double> &offset);
+
+    std::complex<double> getDCOffset(const int direction, const size_t channel) const;
 
     /*******************************************************************
      * Gain API
