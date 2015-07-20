@@ -31,7 +31,7 @@
 {
     "addr" : "0x0118",
     "fields" : {
-        "INPUT_CTL_PGA_RBB" : {"bits":"15:3", "options": {
+        "INPUT_CTL_PGA_RBB" : {"bits":"15:13", "options": {
             "LPFL":0,
             "LPFH":1,
             "BYPASS":2,

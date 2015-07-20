@@ -1042,7 +1042,7 @@ static inline void LMS7002M_regs_set(LMS7002M_regs_t *regs, const int addr, cons
     }
     if (addr == 0x0118)
     {
-        regs->reg_0x0118_input_ctl_pga_rbb = (value >> 3) & 0x1fff;
+        regs->reg_0x0118_input_ctl_pga_rbb = (value >> 13) & 0x7;
         regs->reg_0x0118_ict_lpf_in_rbb = (value >> 5) & 0x1f;
         regs->reg_0x0118_ict_lpf_out_rbb = (value >> 0) & 0x1f;
         return;
@@ -1694,7 +1694,7 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr)
     }
     if (addr == 0x0118)
     {
-        value |= (regs->reg_0x0118_input_ctl_pga_rbb & 0x1fff) << 3;
+        value |= (regs->reg_0x0118_input_ctl_pga_rbb & 0x7) << 13;
         value |= (regs->reg_0x0118_ict_lpf_in_rbb & 0x1f) << 5;
         value |= (regs->reg_0x0118_ict_lpf_out_rbb & 0x1f) << 0;
     }
