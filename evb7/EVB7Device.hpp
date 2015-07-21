@@ -16,6 +16,7 @@
 
 #include <SoapySDR/Device.hpp>
 #include <SoapySDR/Logger.hpp>
+#include <SoapySDR/Time.hpp>
 #include <pothos_zynq_dma_driver.h>
 #include <mutex>
 #include <cstring>
@@ -229,23 +230,15 @@ public:
     /*******************************************************************
      * Time API
      ******************************************************************/
-    template <typename T>
-    static T scaleDiv(const T in, const T scalar, const T divisor)
-    {
-        const auto divRes = std::div(in, divisor);
-        const T outQuot = divRes.quot * scalar;
-        const T outRem = (divRes.rem * scalar) + (divisor/2);
-        return outQuot + (outRem/divisor);
-    }
 
     long long ticksToTimeNs(const long long ticks) const
     {
-        return scaleDiv<long long>(ticks, 1e9, IF_TIME_CLK);
+        return SoapySDR::ticksToTimeNs(ticks, IF_TIME_CLK);
     }
 
     long long timeNsToTicks(const long long timeNs) const
     {
-        return scaleDiv<long long>(timeNs, IF_TIME_CLK, 1e9);
+        return SoapySDR::timeNsToTicks(timeNs, IF_TIME_CLK);
     }
 
     bool hasHardwareTime(const std::string &what) const;

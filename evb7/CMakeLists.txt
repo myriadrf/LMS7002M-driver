@@ -1,7 +1,7 @@
 ########################################################################
 # Project setup for EVB7 SoapySDR support
 ########################################################################
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8)
 project(SoapySDREVB7 CXX C)
 enable_testing()
 
@@ -15,7 +15,7 @@ set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "")
 ########################################################################
 # build the module
 ########################################################################
-find_package(SoapySDR CONFIG)
+find_package(SoapySDR "0.2.1" CONFIG)
 
 if (NOT SoapySDR_FOUND)
     message(WARNING "SoapySDR development files not found - skipping support")
