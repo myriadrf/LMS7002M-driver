@@ -34,9 +34,9 @@ const float RBB_CalFreq[RBB_ALL] = {0.7, 1.5 , 2.5, 5.0, 7.5, 10.0, 18.5, 33.0, 
  **********************************************************************/
 void LMS7002M_cal_rbb(LMS7002M_t *self, const LMS7002M_chan_t ch)
 {
-    self->MIMO_ch = ch; //stash for table storage offset later
-	RBB_Calibration_LowBand(self, ch);
-	RBB_Calibration_HighBand(self, ch);
+    self->MIMO_ch = (ch==LMS_CHA)?0:1; //stash for table storage offset later
+    RBB_Calibration_LowBand(self, ch);
+    RBB_Calibration_HighBand(self, ch);
 }
 
 /***********************************************************************
@@ -48,6 +48,7 @@ void LMS7002M_cal_rbb(LMS7002M_t *self, const LMS7002M_chan_t ch)
  **********************************************************************/
 unsigned char RBB_Calibration_LowBand(LMS7002M_t *self, const LMS7002M_chan_t ch)
 {
+    LMS7_logf(LMS7_TRACE, "RBB_Calibration_LowBand ch%c", ch);
     LMS7002M_set_mac_ch(self, ch);
     Modify_SPI_Reg_bits(self, 0x040A, 13, 12, 1); // AGC Mode = 1 (RSSI mode);
 
@@ -72,6 +73,7 @@ unsigned char RBB_Calibration_LowBand(LMS7002M_t *self, const LMS7002M_chan_t ch
  **********************************************************************/
 unsigned char RBB_Calibration_HighBand(LMS7002M_t *self, const LMS7002M_chan_t ch)
 {
+    LMS7_logf(LMS7_TRACE, "RBB_Calibration_HighBand ch%c", ch);
     LMS7002M_set_mac_ch(self, ch);
     Modify_SPI_Reg_bits (self, 0x040A, 13, 12, 1); // AGC Mode = 1 (RSSI mode);
 
@@ -94,6 +96,7 @@ unsigned char RBB_Calibration_HighBand(LMS7002M_t *self, const LMS7002M_chan_t c
  **********************************************************************/
 unsigned char RBB_Set_Cal_Path(LMS7002M_t *self, unsigned char path_no)
 {
+	LMS7_logf(LMS7_TRACE, "RBB_Set_Cal_Path(path=%u)", path_no);
 	switch (path_no)
 	{
 		case 7: // RX  LPF Low Section Verification
@@ -133,6 +136,7 @@ unsigned char RBB_Set_Cal_Path(LMS7002M_t *self, unsigned char path_no)
  **********************************************************************/
 void RBB_Algorithm_A(LMS7002M_t *self)
 {
+    LMS7_logf(LMS7_TRACE, "RBB_Algorithm_A");
     unsigned char R_CTL_LPF_RBB;
 
     R_CTL_LPF_RBB = (unsigned char)(16 * Resistor_calibration(self)); // Default control value multiply by ratio

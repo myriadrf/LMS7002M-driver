@@ -21,7 +21,7 @@ const float TBB_CalFreq[TBB_ALL] = {18.5, 38.0, 54.0};
  **********************************************************************/
 void LMS7002M_cal_tbb(LMS7002M_t *self, const LMS7002M_chan_t ch)
 {
-    self->MIMO_ch = ch; //stash for table storage offset later
+    self->MIMO_ch = (ch==LMS_CHA)?0:1; //stash for table storage offset later
     //NOT IMPLEMENTED! Calibration_LowBand_TBB(self, (ch==LMS_CHA)?0:1);
     Calibration_HighBand_TBB(self, (ch==LMS_CHA)?0:1);
 }
@@ -31,6 +31,7 @@ void LMS7002M_cal_tbb(LMS7002M_t *self, const LMS7002M_chan_t ch)
  **********************************************************************/
 int Calibration_LowBand_TBB(LMS7002M_t *self, unsigned char ch)
 {
+    LMS7_logf(LMS7_TRACE, "Calibration_LowBand_TBB ch%c", ch);
     MIMO_Ctrl (self, ch);
     //#warning Not finished!!!
     //not finished!!!!
@@ -43,6 +44,7 @@ int Calibration_LowBand_TBB(LMS7002M_t *self, unsigned char ch)
  **********************************************************************/
 int Calibration_HighBand_TBB(LMS7002M_t *self, unsigned char ch)
 {
+    LMS7_logf(LMS7_TRACE, "Calibration_HighBand_TBB ch%c", ch);
     MIMO_Ctrl (self, ch);
 
     Set_cal_path_TBB (self, 6); // Set control signals to path 6
@@ -58,6 +60,7 @@ int Calibration_HighBand_TBB(LMS7002M_t *self, unsigned char ch)
  **********************************************************************/
 void Set_cal_path_TBB (LMS7002M_t *self, unsigned char path_no)
 {
+    LMS7_logf(LMS7_TRACE, "Set_cal_path_TBB(path=%u)", path_no);
     switch (path_no)
     {
         case 1: // Current Amplifier Low Section Verification.
@@ -98,6 +101,7 @@ void Set_cal_path_TBB (LMS7002M_t *self, unsigned char path_no)
  **********************************************************************/
 void Algorithm_E_TBB (LMS7002M_t *self, unsigned char Band_id)
 {
+    LMS7_logf(LMS7_TRACE, "Algorithm_E_TBB(Band_id=%u)", Band_id);
     unsigned short ADCOUT;
     unsigned short LowFreqAmp;
     unsigned char low_band, CONTROL;

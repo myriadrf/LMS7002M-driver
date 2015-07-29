@@ -202,10 +202,12 @@ int main(int argc, char **argv)
     LMS7002M_rbb_set_test_out(lms, LMS_CHAB, RBB_TEST_ON);
 
     //REG: testing my code...
-    //printf("===> Running RBB calibration for CHAN A...\n");
-    //LMS7002M_cal_rbb(lms, LMS_CHA);
+    LMS7_set_log_level(LMS7_TRACE);
+    printf("===> Running RBB calibration for CHAN A...\n");
+    LMS7002M_cal_rbb(lms, LMS_CHA);
     //printf("===> Running RBB calibration for CHAN B...\n");
     //LMS7002M_cal_rbb(lms, LMS_CHB);
+    LMS7_set_log_level(LMS7_DEBUG);
 
     for (size_t i = 0; i < 16; i++)
     {
