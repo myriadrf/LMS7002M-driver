@@ -209,12 +209,14 @@ int main(int argc, char **argv)
     //LMS7002M_cal_rbb(lms, LMS_CHB);
     LMS7_set_log_level(LMS7_DEBUG);
 
+    /*
     for (size_t i = 0; i < 16; i++)
     {
         LMS7002M_rxtsp_tsg_const(lms, LMS_CHA, 0, 1 << i);
         sleep(1);
         printf("Const lvl = %f, RSSI = %f\n", (1 << i)/((double)(1 << 15)), LMS7002M_rxtsp_read_rssi(lms, LMS_CHA));
     }
+    */
 
     //setup tx dsp signal generator
     //LMS7002M_txtsp_tsg_tone(lms, LMS_CHAB);

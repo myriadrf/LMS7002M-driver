@@ -112,6 +112,10 @@ float Resistor_calibration (LMS7002M_t *self)
     unsigned short BestValue, ADCOUT;
     float ratio;
 
+    //bypass mode disabled -- required for RSSI readback
+    self->regs->reg_0x040c_agc_byp = 0;
+    LMS7002M_regs_spi_write(self, 0x040c);
+
     RP_CALIB_BIAS_cal = 16;
     RP_CALIB_BIAS = 0;
     Modify_SPI_Reg_bits (self, 0x0084, 10, 6, RP_CALIB_BIAS); // write RP_CALIB_BIAS value
@@ -129,7 +133,7 @@ float Resistor_calibration (LMS7002M_t *self)
         //REG: debug
         unsigned long capd_lo = LMS7002M_spi_read(self, 0x40E);
         unsigned long capd_hi = LMS7002M_spi_read(self, 0x40F);
-        LMS7_logf(LMS7_DEBUG, "%s: RP_CALIB_BIAS = %d, ADCOUT, = %d, CAPD = %X.%X", __FUNCTION__, RP_CALIB_BIAS, ADCOUT, capd_hi, capd_lo);
+        LMS7_logf(LMS7_TRACE, "%s: RP_CALIB_BIAS = %d, ADCOUT, = %d, CAPD = %X.%X", __FUNCTION__, RP_CALIB_BIAS, ADCOUT, capd_hi, capd_lo);
 
         if(RP_CALIB_BIAS == 0)
         {
