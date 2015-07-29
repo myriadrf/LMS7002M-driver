@@ -175,7 +175,7 @@ int main(int argc, char **argv)
     LMS7002M_sxx_enable(lms, LMS_TX, true);
 
     //setup defaults along the chain
-    LMS7002M_rfe_select_input(lms, LMS_CHAB, LMS7002M_RFE_LNAH);
+    LMS7002M_rfe_set_path(lms, LMS_CHAB, LMS7002M_RFE_LNAH);
     LMS7002M_trf_select_band(lms, LMS_CHAB, 2);
 
     LMS7002M_rfe_set_lna(lms, LMS_CHAB, 40.0);
