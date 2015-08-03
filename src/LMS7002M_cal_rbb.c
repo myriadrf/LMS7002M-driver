@@ -27,7 +27,6 @@
 
 const float RBB_CalFreq[RBB_ALL] = {0.7, 1.5 , 2.5, 5.0, 7.5, 10.0, 18.5, 33.0, 54.0}; //half of bandwidth
 
-
 /***********************************************************************
  * Dispatch calibration
  * REG: added to provide a top-level function call for RBB,
@@ -35,8 +34,8 @@ const float RBB_CalFreq[RBB_ALL] = {0.7, 1.5 , 2.5, 5.0, 7.5, 10.0, 18.5, 33.0, 
 void LMS7002M_cal_rbb(LMS7002M_t *self, const LMS7002M_chan_t ch)
 {
     self->MIMO_ch = (ch==LMS_CHA)?0:1; //stash for table storage offset later
-    RBB_Calibration_LowBand(self, ch);
-    RBB_Calibration_HighBand(self, ch);
+    RBB_Calibration_LowBand(self, self->MIMO_ch);
+    RBB_Calibration_HighBand(self, self->MIMO_ch);
 }
 
 /***********************************************************************
@@ -48,8 +47,8 @@ void LMS7002M_cal_rbb(LMS7002M_t *self, const LMS7002M_chan_t ch)
  **********************************************************************/
 unsigned char RBB_Calibration_LowBand(LMS7002M_t *self, const LMS7002M_chan_t ch)
 {
-    LMS7_logf(LMS7_TRACE, "RBB_Calibration_LowBand ch%c", ch);
-    LMS7002M_set_mac_ch(self, ch);
+    LMS7_logf(LMS7_DEBUG, "RBB_Calibration_LowBand ch%d", ch);
+    MIMO_Ctrl(self, ch);
     Modify_SPI_Reg_bits(self, 0x040A, 13, 12, 1); // AGC Mode = 1 (RSSI mode);
 
     RBB_Algorithm_A(self); // Aproximate resistor value for RBB RBANKS (Algorithm A)
@@ -73,8 +72,8 @@ unsigned char RBB_Calibration_LowBand(LMS7002M_t *self, const LMS7002M_chan_t ch
  **********************************************************************/
 unsigned char RBB_Calibration_HighBand(LMS7002M_t *self, const LMS7002M_chan_t ch)
 {
-    LMS7_logf(LMS7_TRACE, "RBB_Calibration_HighBand ch%c", ch);
-    LMS7002M_set_mac_ch(self, ch);
+    LMS7_logf(LMS7_DEBUG, "RBB_Calibration_HighBand ch%d", ch);
+    MIMO_Ctrl(self, ch);
     Modify_SPI_Reg_bits (self, 0x040A, 13, 12, 1); // AGC Mode = 1 (RSSI mode);
 
     RBB_Algorithm_A(self); // Aproximate resistor value for RBB RBANKS (Algorithm A)
@@ -84,8 +83,8 @@ unsigned char RBB_Calibration_HighBand(LMS7002M_t *self, const LMS7002M_chan_t c
     RBB_Algorithm_B(self); // Calibrate and Record the low frequency output amplitude (Algorithm B)
 
     RBB_Algorithm_F(self, RBB_37_0MHZ);// CalibrateByCap the output cuttoff frequency at 0,7 MHz and store
-	RBB_Algorithm_F(self, RBB_66_0MHZ);// CalibrateByCap the output cuttoff frequency at 1,5 MHz MHz and store
-	RBB_Algorithm_F(self, RBB_108_0MHZ);// CalibrateByCap the output cuttoff frequency at 2,5 MHz MHz and store
+    RBB_Algorithm_F(self, RBB_66_0MHZ);// CalibrateByCap the output cuttoff frequency at 1,5 MHz MHz and store
+    RBB_Algorithm_F(self, RBB_108_0MHZ);// CalibrateByCap the output cuttoff frequency at 2,5 MHz MHz and store
 
     return 0;
 }
@@ -96,7 +95,7 @@ unsigned char RBB_Calibration_HighBand(LMS7002M_t *self, const LMS7002M_chan_t c
  **********************************************************************/
 unsigned char RBB_Set_Cal_Path(LMS7002M_t *self, unsigned char path_no)
 {
-	LMS7_logf(LMS7_TRACE, "RBB_Set_Cal_Path(path=%u)", path_no);
+	LMS7_logf(LMS7_DEBUG, "RBB_Set_Cal_Path(path=%u)", path_no);
 	switch (path_no)
 	{
 		case 7: // RX  LPF Low Section Verification
@@ -136,7 +135,7 @@ unsigned char RBB_Set_Cal_Path(LMS7002M_t *self, unsigned char path_no)
  **********************************************************************/
 void RBB_Algorithm_A(LMS7002M_t *self)
 {
-    LMS7_logf(LMS7_TRACE, "RBB_Algorithm_A");
+    LMS7_logf(LMS7_DEBUG, "RBB_Algorithm_A");
     unsigned char R_CTL_LPF_RBB;
 
     R_CTL_LPF_RBB = (unsigned char)(16 * Resistor_calibration(self)); // Default control value multiply by ratio
@@ -153,6 +152,7 @@ void RBB_Algorithm_A(LMS7002M_t *self)
  **********************************************************************/
 unsigned char RBB_Algorithm_B(LMS7002M_t *self)
 {
+    LMS7_logf(LMS7_DEBUG, "RBB_Algorithm_B");
     unsigned short ADCOUT;
     unsigned char CG_IAMP_TBB, gain_inc;
 
@@ -206,6 +206,7 @@ unsigned char RBB_Algorithm_B(LMS7002M_t *self)
  **********************************************************************/
 unsigned char RBB_Algorithm_F(LMS7002M_t *self, unsigned char Band_id)
 {
+    LMS7_logf(LMS7_DEBUG, "RBB_Algorithm_F");
     unsigned short ADCOUT, CONTROL;
     unsigned short LowFreqAmp;
     unsigned char low_band;

@@ -107,7 +107,7 @@ unsigned short Get_SPI_Reg_bits (LMS7002M_t *self, unsigned short SPI_reg_addr, 
  **********************************************************************/
 float Resistor_calibration (LMS7002M_t *self)
 {
-    LMS7_log(LMS7_INFO, "Resistor calibration started");
+    LMS7_log(LMS7_DEBUG, "Resistor calibration started");
     unsigned char RP_CALIB_BIAS, RP_CALIB_BIAS_cal;
     unsigned short BestValue, ADCOUT;
     float ratio;
@@ -152,6 +152,6 @@ float Resistor_calibration (LMS7002M_t *self)
     Modify_SPI_Reg_bits(self, 0x0400, 15, 15, 0); //Capture 0
     Modify_SPI_Reg_bits (self, 0x0084, 10, 6, RP_CALIB_BIAS_cal); // set the control RP_CAL_BIAS to stored calibrated value
     ratio = 16.0/RP_CALIB_BIAS_cal; //calculate ratio
-    LMS7_logf(LMS7_INFO, "%s: Resistor calibration finished = %f", __FUNCTION__, ratio);
+    LMS7_logf(LMS7_DEBUG, "%s: Resistor calibration finished = %f", __FUNCTION__, ratio);
     return ratio;
 }
