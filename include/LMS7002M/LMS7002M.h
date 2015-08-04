@@ -758,6 +758,27 @@ LMS7002M_API double LMS7002M_rfe_set_tia(LMS7002M_t *self, const LMS7002M_chan_t
 // Calibration utilities
 //=====================================================================//
 
+//! Types of calibrations
+typedef enum
+{
+    LMS7002M_CAL_RX_TIA,
+    LMS7002M_CAL_RX_LPFL,
+    LMS7002M_CAL_RX_LPFH,
+    LMS7002M_CAL_TX_LADDER,
+    LMS7002M_CAL_TX_REALPOLE,
+    LMS7002M_CAL_TX_LPFH,
+    LMS7002M_CAL_TX_LPFL,
+} LMS7002M_cal_t;
+
+/*!
+ * Calibrate the specified filter.
+ * \param self an instance of the LMS7002M driver
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param what which filter to calibrate
+ * \param freq the desired frequency in Hz
+ */
+LMS7002M_API void LMS7002M_cal_filter(LMS7002M_t *self, const LMS7002M_chan_t channel, const LMS7002M_cal_t what, const double freq);
+
 /*!
  * Calibrate the highband and lowband path of the TBB component.
  * \param self an instance of the LMS7002M driver
