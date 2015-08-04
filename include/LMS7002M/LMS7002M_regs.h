@@ -43,14 +43,14 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr);
 #define REG_0X0023_ENABLEDIR2_INPUT 1
 #define REG_0X0023_ENABLEDIR1_OUTPUT 0
 #define REG_0X0023_ENABLEDIR1_INPUT 1
-#define REG_0X0023_LML_TXNRXIQ2_RXIQ 0
-#define REG_0X0023_LML_TXNRXIQ2_TXIQ 1
-#define REG_0X0023_LML_MODE2_TRXIQ 0
-#define REG_0X0023_LML_MODE2_JESD207 1
-#define REG_0X0023_LML_TXNRXIQ1_RXIQ 0
-#define REG_0X0023_LML_TXNRXIQ1_TXIQ 1
-#define REG_0X0023_LML_MODE1_TRXIQ 0
-#define REG_0X0023_LML_MODE1_JESD207 1
+#define REG_0X0023_LML2_RXNTXIQ_RXIQ 0
+#define REG_0X0023_LML2_RXNTXIQ_TXIQ 1
+#define REG_0X0023_LML2_MODE_TRXIQ 0
+#define REG_0X0023_LML2_MODE_JESD207 1
+#define REG_0X0023_LML1_RXNTXIQ_RXIQ 0
+#define REG_0X0023_LML1_RXNTXIQ_TXIQ 1
+#define REG_0X0023_LML1_MODE_TRXIQ 0
+#define REG_0X0023_LML1_MODE_JESD207 1
 #define REG_0X0024_LML1_S3S_AI 0
 #define REG_0X0024_LML1_S3S_AQ 1
 #define REG_0X0024_LML1_S3S_BI 2
@@ -226,12 +226,12 @@ struct LMS7002M_regs_struct
     int reg_0x0023_enabledirctr1;
     int reg_0x0023_enabledir1;
     int reg_0x0023_mod_en;
-    int reg_0x0023_lml_fidm2;
-    int reg_0x0023_lml_txnrxiq2;
-    int reg_0x0023_lml_mode2;
-    int reg_0x0023_lml_fidm1;
-    int reg_0x0023_lml_txnrxiq1;
-    int reg_0x0023_lml_mode1;
+    int reg_0x0023_lml2_fidm;
+    int reg_0x0023_lml2_rxntxiq;
+    int reg_0x0023_lml2_mode;
+    int reg_0x0023_lml1_fidm;
+    int reg_0x0023_lml1_rxntxiq;
+    int reg_0x0023_lml1_mode;
     int reg_0x0024_lml1_s3s;
     int reg_0x0024_lml1_s2s;
     int reg_0x0024_lml1_s1s;
@@ -689,12 +689,12 @@ static inline void LMS7002M_regs_set(LMS7002M_regs_t *regs, const int addr, cons
         regs->reg_0x0023_enabledirctr1 = (value >> 9) & 0x1;
         regs->reg_0x0023_enabledir1 = (value >> 8) & 0x1;
         regs->reg_0x0023_mod_en = (value >> 6) & 0x1;
-        regs->reg_0x0023_lml_fidm2 = (value >> 5) & 0x1;
-        regs->reg_0x0023_lml_txnrxiq2 = (value >> 4) & 0x1;
-        regs->reg_0x0023_lml_mode2 = (value >> 3) & 0x1;
-        regs->reg_0x0023_lml_fidm1 = (value >> 2) & 0x1;
-        regs->reg_0x0023_lml_txnrxiq1 = (value >> 1) & 0x1;
-        regs->reg_0x0023_lml_mode1 = (value >> 0) & 0x1;
+        regs->reg_0x0023_lml2_fidm = (value >> 5) & 0x1;
+        regs->reg_0x0023_lml2_rxntxiq = (value >> 4) & 0x1;
+        regs->reg_0x0023_lml2_mode = (value >> 3) & 0x1;
+        regs->reg_0x0023_lml1_fidm = (value >> 2) & 0x1;
+        regs->reg_0x0023_lml1_rxntxiq = (value >> 1) & 0x1;
+        regs->reg_0x0023_lml1_mode = (value >> 0) & 0x1;
         return;
     }
     if (addr == 0x0024)
@@ -1382,12 +1382,12 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr)
         value |= (regs->reg_0x0023_enabledirctr1 & 0x1) << 9;
         value |= (regs->reg_0x0023_enabledir1 & 0x1) << 8;
         value |= (regs->reg_0x0023_mod_en & 0x1) << 6;
-        value |= (regs->reg_0x0023_lml_fidm2 & 0x1) << 5;
-        value |= (regs->reg_0x0023_lml_txnrxiq2 & 0x1) << 4;
-        value |= (regs->reg_0x0023_lml_mode2 & 0x1) << 3;
-        value |= (regs->reg_0x0023_lml_fidm1 & 0x1) << 2;
-        value |= (regs->reg_0x0023_lml_txnrxiq1 & 0x1) << 1;
-        value |= (regs->reg_0x0023_lml_mode1 & 0x1) << 0;
+        value |= (regs->reg_0x0023_lml2_fidm & 0x1) << 5;
+        value |= (regs->reg_0x0023_lml2_rxntxiq & 0x1) << 4;
+        value |= (regs->reg_0x0023_lml2_mode & 0x1) << 3;
+        value |= (regs->reg_0x0023_lml1_fidm & 0x1) << 2;
+        value |= (regs->reg_0x0023_lml1_rxntxiq & 0x1) << 1;
+        value |= (regs->reg_0x0023_lml1_mode & 0x1) << 0;
     }
     if (addr == 0x0024)
     {

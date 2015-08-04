@@ -75,27 +75,27 @@
             }
         },
         "MOD_EN" : {"bits":"6"},
-        "LML_FIDM2" : {"bits":"5"},
-        "LML_TXNRXIQ2" : {"bits":"4",
+        "LML2_FIDM" : {"bits":"5"},
+        "LML2_RXNTXIQ" : {"bits":"4",
             "options":{
                 "RXIQ":0,
                 "TXIQ":1
             }
         },
-        "LML_MODE2" : {"bits":"3",
+        "LML2_MODE" : {"bits":"3",
             "options":{
                 "TRXIQ":0,
                 "JESD207":1
             }
         },
-        "LML_FIDM1" : {"bits":"2"},
-        "LML_TXNRXIQ1" : {"bits":"1",
+        "LML1_FIDM" : {"bits":"2"},
+        "LML1_RXNTXIQ" : {"bits":"1",
             "options":{
                 "RXIQ":0,
                 "TXIQ":1
             }
         },
-        "LML_MODE1" : {"bits":"0",
+        "LML1_MODE" : {"bits":"0",
             "options":{
                 "TRXIQ":0,
                 "JESD207":1

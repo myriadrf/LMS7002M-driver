@@ -68,15 +68,15 @@ void LMS7002M_configure_lml_port(LMS7002M_t *self, const LMS7002M_port_t portNo,
     //set TRXIQ on both ports
     if (portNo == LMS_PORT1)
     {
-        self->regs->reg_0x0023_lml_mode1 = REG_0X0023_LML_MODE1_TRXIQ;
-        self->regs->reg_0x0023_lml_txnrxiq1 = (direction==LMS_TX)?
-            REG_0X0023_LML_TXNRXIQ1_RXIQ:REG_0X0023_LML_TXNRXIQ1_TXIQ; //WARNING: TX/RX perspective swap
+        self->regs->reg_0x0023_lml1_mode = REG_0X0023_LML1_MODE_TRXIQ;
+        self->regs->reg_0x0023_lml1_rxntxiq = (direction==LMS_TX)?
+            REG_0X0023_LML1_RXNTXIQ_RXIQ:REG_0X0023_LML1_RXNTXIQ_TXIQ; //WARNING: TX/RX perspective swap
     }
     if (portNo == LMS_PORT2)
     {
-        self->regs->reg_0x0023_lml_mode2 = REG_0X0023_LML_MODE2_TRXIQ;
-        self->regs->reg_0x0023_lml_txnrxiq2 = (direction==LMS_TX)?
-            REG_0X0023_LML_TXNRXIQ2_RXIQ:REG_0X0023_LML_TXNRXIQ2_TXIQ; //WARNING: TX/RX perspective swap
+        self->regs->reg_0x0023_lml2_mode = REG_0X0023_LML2_MODE_TRXIQ;
+        self->regs->reg_0x0023_lml2_rxntxiq = (direction==LMS_TX)?
+            REG_0X0023_LML2_RXNTXIQ_RXIQ:REG_0X0023_LML2_RXNTXIQ_TXIQ; //WARNING: TX/RX perspective swap
     }
 
     //automatic directions based on mode above
