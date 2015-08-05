@@ -46,6 +46,7 @@ void Set_NCO_Freq (LMS7002M_t *self, float Freq_MHz, float refClk_MHz, bool Rx)
 /***********************************************************************
  * spi access for cal algorithms
  **********************************************************************/
+/*
 void Modify_SPI_Reg_bits (LMS7002M_t *self, unsigned short SPI_reg_addr, unsigned char MSB_bit, unsigned char LSB_bit, unsigned short new_bits_data)
 {
     unsigned short mask, SPI_reg_data;
@@ -101,6 +102,7 @@ unsigned short Get_SPI_Reg_bits (LMS7002M_t *self, unsigned short SPI_reg_addr, 
 
     return bits;
 }
+*/
 
 /***********************************************************************
  * resistor calibration

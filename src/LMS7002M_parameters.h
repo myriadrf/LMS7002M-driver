@@ -10,6 +10,9 @@
 
 #include <stdint.h>
 
+///define for parameter enumeration if prefix might be needed
+#define LMS7param(id) (&(id))
+
 typedef struct
 {
     uint16_t address;
