@@ -2,7 +2,7 @@
  * This is a C port of function implementations from the lms7api C++ project.
  */
 
-#include "LMS7002M_lms7api.h"
+#include "LMS7002M_ported.h"
 #include <LMS7002M/LMS7002M_logger.h>
 
 #include <stdlib.h> //labs
