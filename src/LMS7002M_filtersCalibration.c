@@ -6,6 +6,11 @@
 
 #include <math.h> //pow
 
+///Reference clock used for Receiver frequency calculations
+extern float_type mRefClkSXR_MHz;
+///Reference clock used for Transmitter frequency calculations
+extern float_type mRefClkSXT_MHz;
+
 const float_type gLadder_lower_limit = 2;
 const float_type gLadder_higher_limit = 16;
 const float_type gRealpole_lower_limit = 0.8;
@@ -420,4 +425,427 @@ TxFilterLowBandChainEnd:
     Modify_SPI_Reg_bits(self, LMS7param(RCAL_LPFS5_TBB), rcal);
 
     return LIBLMS7_SUCCESS;
+}
+
+liblms7_status TuneRxFilter(LMS7002M_t *self, RxFilter filter, float_type bandwidth_MHz)
+{
+    liblms7_status status;
+    uint16_t cfb_tia_rfe;
+    uint16_t c_ctl_lpfl_rbb;
+    uint8_t ccomp_tia_rfe;
+    uint8_t rcomp_tia_rfe;
+    uint8_t c_ctl_lpfh_rbb;
+    uint8_t ict_pga_out;
+    uint8_t ict_pga_in;
+    uint8_t r_ctl_lpf_rbb;
+    uint8_t c_ctl_pga_rbb;
+    uint8_t rcc_ctl_lpfl_rbb;
+    uint8_t rcc_ctl_lpfh_rbb;
+    float_type lowerLimit;
+    float_type higherLimit;
+    if (filter == RX_TIA)
+    {
+        lowerLimit = Get_SPI_Reg_bits(self, LMS7param(G_TIA_RFE)) == 1 ? gRxTIA_lower_limit_g1 : gRxTIA_lower_limit_g23;
+        higherLimit = gRxTIA_higher_limit;
+    }
+    else if (filter == RX_LPF_LOWBAND)
+    {
+        lowerLimit = gRxLPF_low_lower_limit;
+        higherLimit = gRxLPF_low_higher_limit;
+    }
+    else if (filter == RX_LPF_HIGHBAND)
+    {
+        lowerLimit = gRxLPF_high_lower_limit;
+        higherLimit = gRxLPF_high_higher_limit;
+    }
+    if (bandwidth_MHz < lowerLimit || bandwidth_MHz > higherLimit)
+        return LIBLMS7_FREQUENCY_OUT_OF_RANGE;
+
+    BackupAllRegisters(self);
+
+    status = TuneRxFilterSetup(self, filter, bandwidth_MHz);
+    if (status != LIBLMS7_SUCCESS)
+        goto RxFilterTuneEnd;
+
+    if (filter == RX_TIA)
+        status = RFE_TIA_Calibration(self, bandwidth_MHz);
+    else if (filter == RX_LPF_LOWBAND)
+        status = RxLPFLow_Calibration(self, bandwidth_MHz);
+    else if (filter == RX_LPF_HIGHBAND)
+        status = RxLPFHigh_Calibration(self, bandwidth_MHz);
+
+    cfb_tia_rfe = Get_SPI_Reg_bits(self, LMS7param(CFB_TIA_RFE));
+    c_ctl_lpfl_rbb = Get_SPI_Reg_bits(self, LMS7param(C_CTL_LPFL_RBB));
+    ccomp_tia_rfe = (int8_t)Get_SPI_Reg_bits(self, LMS7param(CCOMP_TIA_RFE));
+    rcomp_tia_rfe = (int8_t)Get_SPI_Reg_bits(self, LMS7param(RCOMP_TIA_RFE));
+    c_ctl_lpfh_rbb = (int8_t)Get_SPI_Reg_bits(self, LMS7param(C_CTL_LPFH_RBB));
+    ict_pga_out = (int8_t)Get_SPI_Reg_bits(self, LMS7param(ICT_PGA_OUT_RBB));
+    ict_pga_in = (int8_t)Get_SPI_Reg_bits(self, LMS7param(ICT_PGA_IN_RBB));
+    r_ctl_lpf_rbb = (int8_t)Get_SPI_Reg_bits(self, LMS7param(R_CTL_LPF_RBB));
+    c_ctl_pga_rbb = (int8_t)Get_SPI_Reg_bits(self, LMS7param(C_CTL_PGA_RBB));
+    rcc_ctl_lpfl_rbb = (int8_t)Get_SPI_Reg_bits(self, LMS7param(RCC_CTL_LPFL_RBB));
+    rcc_ctl_lpfh_rbb = (int8_t)Get_SPI_Reg_bits(self, LMS7param(RCC_CTL_LPFH_RBB));
+
+RxFilterTuneEnd:
+    RestoreAllRegisters(self);
+    if (status != LIBLMS7_SUCCESS)
+        return status;
+
+    if (filter == RX_TIA)
+    {
+        Modify_SPI_Reg_bits(self, LMS7param(ICT_TIAMAIN_RFE), 2);
+        Modify_SPI_Reg_bits(self, LMS7param(ICT_TIAOUT_RFE), 2);
+        Modify_SPI_Reg_bits(self, LMS7param(RFB_TIA_RFE), 16);
+        Modify_SPI_Reg_bits(self, LMS7param(CFB_TIA_RFE), cfb_tia_rfe);
+        Modify_SPI_Reg_bits(self, LMS7param(CCOMP_TIA_RFE), ccomp_tia_rfe);
+        Modify_SPI_Reg_bits(self, LMS7param(RCOMP_TIA_RFE), rcomp_tia_rfe);
+    }
+    else if (filter == RX_LPF_LOWBAND)
+    {
+        Modify_SPI_Reg_bits(self, LMS7param(RCC_CTL_LPFL_RBB), rcc_ctl_lpfl_rbb);
+        Modify_SPI_Reg_bits(self, LMS7param(C_CTL_LPFL_RBB), c_ctl_lpfl_rbb);
+        Modify_SPI_Reg_bits(self, LMS7param(ICT_PGA_OUT_RBB), ict_pga_out);
+        Modify_SPI_Reg_bits(self, LMS7param(ICT_PGA_IN_RBB), ict_pga_in);
+        Modify_SPI_Reg_bits(self, LMS7param(R_CTL_LPF_RBB), r_ctl_lpf_rbb);
+        Modify_SPI_Reg_bits(self, LMS7param(C_CTL_PGA_RBB), c_ctl_pga_rbb);
+    }
+    else if (filter == RX_LPF_HIGHBAND)
+    {
+        Modify_SPI_Reg_bits(self, LMS7param(RCC_CTL_LPFH_RBB), rcc_ctl_lpfh_rbb);
+        Modify_SPI_Reg_bits(self, LMS7param(C_CTL_LPFH_RBB), c_ctl_lpfh_rbb);
+        Modify_SPI_Reg_bits(self, LMS7param(ICT_PGA_OUT_RBB), ict_pga_out);
+        Modify_SPI_Reg_bits(self, LMS7param(ICT_PGA_IN_RBB), ict_pga_in);
+        Modify_SPI_Reg_bits(self, LMS7param(R_CTL_LPF_RBB), r_ctl_lpf_rbb);
+        Modify_SPI_Reg_bits(self, LMS7param(C_CTL_PGA_RBB), c_ctl_pga_rbb);
+    }
+    return LIBLMS7_SUCCESS;
+}
+
+liblms7_status TuneRxFilterSetup(LMS7002M_t *self, RxFilter type, float_type cutoff_MHz)
+{
+    liblms7_status status;
+    uint8_t ch = (uint8_t)Get_SPI_Reg_bits(self, LMS7param(MAC));
+
+    //RFE
+    uint8_t g_tia_rfe = (uint8_t)Get_SPI_Reg_bits(self, LMS7param(G_TIA_RFE));
+    SetDefaults(self, RFE);
+    Modify_SPI_Reg_bits(self, LMS7param(SEL_PATH_RFE), 2);
+
+    if (ch == 2)
+        Modify_SPI_Reg_bits(self, LMS7param(EN_NEXTRX_RFE), 1);
+    else
+        Modify_SPI_Reg_bits(self, LMS7param(EN_NEXTRX_RFE), 0);
+
+    Modify_SPI_Reg_bits(self, LMS7param(G_RXLOOPB_RFE), 8);
+    Modify_SPI_Reg_bits(self, LMS7param(PD_RLOOPB_2_RFE), 0);
+    Modify_SPI_Reg_bits(self, LMS7param(EN_INSHSW_LB2_RFE), 0);
+    Modify_SPI_Reg_bits(self, LMS7param(PD_MXLOBUF_RFE), 0);
+    Modify_SPI_Reg_bits(self, LMS7param(PD_QGEN_RFE), 0);
+    Modify_SPI_Reg_bits(self, LMS7param(ICT_TIAMAIN_RFE), 2);
+    Modify_SPI_Reg_bits(self, LMS7param(ICT_TIAOUT_RFE), 2);
+    Modify_SPI_Reg_bits(self, LMS7param(RFB_TIA_RFE), 16);
+    Modify_SPI_Reg_bits(self, LMS7param(G_TIA_RFE), g_tia_rfe);
+
+    //RBB
+    SetDefaults(self, RBB);
+    Modify_SPI_Reg_bits(self, LMS7param(ICT_PGA_OUT_RBB), 20);
+    Modify_SPI_Reg_bits(self, LMS7param(ICT_PGA_IN_RBB), 20);
+    Modify_SPI_Reg_bits(self, LMS7param(C_CTL_PGA_RBB), 3);
+
+    //TRF
+    SetDefaults(self, TRF);
+    Modify_SPI_Reg_bits(self, LMS7param(L_LOOPB_TXPAD_TRF), 0);
+    Modify_SPI_Reg_bits(self, LMS7param(EN_LOOPB_TXPAD_TRF), 1);
+    if (ch == 2)
+        Modify_SPI_Reg_bits(self, LMS7param(EN_NEXTTX_TRF), 1);
+    else
+        Modify_SPI_Reg_bits(self, LMS7param(EN_NEXTTX_TRF), 0);
+    Modify_SPI_Reg_bits(self, LMS7param(SEL_BAND1_TRF), 0);
+    Modify_SPI_Reg_bits(self, LMS7param(SEL_BAND2_TRF), 1);
+
+    //TBB
+    SetDefaults(self, TBB);
+    Modify_SPI_Reg_bits(self, LMS7param(CG_IAMP_TBB), 1);
+    Modify_SPI_Reg_bits(self, LMS7param(ICT_IAMP_FRP_TBB), 1);
+    Modify_SPI_Reg_bits(self, LMS7param(ICT_IAMP_GG_FRP_TBB), 6);
+
+    //AFE
+    SetDefaults(self, AFE);
+    if (ch == 2)
+    {
+        Modify_SPI_Reg_bits(self, LMS7param(PD_TX_AFE2), 0);
+        Modify_SPI_Reg_bits(self, LMS7param(PD_RX_AFE2), 0);
+    }
+    //BIAS
+    uint8_t rp_calib_bias = (uint8_t)Get_SPI_Reg_bits(self, LMS7param(RP_CALIB_BIAS));
+    SetDefaults(self, BIAS);
+    Modify_SPI_Reg_bits(self, LMS7param(RP_CALIB_BIAS), rp_calib_bias);
+
+    //XBUF
+    Modify_SPI_Reg_bits(self, LMS7param(PD_XBUF_RX), 0);
+    Modify_SPI_Reg_bits(self, LMS7param(PD_XBUF_TX), 0);
+    Modify_SPI_Reg_bits(self, LMS7param(EN_G_TRF), 1);
+
+    //CLKGEN
+    SetDefaults(self, CGEN);
+
+    //SXR
+    Modify_SPI_Reg_bits(self, LMS7param(MAC), 1);
+    SetDefaults(self, SX);
+    status = SetFrequencySX(self, Rx, 499.95, mRefClkSXR_MHz);
+    if (status != LIBLMS7_SUCCESS)
+        return status;
+    Modify_SPI_Reg_bits(self, LMS7param(PD_VCO), 0);
+
+    //SXT
+    Modify_SPI_Reg_bits(self, LMS7param(MAC), 2);
+    SetDefaults(self, SX);
+    status = SetFrequencySX(self, Tx, 500, mRefClkSXT_MHz);
+    if (status != LIBLMS7_SUCCESS)
+        return status;
+    Modify_SPI_Reg_bits(self, LMS7param(PD_VCO), 0);
+
+    Modify_SPI_Reg_bits(self, LMS7param(MAC), ch);
+    //TxTSP
+    SetDefaults(self, TxTSP);
+    Modify_SPI_Reg_bits(self, LMS7param(TSGMODE_TXTSP), 1);
+    Modify_SPI_Reg_bits(self, LMS7param(INSEL_TXTSP), 1);
+    Modify_SPI_Reg_bits_(self, 0x0208, 8, 8, 1);
+    Modify_SPI_Reg_bits_(self, 0x0208, 6, 4, 0x7);
+    LoadDC_REG_IQ(self, Tx, (int16_t)0x7FFF, (int16_t)0x8000);
+    SetNCOFrequency(self, Tx, 0, 0);
+
+    //RxTSP
+    SetDefaults(self, RxTSP);
+    Modify_SPI_Reg_bits(self, LMS7param(AGC_MODE_RXTSP), 1);
+    Modify_SPI_Reg_bits_(self, 0x040C, 5, 3, 0x7);
+    Modify_SPI_Reg_bits(self, LMS7param(AGC_AVG_RXTSP), 7);
+    Modify_SPI_Reg_bits(self, LMS7param(CMIX_GAIN_RXTSP), 1);
+
+    float_type sxtfreq = GetFrequencySX_MHz(self, Tx, mRefClkSXT_MHz);
+    float_type sxrfreq = GetFrequencySX_MHz(self, Rx, mRefClkSXR_MHz);
+    SetNCOFrequency(self, Rx, 0, sxtfreq - sxrfreq - 1);
+    return LIBLMS7_SUCCESS;
+}
+
+liblms7_status RFE_TIA_Calibration(LMS7002M_t *self, float_type TIA_freq_MHz)
+{
+    liblms7_status status;
+    bool prevRSSIbigger;
+    uint8_t ccomp_tia_rfe_value;
+    int16_t rcomp_tia_rfe;
+    float_type cgenFreq = TIA_freq_MHz * 20;
+    uint32_t rssi;
+    uint32_t rssi_value_50k;
+    //RFE
+    uint8_t g_tia_rfe = (uint8_t)Get_SPI_Reg_bits(self, LMS7param(G_TIA_RFE));
+    int16_t cfb_tia_rfe_value;
+    if (g_tia_rfe == 1)
+        cfb_tia_rfe_value = (uint16_t)(5400 / TIA_freq_MHz - 15);
+    else if (g_tia_rfe > 1)
+        cfb_tia_rfe_value = (uint16_t)(1680 / TIA_freq_MHz - 10);
+    else
+        return LIBLMS7_FAILURE;
+    Modify_SPI_Reg_bits(self, LMS7param(CFB_TIA_RFE), cfb_tia_rfe_value);
+
+    if (g_tia_rfe == 1)
+        ccomp_tia_rfe_value = (uint8_t)(cfb_tia_rfe_value / 100 + 1);
+    else if (g_tia_rfe > 1)
+        ccomp_tia_rfe_value = (uint8_t)(cfb_tia_rfe_value / 100);
+    else
+        return LIBLMS7_FAILURE;
+    if (ccomp_tia_rfe_value > 15)
+        ccomp_tia_rfe_value = 15;
+
+    Modify_SPI_Reg_bits(self, LMS7param(CCOMP_TIA_RFE), ccomp_tia_rfe_value);
+
+    rcomp_tia_rfe = (int16_t)(15 - cfb_tia_rfe_value * 2 / 100);
+    if (rcomp_tia_rfe < 0)
+        rcomp_tia_rfe = 0;
+    Modify_SPI_Reg_bits(self, LMS7param(RCOMP_TIA_RFE), rcomp_tia_rfe);
+
+    //RBB
+    Modify_SPI_Reg_bits(self, LMS7param(INPUT_CTL_PGA_RBB), 2);
+    Modify_SPI_Reg_bits(self, LMS7param(PD_LPFL_RBB), 1);
+
+    //CLKGEN
+    if (cgenFreq < 60)
+        cgenFreq = 60;
+    if (cgenFreq > 640)
+        cgenFreq = 640;
+
+    if (cgenFreq / 16 == TIA_freq_MHz)
+        status = SetFrequencyCGEN(self, cgenFreq - 10);
+    else
+        status = SetFrequencyCGEN(self, cgenFreq);
+    if (status != LIBLMS7_SUCCESS)
+        return status;
+
+    FilterTuning_AdjustGains(self);
+
+    rssi_value_50k = (uint32_t)( GetRSSI(self) * 0.707 );
+    status = SetFrequencySX(self, Rx, GetFrequencySX_MHz(self, Tx, mRefClkSXT_MHz) - TIA_freq_MHz, mRefClkSXR_MHz);
+    if (status != LIBLMS7_SUCCESS)
+        return status;
+    SetNCOFrequency(self, Rx, 0, GetFrequencySX_MHz(self, Tx, mRefClkSXT_MHz) - GetFrequencySX_MHz(self, Rx, mRefClkSXR_MHz) - 1);
+
+    prevRSSIbigger = GetRSSI(self) > rssi_value_50k;
+    while (cfb_tia_rfe_value >= 0 && cfb_tia_rfe_value < 4096)
+    {
+        Modify_SPI_Reg_bits(self, LMS7param(CFB_TIA_RFE), cfb_tia_rfe_value);
+        rssi = GetRSSI(self);
+        if (rssi > rssi_value_50k)
+            ++cfb_tia_rfe_value;
+        else
+        {
+            --cfb_tia_rfe_value;
+            if (prevRSSIbigger)
+                return LIBLMS7_SUCCESS; //found correct value
+        }
+        prevRSSIbigger = rssi > rssi_value_50k;
+    }
+    return LIBLMS7_FAILURE;
+}
+
+liblms7_status RxLPFLow_Calibration(LMS7002M_t *self, float_type RxLPFL_freq_MHz)
+{
+    liblms7_status status;
+    uint32_t rssi;
+    uint32_t rssi_value_50k;
+    int32_t c_ctl_lpfl_rbb;
+    bool prevRSSIbigger;
+    float_type cgenFreq_MHz = RxLPFL_freq_MHz * 20;
+    //RFE
+    Modify_SPI_Reg_bits(self, LMS7param(CFB_TIA_RFE), 15);
+    Modify_SPI_Reg_bits(self, LMS7param(CCOMP_TIA_RFE), 1);
+    Modify_SPI_Reg_bits(self, LMS7param(RCOMP_TIA_RFE), 15);
+    Modify_SPI_Reg_bits(self, LMS7param(G_TIA_RFE), 1);
+
+    //RBB
+    c_ctl_lpfl_rbb = (int32_t)(2160 / RxLPFL_freq_MHz - 103);
+    if (c_ctl_lpfl_rbb < 0)
+        c_ctl_lpfl_rbb = 0;
+    if (c_ctl_lpfl_rbb > 2047)
+        c_ctl_lpfl_rbb = 2047;
+    Modify_SPI_Reg_bits(self, LMS7param(C_CTL_LPFL_RBB), c_ctl_lpfl_rbb);
+
+    if (RxLPFL_freq_MHz >= 15)
+        Modify_SPI_Reg_bits(self, LMS7param(RCC_CTL_LPFL_RBB), 5);
+    else if (RxLPFL_freq_MHz >= 10)
+        Modify_SPI_Reg_bits(self, LMS7param(RCC_CTL_LPFL_RBB), 4);
+    else if (RxLPFL_freq_MHz >= 5)
+        Modify_SPI_Reg_bits(self, LMS7param(RCC_CTL_LPFL_RBB), 3);
+    else if (RxLPFL_freq_MHz >= 3)
+        Modify_SPI_Reg_bits(self, LMS7param(RCC_CTL_LPFL_RBB), 2);
+    else if (RxLPFL_freq_MHz >= 1.4)
+        Modify_SPI_Reg_bits(self, LMS7param(RCC_CTL_LPFL_RBB), 1);
+    else
+        Modify_SPI_Reg_bits(self, LMS7param(RCC_CTL_LPFL_RBB), 0);
+
+    //CLKGEN
+    if (cgenFreq_MHz < 60)
+        cgenFreq_MHz = 60;
+    if (cgenFreq_MHz > 640)
+        cgenFreq_MHz = 640;
+    if (cgenFreq_MHz / 16 == RxLPFL_freq_MHz)
+        status = SetFrequencyCGEN(self, cgenFreq_MHz - 10);
+    else
+        status = SetFrequencyCGEN(self, cgenFreq_MHz);
+    if (status != LIBLMS7_SUCCESS)
+        return status;
+
+    FilterTuning_AdjustGains(self);
+
+    rssi_value_50k = (uint32_t)( GetRSSI(self) * 0.707 );
+    status = SetFrequencySX(self, Rx, GetFrequencySX_MHz(self, Tx, mRefClkSXT_MHz) - RxLPFL_freq_MHz, mRefClkSXR_MHz);
+    if (status != LIBLMS7_SUCCESS)
+        return status;
+    SetNCOFrequency(self, Rx, 0, GetFrequencySX_MHz(self, Tx, mRefClkSXT_MHz) - GetFrequencySX_MHz(self, Rx, mRefClkSXR_MHz) - 1);
+
+    prevRSSIbigger = GetRSSI(self) > rssi_value_50k;
+    while (c_ctl_lpfl_rbb >= 0 && c_ctl_lpfl_rbb < 2048)
+    {
+        Modify_SPI_Reg_bits(self, LMS7param(C_CTL_LPFL_RBB), c_ctl_lpfl_rbb);
+        rssi = GetRSSI(self);
+        if (rssi > rssi_value_50k)
+            ++c_ctl_lpfl_rbb;
+        else
+        {
+            --c_ctl_lpfl_rbb;
+            if (prevRSSIbigger)
+                return LIBLMS7_SUCCESS; //found correct value
+        }
+        prevRSSIbigger = rssi > rssi_value_50k;
+    }
+    return LIBLMS7_FAILURE;
+}
+
+liblms7_status RxLPFHigh_Calibration(LMS7002M_t *self, float_type RxLPFH_freq_MHz)
+{
+    liblms7_status status;
+    int16_t c_ctl_lpfh_rbb;
+    int16_t rcc_ctl_lpfh_rbb;
+    float_type cgenFreq = RxLPFH_freq_MHz * 20;
+    uint32_t rssi;
+    uint32_t rssi_value_50k;
+    bool prevRSSIbigger;
+    //RFE
+    Modify_SPI_Reg_bits(self, LMS7param(CFB_TIA_RFE), 15);
+    Modify_SPI_Reg_bits(self, LMS7param(CCOMP_TIA_RFE), 1);
+    Modify_SPI_Reg_bits(self, LMS7param(RCOMP_TIA_RFE), 15);
+    Modify_SPI_Reg_bits(self, LMS7param(G_TIA_RFE), 1);
+
+    //RBB
+    c_ctl_lpfh_rbb = (int16_t)(6000 / RxLPFH_freq_MHz - 50);
+    if (c_ctl_lpfh_rbb < 0)
+        c_ctl_lpfh_rbb = 0;
+    if (c_ctl_lpfh_rbb > 255)
+        c_ctl_lpfh_rbb = 255;
+    Modify_SPI_Reg_bits(self, LMS7param(C_CTL_LPFH_RBB), c_ctl_lpfh_rbb);
+
+    rcc_ctl_lpfh_rbb = (int16_t)(RxLPFH_freq_MHz / 10 - 3);
+    if (rcc_ctl_lpfh_rbb < 0)
+        rcc_ctl_lpfh_rbb = 0;
+    Modify_SPI_Reg_bits(self, LMS7param(RCC_CTL_LPFH_RBB), rcc_ctl_lpfh_rbb);
+
+    Modify_SPI_Reg_bits(self, LMS7param(INPUT_CTL_PGA_RBB), 1);
+    Modify_SPI_Reg_bits(self, LMS7param(PD_LPFL_RBB), 1);
+    Modify_SPI_Reg_bits(self, LMS7param(PD_LPFH_RBB), 0);
+
+    //CLKGEN
+    if (cgenFreq < 60)
+        cgenFreq = 60;
+    if (cgenFreq > 640)
+        cgenFreq = 640;
+    if (cgenFreq / 16 == RxLPFH_freq_MHz)
+        status = SetFrequencyCGEN(self, cgenFreq - 10);
+    else
+        status = SetFrequencyCGEN(self, cgenFreq);
+    if (status != LIBLMS7_SUCCESS)
+        return status;
+
+    FilterTuning_AdjustGains(self);
+
+    rssi_value_50k = (uint32_t)( GetRSSI(self) * 0.707);
+    status = SetFrequencySX(self, Rx, GetFrequencySX_MHz(self, Tx, mRefClkSXT_MHz) - RxLPFH_freq_MHz, mRefClkSXR_MHz);
+    if (status != LIBLMS7_SUCCESS)
+        return status;
+    SetNCOFrequency(self, Rx, 0, GetFrequencySX_MHz(self, Tx, mRefClkSXT_MHz) - GetFrequencySX_MHz(self, Rx, mRefClkSXR_MHz) - 1);
+
+    prevRSSIbigger = GetRSSI(self) > rssi_value_50k;
+    while (c_ctl_lpfh_rbb >= 0 && c_ctl_lpfh_rbb < 256)
+    {
+        Modify_SPI_Reg_bits(self, LMS7param(C_CTL_LPFH_RBB), c_ctl_lpfh_rbb);
+        rssi = GetRSSI(self);
+        if (rssi > rssi_value_50k)
+            ++c_ctl_lpfh_rbb;
+        else
+        {
+            --c_ctl_lpfh_rbb;
+            if (prevRSSIbigger)
+                return LIBLMS7_SUCCESS; //found correct value
+        }
+        prevRSSIbigger = rssi > rssi_value_50k;
+    }
+    return LIBLMS7_FAILURE;
 }
