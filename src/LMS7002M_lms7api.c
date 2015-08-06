@@ -5,7 +5,7 @@
 #include "LMS7002M_lms7api.h"
 #include <LMS7002M/LMS7002M_logger.h>
 
-#include <math.h> //abs
+#include <stdlib.h> //labs
 
 #define VECTOR_MAX 1024
 
@@ -535,6 +535,146 @@ liblms7_status SPI_read_batch(LMS7002M_t *self, const uint16_t* spiAddr, uint16_
     return LIBLMS7_SUCCESS;
 }
 
+/** @brief Parameters setup instructions for Tx calibration
+    @return 0-success, other-failure
+*/
+liblms7_status CalibrateTxSetup(LMS7002M_t *self, float_type bandwidth_MHz)
+{
+    //Stage 2
+    uint8_t ch = (uint8_t)Get_SPI_Reg_bits(self, LMS7param(MAC));
+    uint8_t sel_band1_trf = (uint8_t)Get_SPI_Reg_bits(self, LMS7param(SEL_BAND1_TRF));
+    uint8_t sel_band2_trf = (uint8_t)Get_SPI_Reg_bits(self, LMS7param(SEL_BAND2_TRF));
+
+    //rfe
+    //reset RFE to defaults
+    SetDefaults(self, RFE);
+    if (sel_band1_trf == 1)
+        Modify_SPI_Reg_bits(self, LMS7param(SEL_PATH_RFE), 3); //SEL_PATH_RFE 3
+    else if (sel_band2_trf == 1)
+        Modify_SPI_Reg_bits(self, LMS7param(SEL_PATH_RFE), 2);
+    else
+        return LIBLMS7_FAILURE;
+
+    if (ch == 2)
+        Modify_SPI_Reg_bits(self, LMS7param(EN_NEXTRX_RFE), 1); // EN_NEXTTX_RFE 1
+
+    Modify_SPI_Reg_bits(self, LMS7param(G_RXLOOPB_RFE), 8); //G_RXLOOPB_RFE 8
+    Modify_SPI_Reg_bits_(self, 0x010C, 4, 3, 0); //PD_MXLOBUF_RFE 0, PD_QGEN_RFE 0
+    Modify_SPI_Reg_bits(self, LMS7param(CCOMP_TIA_RFE), 10); //CCOMP_TIA_RFE 10
+    Modify_SPI_Reg_bits(self, LMS7param(CFB_TIA_RFE), 2600); //CFB_TIA_RFE 2600
+    Modify_SPI_Reg_bits(self, LMS7param(ICT_LODC_RFE), 31); //ICT_LODC_RFE 31
+    Modify_SPI_Reg_bits(self, LMS7param(PD_LNA_RFE), 1);
+
+    //RBB
+    //reset RBB to defaults
+    SetDefaults(self, RBB);
+    Modify_SPI_Reg_bits(self, LMS7param(PD_LPFL_RBB), 0); //PD_LPFL_RBB 0
+    Modify_SPI_Reg_bits(self, LMS7param(RCC_CTL_LPFL_RBB), 0); //RCC_CTL_LPFL_RBB 0
+    Modify_SPI_Reg_bits(self, LMS7param(C_CTL_LPFL_RBB), 1500); //C_CTL_LPFL_RBB 1500
+    Modify_SPI_Reg_bits(self, LMS7param(G_PGA_RBB), 22); //G_PGA_RBB 22
+
+    //TRF
+    //reset TRF to defaults
+    //SetDefaults(TRF);
+    Modify_SPI_Reg_bits(self, LMS7param(L_LOOPB_TXPAD_TRF), 0); //L_LOOPB_TXPAD_TRF 0
+    Modify_SPI_Reg_bits(self, LMS7param(EN_LOOPB_TXPAD_TRF), 1); //EN_LOOPB_TXPAD_TRF 1
+    Modify_SPI_Reg_bits(self, LMS7param(EN_G_TRF), 0); //EN_G_TRF 0
+    if (ch == 2)
+        Modify_SPI_Reg_bits(self, LMS7param(EN_NEXTTX_TRF), 1); //EN_NEXTTX_TRF 1
+    Modify_SPI_Reg_bits(self, LMS7param(LOSS_LIN_TXPAD_TRF), 0); //LOSS_LIN_TXPAD_TRF 5
+    Modify_SPI_Reg_bits(self, LMS7param(LOSS_MAIN_TXPAD_TRF), 0); //LOSS_MAIN_TXPAD_TRF 5
+
+    //TBB
+    //reset TBB to defaults
+    /*SetDefaults(TBB);
+    Modify_SPI_Reg_bits(LMS7param(CG_IAMP_TBB), 9); //CG_IAMP_TBB 9
+    Modify_SPI_Reg_bits(LMS7param(ICT_IAMP_FRP_TBB), 1); //ICT_IAMP_FRP_TBB 1
+    Modify_SPI_Reg_bits(LMS7param(ICT_IAMP_GG_FRP_TBB), 6); //ICT_IAMP_GG_FRP_TBB 6
+    Modify_SPI_Reg_bits(LMS7param(RCAL_LPFH_TBB), 125); //RCAL_LPFH_TBB 0
+    */
+    //AFE
+    //reset AFE to defaults
+    uint8_t isel_dac_afe =(uint8_t) Get_SPI_Reg_bits(self, LMS7param(ISEL_DAC_AFE));
+    SetDefaults(self, AFE);
+    Modify_SPI_Reg_bits(self, LMS7param(PD_RX_AFE2), 0); //PD_RX_AFE2 0
+    Modify_SPI_Reg_bits(self, LMS7param(ISEL_DAC_AFE), isel_dac_afe);
+
+    if (ch == 2)
+        Modify_SPI_Reg_bits(self, LMS7param(PD_TX_AFE2), 0);
+    //BIAS
+    uint16_t backup = Get_SPI_Reg_bits(self, LMS7param(RP_CALIB_BIAS));
+    SetDefaults(self, BIAS);
+    Modify_SPI_Reg_bits(self, LMS7param(RP_CALIB_BIAS), backup); //RP_CALIB_BIAS
+
+    //XBUF
+    Modify_SPI_Reg_bits_(self, 0x0085, 2, 0, 1); //PD_XBUF_RX 0, PD_XBUF_TX 0, EN_G_XBUF 1
+
+    //CGEN
+    //reset CGEN to defaults
+    SetDefaults(self, CGEN);
+    //power up VCO
+    Modify_SPI_Reg_bits(self, LMS7param(PD_VCO_CGEN), 0);
+
+    if (SetFrequencyCGEN(self, 122.88) != LIBLMS7_SUCCESS)
+        return LIBLMS7_FAILURE;
+    if (TuneVCO(self, VCO_CGEN) != LIBLMS7_SUCCESS)
+        return LIBLMS7_FAILURE;
+
+    //SXR
+    Modify_SPI_Reg_bits(self, LMS7param(MAC), 1);
+    SetDefaults(self, SX);
+    float_type SXTfreqMHz = GetFrequencySX_MHz(self, Tx, mRefClkSXT_MHz);
+
+    float_type SXRfreqMHz = SXTfreqMHz - bandwidth_MHz / 4 - 1;
+    if (SetFrequencySX(self, Rx, SXRfreqMHz, mRefClkSXR_MHz) != LIBLMS7_SUCCESS)
+        return LIBLMS7_FAILURE;
+    if (TuneVCO(self, VCO_SXR) != LIBLMS7_SUCCESS)
+        return LIBLMS7_FAILURE;
+
+    //SXT
+    Modify_SPI_Reg_bits(self, LMS7param(MAC), 2);
+    Modify_SPI_Reg_bits(self, LMS7param(PD_LOCH_T2RBUF), 1); //PD_LOCH_T2RBUF 1
+    if (SetFrequencySX(self, Tx, SXTfreqMHz, mRefClkSXT_MHz) != LIBLMS7_SUCCESS)
+        return LIBLMS7_FAILURE;
+    if (TuneVCO(self, VCO_SXT) != LIBLMS7_SUCCESS)
+        return LIBLMS7_FAILURE;
+    Modify_SPI_Reg_bits(self, LMS7param(MAC), ch);
+
+    //TXTSP
+    SetDefaults(self, TxTSP);
+    Modify_SPI_Reg_bits_(self, 0x0200, 3, 2, 0x3); //TSGMODE 1, INSEL 1
+    Modify_SPI_Reg_bits_(self, 0x0208, 6, 4, 0x7); //GFIR3_BYP 1, GFIR2_BYP 1, GFIR1_BYP 1
+    LoadDC_REG_IQ(self, Tx, (int16_t)0x7FFF, (int16_t)0x8000);
+    Modify_SPI_Reg_bits(self, LMS7param(MAC), ch);
+    Modify_SPI_Reg_bits_(self, 0x0440, 4, 0, 0); //TX SEL[3:0] = 0 & MODE = 0
+
+    float_type offset = 0.2;
+    if (bandwidth_MHz == 8)
+    {
+        //SXR
+        Modify_SPI_Reg_bits(self, LMS7param(MAC), 1);
+        SetDefaults(self, SX);
+        float_type SXTfreqMHz = GetFrequencySX_MHz(self, Tx, mRefClkSXT_MHz);
+
+        float_type sxrFreq = SXTfreqMHz - bandwidth_MHz / 4 - 1 - offset;
+        if (SetFrequencySX(self, Rx, sxrFreq, mRefClkSXR_MHz) != LIBLMS7_SUCCESS)
+            return LIBLMS7_FAILURE;
+        SetNCOFrequency(self, Tx, 0, bandwidth_MHz / 4 + offset);
+    }
+    else
+        SetNCOFrequency(self, Tx, 0, bandwidth_MHz / 4);
+
+    //RXTSP
+    SetDefaults(self, RxTSP);
+    Modify_SPI_Reg_bits(self, LMS7param(AGC_MODE_RXTSP), 1); //AGC_MODE 1
+    Modify_SPI_Reg_bits_(self, 0x040C, 7, 0, 0xBF);
+    Modify_SPI_Reg_bits(self, LMS7param(CAPSEL), 0);
+    Modify_SPI_Reg_bits(self, LMS7param(HBD_OVR_RXTSP), 0); //Decimation HBD ratio
+    Modify_SPI_Reg_bits(self, LMS7param(AGC_AVG_RXTSP), 0x7); //agc_avg iq corr
+
+    return LIBLMS7_SUCCESS;
+}
+
 /** @brief Flips the CAPTURE bit and returns digital RSSI value
 */
 uint32_t GetRSSI(LMS7002M_t *self)
@@ -551,12 +691,272 @@ void SetRxDCOFF(LMS7002M_t *self, int8_t offsetI, int8_t offsetQ)
     uint16_t valToSend = 0;
     if (offsetI < 0)
         valToSend |= 0x40;
-    valToSend |= abs(offsetI);
+    valToSend |= labs(offsetI);
     valToSend = valToSend << 7;
     if (offsetQ < 0)
         valToSend |= 0x40;
-    valToSend |= abs(offsetQ);
+    valToSend |= labs(offsetQ);
     SPI_write(self, 0x010E, valToSend);
+}
+
+/** @brief Calibrates Transmitter. DC correction, IQ gains, IQ phase correction
+    @return 0-success, other-failure
+*/
+liblms7_status CalibrateTx(LMS7002M_t *self, float_type bandwidth_MHz)
+{
+    liblms7_status status;
+    LMS7_log(LMS7_INFO, "Tx calibration started");
+    BackupAllRegisters(self);
+
+    int16_t iqcorr = 0;
+    uint16_t gcorrq = 0;
+    uint16_t gcorri = 0;
+    uint16_t dccorri;
+    uint16_t dccorrq;
+    int16_t corrI = 0;
+    int16_t corrQ = 0;
+    uint32_t minRSSI_i;
+    uint32_t minRSSI_q;
+    uint32_t minRSSI_iq;
+    int16_t i;
+    int16_t offsetI = 0;
+    int16_t offsetQ = 0;
+
+    const short firCoefs[] =
+    {
+        -2531,
+        -517,
+        2708,
+        188,
+        -3059,
+        216,
+        3569,
+        -770,
+        -4199,
+        1541,
+        4886,
+        -2577,
+        -5552,
+        3909,
+        6108,
+        -5537,
+        -6457,
+        7440,
+        6507,
+        -9566,
+        -6174,
+        11845,
+        5391,
+        -14179,
+        -4110,
+        16457,
+        2310,
+        -18561,
+        0,
+        20369,
+        -2780,
+        -21752,
+        5963,
+        22610,
+        -9456,
+        -22859,
+        13127,
+        22444,
+        -16854,
+        -21319,
+        20489,
+        19492,
+        -23883,
+        -17002,
+        26881,
+        13902,
+        -29372,
+        -10313,
+        31226,
+        6345,
+        -32380,
+        -2141,
+        32767,
+        -2141,
+        -32380,
+        6345,
+        31226,
+        -10313,
+        -29372,
+        13902,
+        26881,
+        -17002,
+        -23883,
+        19492,
+        20489,
+        -21319,
+        -16854,
+        22444,
+        13127,
+        -22859,
+        -9456,
+        22610,
+        5963,
+        -21752,
+        -2780,
+        20369,
+        0,
+        -18561,
+        2310,
+        16457,
+        -4110,
+        -14179,
+        5391,
+        11845,
+        -6174,
+        -9566,
+        6507,
+        7440,
+        -6457,
+        -5537,
+        6108,
+        3909,
+        -5552,
+        -2577,
+        4886,
+        1541,
+        -4199,
+        -770,
+        3569,
+        216,
+        -3059,
+        188,
+        2708,
+        -517,
+        -2531
+    };
+
+    uint8_t ch = (uint8_t)Get_SPI_Reg_bits(self, LMS7param(MAC));
+    //Stage 1
+    uint8_t sel_band1_trf = (uint8_t)Get_SPI_Reg_bits(self, LMS7param(SEL_BAND1_TRF));
+    uint8_t sel_band2_trf = (uint8_t)Get_SPI_Reg_bits(self, LMS7param(SEL_BAND2_TRF));
+    LMS7_log(LMS7_INFO, "Setup stage");
+    status = CalibrateTxSetup(self, bandwidth_MHz);
+    if (status != LIBLMS7_SUCCESS)
+        goto TxCalibrationEnd; //go to ending stage to restore registers
+
+    //Stage 3
+    //Calibrate Rx DC
+    LMS7_log(LMS7_INFO, "Rx DC calibration");
+    {
+        uint16_t requiredRegs[] = { 0x0400, 0x040A, 0x010D, 0x040C };
+        uint16_t requiredMask[] = { 0x6000, 0x3007, 0x0040, 0x00FF }; //CAPSEL, AGC_MODE, AGC_AVG, EN_DCOFF, Bypasses
+        uint16_t requiredValue[] = { 0x0000, 0x1007, 0x0040, 0x00BD };
+
+        Modify_SPI_Reg_mask(self, requiredRegs, requiredMask, requiredValue, 0, 3);
+    }
+    for (i = 0; i<6; ++i)
+    {
+        FindMinRSSI(self, LMS7param(DCOFFI_RFE), offsetI, &offsetI, 3, 2, 32 >> i);
+        FindMinRSSI(self, LMS7param(DCOFFQ_RFE), offsetQ, &offsetQ, 3, 2, 32 >> i);
+    }
+    SetRxDCOFF(self, (int8_t)offsetI, (int8_t)offsetQ);
+    Modify_SPI_Reg_bits(self, LMS7param(DC_BYP_RXTSP), 0); // DC_BYP 0
+
+    sel_band1_trf = (uint8_t)Get_SPI_Reg_bits(self, LMS7param(SEL_BAND1_TRF));
+    sel_band2_trf = (uint8_t)Get_SPI_Reg_bits(self, LMS7param(SEL_BAND2_TRF));
+    //B
+    Modify_SPI_Reg_bits_(self, 0x0100, 0, 0, 1); //EN_G_TRF 1
+    if (sel_band1_trf == 1)
+    {
+        Modify_SPI_Reg_bits(self, LMS7param(PD_RLOOPB_1_RFE), 0); //PD_RLOOPB_1_RFE 0
+        Modify_SPI_Reg_bits(self, LMS7param(EN_INSHSW_LB1_RFE), 0); //EN_INSHSW_LB1 0
+    }
+    if (sel_band2_trf == 1)
+    {
+        Modify_SPI_Reg_bits(self, LMS7param(PD_RLOOPB_2_RFE), 0); //PD_RLOOPB_2_RFE 0
+        Modify_SPI_Reg_bits(self, LMS7param(EN_INSHSW_LB2_RFE), 0); // EN_INSHSW_LB2 0
+    }
+    FixRXSaturation(self);
+
+    Modify_SPI_Reg_bits(self, LMS7param(GFIR3_BYP_RXTSP), 0); //GFIR3_BYP 0
+    Modify_SPI_Reg_bits(self, LMS7param(HBD_OVR_RXTSP), 2);
+    Modify_SPI_Reg_bits(self, LMS7param(GFIR3_L_RXTSP), 7);
+    Modify_SPI_Reg_bits(self, LMS7param(GFIR3_N_RXTSP), 7);
+
+    SetGFIRCoefficients(self, Rx, 2, firCoefs, sizeof(firCoefs) / sizeof(int16_t));
+
+    LMS7_log(LMS7_INFO, "IQ correction stage");
+    Modify_SPI_Reg_bits(self, LMS7param(GCORRI_TXTSP), 2047);
+    Modify_SPI_Reg_bits(self, LMS7param(GCORRQ_TXTSP), 2047);
+
+    Modify_SPI_Reg_bits(self, LMS7param(IQCORR_TXTSP), 0);
+
+    LMS7_log(LMS7_INFO, "I gain");
+    minRSSI_i = FindMinRSSI_Gain(self, LMS7param(GCORRI_TXTSP), &gcorri);
+
+    Modify_SPI_Reg_bits(self, LMS7param(GCORRI_TXTSP), 2047);
+    Modify_SPI_Reg_bits(self, LMS7param(GCORRQ_TXTSP), 2047);
+
+    LMS7_log(LMS7_INFO, "Q gain");
+    minRSSI_q = FindMinRSSI_Gain(self, LMS7param(GCORRQ_TXTSP), &gcorrq);
+
+    if (minRSSI_i < minRSSI_q)
+        gcorrq = 2047;
+    else
+        gcorri = 2047;
+
+    Modify_SPI_Reg_bits(self, LMS7param(GCORRI_TXTSP), gcorri);
+    Modify_SPI_Reg_bits(self, LMS7param(GCORRQ_TXTSP), gcorrq);
+
+    LMS7_log(LMS7_INFO, "Phase");
+    iqcorr = 0;
+    for (uint8_t i = 0; i<9; ++i)
+        minRSSI_iq = FindMinRSSI(self, LMS7param(IQCORR_TXTSP), iqcorr, &iqcorr, 3, 1, 256 >> i);
+
+    Modify_SPI_Reg_bits(self, LMS7param(GCORRI_TXTSP), gcorri);
+    Modify_SPI_Reg_bits(self, LMS7param(GCORRQ_TXTSP), gcorrq);
+    Modify_SPI_Reg_bits(self, LMS7param(IQCORR_TXTSP), iqcorr);
+
+    Modify_SPI_Reg_bits(self, LMS7param(MAC), 1);
+    status = SetFrequencySX(self, Rx, GetFrequencySX_MHz(self, Tx, mRefClkSXT_MHz)-1, mRefClkSXR_MHz);
+    if (status != LIBLMS7_SUCCESS)
+        goto TxCalibrationEnd; //go to ending stage to restore registers
+
+    //C
+    Modify_SPI_Reg_bits(self, LMS7param(MAC), ch);
+    Modify_SPI_Reg_bits(self, LMS7param(AGC_MODE_RXTSP), 1);
+    Modify_SPI_Reg_bits(self, LMS7param(CAPSEL), 0);
+
+    LMS7_log(LMS7_INFO, "TX LO calibration");
+
+    //Calibrate Tx DC
+    for (uint8_t i = 0; i<7; ++i)
+    {
+        FindMinRSSI(self, LMS7param(DCCORRI_TXTSP), corrI, &corrI, 3, 1, 64 >> i);
+        FindMinRSSI(self, LMS7param(DCCORRQ_TXTSP), corrQ, &corrQ, 3, 1, 64 >> i);
+    }
+
+    dccorri = Get_SPI_Reg_bits(self, LMS7param(DCCORRI_TXTSP));
+    dccorrq = Get_SPI_Reg_bits(self, LMS7param(DCCORRQ_TXTSP));
+
+    // Stage 4
+TxCalibrationEnd:
+    LMS7_log(LMS7_INFO, "Restoring registers state");
+    Modify_SPI_Reg_bits(self, LMS7param(MAC), ch);
+    RestoreAllRegisters(self);
+    if (status != LIBLMS7_SUCCESS)
+    {
+        LMS7_log(LMS7_WARNING, "Tx calibration failed");
+        return status;
+    }
+
+    Modify_SPI_Reg_bits(self, LMS7param(MAC), ch);
+    Modify_SPI_Reg_bits(self, LMS7param(DCCORRI_TXTSP), dccorri);
+    Modify_SPI_Reg_bits(self, LMS7param(DCCORRQ_TXTSP), dccorrq);
+    Modify_SPI_Reg_bits(self, LMS7param(GCORRI_TXTSP), gcorri);
+    Modify_SPI_Reg_bits(self, LMS7param(GCORRQ_TXTSP), gcorrq);
+    Modify_SPI_Reg_bits(self, LMS7param(IQCORR_TXTSP), iqcorr);
+
+    Modify_SPI_Reg_bits(self, LMS7param(DC_BYP_TXTSP), 0); //DC_BYP
+    Modify_SPI_Reg_bits_(self, 0x0208, 1, 0, 0); //GC_BYP PH_BYP
+    LMS7_log(LMS7_INFO, "Tx calibration finished");
+    return LIBLMS7_SUCCESS;
 }
 
 /** @brief Performs Rx DC offsets calibration
@@ -674,7 +1074,7 @@ uint32_t FindMinRSSI_(LMS7002M_t *self, const uint16_t addr, const uint8_t msb, 
             uint16_t valToSend = 0;
             if (currentValue < 0)
                 valToSend |= 0x40;
-            valToSend |= abs(currentValue);
+            valToSend |= labs(currentValue);
             Modify_SPI_Reg_bits_(self, addr, msb, lsb, valToSend);
         }
         else
