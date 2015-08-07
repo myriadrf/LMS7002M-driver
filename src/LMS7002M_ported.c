@@ -9,18 +9,8 @@
 
 #define VECTOR_MAX 1024
 
-///Reference clock used for Receiver frequency calculations
-float_type mRefClkSXR_MHz;
-///Reference clock used for Transmitter frequency calculations
-float_type mRefClkSXT_MHz;
-
-uint16_t MemorySectionAddresses[MEMORY_SECTIONS_COUNT][2];
-
-void LMS7002M_lms7api_init(void)
+static void initMemorySectionAddresses(uint16_t **MemorySectionAddresses)
 {
-    mRefClkSXR_MHz = 30.72;
-    mRefClkSXT_MHz = 30.72;
-
     //memory intervals for registers tests and calibration algorithms
     MemorySectionAddresses[LimeLight][0] = 0x0020;
     MemorySectionAddresses[LimeLight][1] = 0x002F;
@@ -1112,6 +1102,9 @@ const uint16_t defaultValues[] =   {0xFFFD, 0x0E9F, 0x07DF, 0x5559, 0xE4E4, 0x01
 */
 liblms7_status SetDefaults(LMS7002M_t *self, MemorySection module)
 {
+    uint16_t MemorySectionAddresses[MEMORY_SECTIONS_COUNT][2];
+    initMemorySectionAddresses((uint16_t **)MemorySectionAddresses);
+
     liblms7_status status = LIBLMS7_SUCCESS;
     uint16_t i;
     uint16_t addrs[VECTOR_MAX];

@@ -10,12 +10,16 @@
 
 typedef double float_type;
 
+///Reference clock used for Receiver frequency calculations
+#define mRefClkSXR_MHz self->sxr_fref_mhz
+
+///Reference clock used for Transmitter frequency calculations
+#define mRefClkSXT_MHz self->sxt_fref_mhz
+
 enum
 {
     Rx, Tx
 };
-
-void LMS7002M_lms7api_init(void);
 
 ///@name Registers writing and reading
 uint16_t Get_SPI_Reg_bits(LMS7002M_t *self, const LMS7Parameter *param);

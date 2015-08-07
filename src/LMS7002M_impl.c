@@ -36,6 +36,8 @@ LMS7002M_t *LMS7002M_create(LMS7002M_spi_transact_t transact, void *handle)
     self->cgen_fref = 0.0;
     self->sxr_fref = 0.0;
     self->sxt_fref = 0.0;
+    self->sxr_fref_mhz = 30.72;
+    self->sxt_fref_mhz = 30.72;
     return self;
 }
 

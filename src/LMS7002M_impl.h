@@ -50,6 +50,10 @@ struct LMS7002M_struct
     double sxr_fref; //!< last written RX ref frequency in Hz
     double sxt_fref; //!< last written TX ref frequency in Hz
 
+    //used by ported code
+    double sxr_fref_mhz;
+    double sxt_fref_mhz;
+
     //Calibrated and corrected control values
     unsigned short RBB_CBANK[MIMO_BOTH][RBB_ALL];
     unsigned char RBB_RBANK[MIMO_BOTH], TBB_CBANK[MIMO_BOTH], TBB_RBANK[MIMO_BOTH][TBB_ALL];

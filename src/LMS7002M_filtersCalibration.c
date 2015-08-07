@@ -6,11 +6,6 @@
 
 #include <math.h> //pow
 
-///Reference clock used for Receiver frequency calculations
-extern float_type mRefClkSXR_MHz;
-///Reference clock used for Transmitter frequency calculations
-extern float_type mRefClkSXT_MHz;
-
 const float_type gLadder_lower_limit = 2;
 const float_type gLadder_higher_limit = 16;
 const float_type gRealpole_lower_limit = 0.8;
