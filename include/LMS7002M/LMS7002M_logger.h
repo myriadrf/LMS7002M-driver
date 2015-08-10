@@ -11,9 +11,12 @@
 ///
 
 #pragma once
-
 #include <LMS7002M/LMS7002M_config.h>
 #include <stdarg.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef enum
 {
@@ -72,3 +75,7 @@ typedef void (*LMS7_log_handler_t)(const LMS7_log_level_t logLevel, const char *
  * Platforms should call this to replace the default handler.
  */
 LMS7002M_API void LMS7_set_log_handler(const LMS7_log_handler_t handler);
+
+#ifdef __cplusplus
+}
+#endif

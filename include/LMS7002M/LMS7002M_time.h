@@ -13,8 +13,11 @@
 ///
 
 #pragma once
-
 #include <LMS7002M/LMS7002M_config.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*!
  * Get the number of ticks per second.
@@ -40,3 +43,7 @@ LMS7002M_API void LMS7_sleep_for(const long long ticks);
  * \param ticks an absolute time in tick counts
  */
 LMS7002M_API void LMS7_sleep_until(const long long ticks);
+
+#ifdef __cplusplus
+}
+#endif

@@ -16,6 +16,10 @@
 #include <LMS7002M/LMS7002M_config.h>
 #include <LMS7002M/LMS7002M_regs.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //! direction constants
 typedef enum
 {
@@ -47,10 +51,6 @@ typedef enum
 #define LMS7002M_SXX_VCOM_HI 6.754e9
 #define LMS7002M_SXX_VCOH_LO 6.306e9
 #define LMS7002M_SXX_VCOH_HI 7.714e9
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /*!
  * Function typedef for a function that implements SPI register transactions.
