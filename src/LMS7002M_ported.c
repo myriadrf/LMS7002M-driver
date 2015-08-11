@@ -9,67 +9,6 @@
 
 #define VECTOR_MAX 1024
 
-static void initMemorySectionAddresses(uint16_t **MemorySectionAddresses)
-{
-    //memory intervals for registers tests and calibration algorithms
-    MemorySectionAddresses[LimeLight][0] = 0x0020;
-    MemorySectionAddresses[LimeLight][1] = 0x002F;
-    MemorySectionAddresses[EN_DIR][0] = 0x0081;
-    MemorySectionAddresses[EN_DIR][1] = 0x0081;
-    MemorySectionAddresses[AFE][0] = 0x0082;
-    MemorySectionAddresses[AFE][1] = 0x0082;
-    MemorySectionAddresses[BIAS][0] = 0x0084;
-    MemorySectionAddresses[BIAS][1] = 0x0084;
-    MemorySectionAddresses[XBUF][0] = 0x0085;
-    MemorySectionAddresses[XBUF][1] = 0x0085;
-    MemorySectionAddresses[CGEN][0] = 0x0086;
-    MemorySectionAddresses[CGEN][1] = 0x008C;
-    MemorySectionAddresses[LDO][0] = 0x0092;
-    MemorySectionAddresses[LDO][1] = 0x00A7;
-    MemorySectionAddresses[BIST][0] = 0x00A8;
-    MemorySectionAddresses[BIST][1] = 0x00AC;
-    MemorySectionAddresses[CDS][0] = 0x00AD;
-    MemorySectionAddresses[CDS][1] = 0x00AE;
-    MemorySectionAddresses[TRF][0] = 0x0100;
-    MemorySectionAddresses[TRF][1] = 0x0104;
-    MemorySectionAddresses[TBB][0] = 0x0105;
-    MemorySectionAddresses[TBB][1] = 0x010A;
-    MemorySectionAddresses[RFE][0] = 0x010C;
-    MemorySectionAddresses[RFE][1] = 0x0114;
-    MemorySectionAddresses[RBB][0] = 0x0115;
-    MemorySectionAddresses[RBB][1] = 0x011A;
-    MemorySectionAddresses[SX][0] = 0x011C;
-    MemorySectionAddresses[SX][1] = 0x0124;
-    MemorySectionAddresses[TxTSP][0] = 0x0200;
-    MemorySectionAddresses[TxTSP][1] = 0x020C;
-    MemorySectionAddresses[TxNCO][0] = 0x0240;
-    MemorySectionAddresses[TxNCO][1] = 0x0261;
-    MemorySectionAddresses[TxGFIR1][0] = 0x0280;
-    MemorySectionAddresses[TxGFIR1][1] = 0x02A7;
-    MemorySectionAddresses[TxGFIR2][0] = 0x02C0;
-    MemorySectionAddresses[TxGFIR2][1] = 0x02E7;
-    MemorySectionAddresses[TxGFIR3a][0] = 0x0300;
-    MemorySectionAddresses[TxGFIR3a][1] = 0x0327;
-    MemorySectionAddresses[TxGFIR3b][0] = 0x0340;
-    MemorySectionAddresses[TxGFIR3b][1] = 0x0367;
-    MemorySectionAddresses[TxGFIR3c][0] = 0x0380;
-    MemorySectionAddresses[TxGFIR3c][1] = 0x03A7;
-    MemorySectionAddresses[RxTSP][0] = 0x0400;
-    MemorySectionAddresses[RxTSP][1] = 0x040F;
-    MemorySectionAddresses[RxNCO][0] = 0x0440;
-    MemorySectionAddresses[RxNCO][1] = 0x0461;
-    MemorySectionAddresses[RxGFIR1][0] = 0x0480;
-    MemorySectionAddresses[RxGFIR1][1] = 0x04A7;
-    MemorySectionAddresses[RxGFIR2][0] = 0x04C0;
-    MemorySectionAddresses[RxGFIR2][1] = 0x04E7;
-    MemorySectionAddresses[RxGFIR3a][0] = 0x0500;
-    MemorySectionAddresses[RxGFIR3a][1] = 0x0527;
-    MemorySectionAddresses[RxGFIR3b][0] = 0x0540;
-    MemorySectionAddresses[RxGFIR3b][1] = 0x0567;
-    MemorySectionAddresses[RxGFIR3c][0] = 0x0580;
-    MemorySectionAddresses[RxGFIR3c][1] = 0x05A7;
-}
-
 /**	@return Current CLKGEN frequency in MHz
     Returned frequency depends on reference clock used for Receiver
 */
@@ -1103,7 +1042,63 @@ const uint16_t defaultValues[] =   {0xFFFD, 0x0E9F, 0x07DF, 0x5559, 0xE4E4, 0x01
 liblms7_status SetDefaults(LMS7002M_t *self, MemorySection module)
 {
     uint16_t MemorySectionAddresses[MEMORY_SECTIONS_COUNT][2];
-    initMemorySectionAddresses((uint16_t **)MemorySectionAddresses);
+    //memory intervals for registers tests and calibration algorithms
+    MemorySectionAddresses[LimeLight][0] = 0x0020;
+    MemorySectionAddresses[LimeLight][1] = 0x002F;
+    MemorySectionAddresses[EN_DIR][0] = 0x0081;
+    MemorySectionAddresses[EN_DIR][1] = 0x0081;
+    MemorySectionAddresses[AFE][0] = 0x0082;
+    MemorySectionAddresses[AFE][1] = 0x0082;
+    MemorySectionAddresses[BIAS][0] = 0x0084;
+    MemorySectionAddresses[BIAS][1] = 0x0084;
+    MemorySectionAddresses[XBUF][0] = 0x0085;
+    MemorySectionAddresses[XBUF][1] = 0x0085;
+    MemorySectionAddresses[CGEN][0] = 0x0086;
+    MemorySectionAddresses[CGEN][1] = 0x008C;
+    MemorySectionAddresses[LDO][0] = 0x0092;
+    MemorySectionAddresses[LDO][1] = 0x00A7;
+    MemorySectionAddresses[BIST][0] = 0x00A8;
+    MemorySectionAddresses[BIST][1] = 0x00AC;
+    MemorySectionAddresses[CDS][0] = 0x00AD;
+    MemorySectionAddresses[CDS][1] = 0x00AE;
+    MemorySectionAddresses[TRF][0] = 0x0100;
+    MemorySectionAddresses[TRF][1] = 0x0104;
+    MemorySectionAddresses[TBB][0] = 0x0105;
+    MemorySectionAddresses[TBB][1] = 0x010A;
+    MemorySectionAddresses[RFE][0] = 0x010C;
+    MemorySectionAddresses[RFE][1] = 0x0114;
+    MemorySectionAddresses[RBB][0] = 0x0115;
+    MemorySectionAddresses[RBB][1] = 0x011A;
+    MemorySectionAddresses[SX][0] = 0x011C;
+    MemorySectionAddresses[SX][1] = 0x0124;
+    MemorySectionAddresses[TxTSP][0] = 0x0200;
+    MemorySectionAddresses[TxTSP][1] = 0x020C;
+    MemorySectionAddresses[TxNCO][0] = 0x0240;
+    MemorySectionAddresses[TxNCO][1] = 0x0261;
+    MemorySectionAddresses[TxGFIR1][0] = 0x0280;
+    MemorySectionAddresses[TxGFIR1][1] = 0x02A7;
+    MemorySectionAddresses[TxGFIR2][0] = 0x02C0;
+    MemorySectionAddresses[TxGFIR2][1] = 0x02E7;
+    MemorySectionAddresses[TxGFIR3a][0] = 0x0300;
+    MemorySectionAddresses[TxGFIR3a][1] = 0x0327;
+    MemorySectionAddresses[TxGFIR3b][0] = 0x0340;
+    MemorySectionAddresses[TxGFIR3b][1] = 0x0367;
+    MemorySectionAddresses[TxGFIR3c][0] = 0x0380;
+    MemorySectionAddresses[TxGFIR3c][1] = 0x03A7;
+    MemorySectionAddresses[RxTSP][0] = 0x0400;
+    MemorySectionAddresses[RxTSP][1] = 0x040F;
+    MemorySectionAddresses[RxNCO][0] = 0x0440;
+    MemorySectionAddresses[RxNCO][1] = 0x0461;
+    MemorySectionAddresses[RxGFIR1][0] = 0x0480;
+    MemorySectionAddresses[RxGFIR1][1] = 0x04A7;
+    MemorySectionAddresses[RxGFIR2][0] = 0x04C0;
+    MemorySectionAddresses[RxGFIR2][1] = 0x04E7;
+    MemorySectionAddresses[RxGFIR3a][0] = 0x0500;
+    MemorySectionAddresses[RxGFIR3a][1] = 0x0527;
+    MemorySectionAddresses[RxGFIR3b][0] = 0x0540;
+    MemorySectionAddresses[RxGFIR3b][1] = 0x0567;
+    MemorySectionAddresses[RxGFIR3c][0] = 0x0580;
+    MemorySectionAddresses[RxGFIR3c][1] = 0x05A7;
 
     liblms7_status status = LIBLMS7_SUCCESS;
     uint16_t i;

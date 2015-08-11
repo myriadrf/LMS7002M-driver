@@ -12,7 +12,9 @@
 
 #include <stdlib.h>
 #include "LMS7002M_impl.h"
+#include "LMS7002M_ported.h"
 #include <math.h> //pow
+#include <LMS7002M/LMS7002M_logger.h>
 
 void LMS7002M_rbb_enable(LMS7002M_t *self, const LMS7002M_chan_t channel, const bool enable)
 {
@@ -133,6 +135,17 @@ double LMS7002M_rbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channe
     if (bypass) LMS7002M_rbb_set_path(self, channel, LMS7002M_RBB_BYP);
     else if (hb) LMS7002M_rbb_set_path(self, channel, LMS7002M_RBB_HBF);
     else LMS7002M_rbb_set_path(self, channel, LMS7002M_RBB_LBF);
+
+    //run the calibration for this bandwidth setting
+    liblms7_status status = CalibrateRx(self, bw/1e6);
+    if (!bypass && status == LIBLMS7_SUCCESS)
+    {
+        status = TuneRxFilter(self, hb?RX_LPF_HIGHBAND:RX_LPF_LOWBAND, bw/1e6);
+    }
+    if (status != LIBLMS7_SUCCESS)
+    {
+        LMS7_logf(LMS7_ERROR, "CalibrateRx(%f MHz) Fail - %s", bw/1e6, liblms7_status_strings[status]);
+    }
 
     return actual;
 }

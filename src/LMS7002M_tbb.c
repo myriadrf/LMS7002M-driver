@@ -12,6 +12,8 @@
 
 #include <stdlib.h>
 #include "LMS7002M_impl.h"
+#include "LMS7002M_ported.h"
+#include <LMS7002M/LMS7002M_logger.h>
 
 void LMS7002M_tbb_enable(LMS7002M_t *self, const LMS7002M_chan_t channel, const bool enable)
 {
@@ -100,6 +102,22 @@ double LMS7002M_tbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channe
     if (bypass) LMS7002M_tbb_set_path(self, channel, LMS7002M_TBB_BYP);
     else if (hb) LMS7002M_tbb_set_path(self, channel, LMS7002M_TBB_HBF);
     else LMS7002M_tbb_set_path(self, channel, LMS7002M_TBB_LBF);
+
+    //run the calibration for this bandwidth setting
+    liblms7_status status = CalibrateTx(self, bw/1e6);
+    if (!bypass && status == LIBLMS7_SUCCESS)
+    {
+        TxFilter filter;
+        if (hb) filter = TX_HIGHBAND;
+        else if (bw >= 2.4e6) filter = TX_LADDER;
+        else filter = TX_REALPOLE;
+
+        status = TuneTxFilter(self, filter, bw/1e6);
+    }
+    if (status != LIBLMS7_SUCCESS)
+    {
+        LMS7_logf(LMS7_ERROR, "CalibrateTx(%f MHz) Fail - %s", bw/1e6, liblms7_status_strings[status]);
+    }
 
     return actual;
 }

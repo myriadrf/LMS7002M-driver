@@ -9,6 +9,7 @@
 
 #include "EVB7Device.hpp"
 #include <SoapySDR/Registry.hpp>
+#include <LMS7002M/LMS7002M_logger.h>
 
 /***********************************************************************
  * Constructor
@@ -23,6 +24,7 @@ EVB7::EVB7(void):
     _tx_stat_dma(NULL),
     _masterClockRate(1.0e6)
 {
+    LMS7_set_log_level(LMS7_INFO);
     SoapySDR::logf(SOAPY_SDR_INFO, "EVB7()");
     setvbuf(stdout, NULL, _IOLBF, 0);
 
