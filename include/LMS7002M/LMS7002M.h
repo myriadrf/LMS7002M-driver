@@ -754,33 +754,6 @@ LMS7002M_API double LMS7002M_rfe_set_loopback_lna(LMS7002M_t *self, const LMS700
  */
 LMS7002M_API double LMS7002M_rfe_set_tia(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain);
 
-//=====================================================================//
-// Calibration utilities
-//=====================================================================//
-
-/*!
- * Calibrate the highband and lowband path of the TBB component.
- * \param self an instance of the LMS7002M driver
- * \param channel the channel LMS_CHA or LMS_CHB
- */
-LMS7002M_API void LMS7002M_cal_tbb(LMS7002M_t *self, const LMS7002M_chan_t channel);
-
-/*!
- * Calibrate the highband and lowband path of the RBB component.
- * \param self an instance of the LMS7002M driver
- * \param channel the channel LMS_CHA or LMS_CHB
- */
-LMS7002M_API void LMS7002M_cal_rbb(LMS7002M_t *self, const LMS7002M_chan_t channel);
-
-/*!
- * Set the calibration path on TBB+RBB.
- * This routine is normally called by the other calibration algorithms.
- * \param self an instance of the LMS7002M driver
- * \param channel the channel LMS_CHA or LMS_CHB
- * \param path the calibration path identifier (1-8)
- */
-LMS7002M_API void LMS7002M_cal_set_path(LMS7002M_t *self, const LMS7002M_chan_t channel, const int path);
-
 #ifdef __cplusplus
 }
 #endif
