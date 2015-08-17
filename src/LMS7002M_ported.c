@@ -482,7 +482,10 @@ liblms7_status CalibrateTxSetup(LMS7002M_t *self, float_type bandwidth_MHz)
     else if (sel_band2_trf == 1)
         Modify_SPI_Reg_bits(self, LMS7param(SEL_PATH_RFE), 2);
     else
+    {
+        LMS7_logf(LMS7_ERROR, "CalibrateTxSetup sel_band1_trf=%d, sel_band2_trf=%d", (int)sel_band1_trf, (int)sel_band2_trf);
         return LIBLMS7_FAILURE;
+    }
 
     if (ch == 2)
         Modify_SPI_Reg_bits(self, LMS7param(EN_NEXTRX_RFE), 1); // EN_NEXTTX_RFE 1
@@ -545,9 +548,15 @@ liblms7_status CalibrateTxSetup(LMS7002M_t *self, float_type bandwidth_MHz)
     Modify_SPI_Reg_bits(self, LMS7param(PD_VCO_CGEN), 0);
 
     if (SetFrequencyCGEN(self, 122.88) != LIBLMS7_SUCCESS)
+    {
+        LMS7_log(LMS7_ERROR, "CalibrateTxSetup::SetFrequencyCGEN() fail");
         return LIBLMS7_FAILURE;
+    }
     if (TuneVCO(self, VCO_CGEN) != LIBLMS7_SUCCESS)
+    {
+        LMS7_log(LMS7_ERROR, "CalibrateTxSetup::TuneVCO() fail");
         return LIBLMS7_FAILURE;
+    }
 
     //SXR
     Modify_SPI_Reg_bits(self, LMS7param(MAC), 1);
@@ -556,17 +565,29 @@ liblms7_status CalibrateTxSetup(LMS7002M_t *self, float_type bandwidth_MHz)
 
     float_type SXRfreqMHz = SXTfreqMHz - bandwidth_MHz / 4 - 1;
     if (SetFrequencySX(self, Rx, SXRfreqMHz, mRefClkSXR_MHz) != LIBLMS7_SUCCESS)
+    {
+        LMS7_logf(LMS7_ERROR, "CalibrateTxSetup::SetFrequencySX(Rx, %fMHz, %fMHz) fail", SXRfreqMHz, mRefClkSXR_MHz);
         return LIBLMS7_FAILURE;
+    }
     if (TuneVCO(self, VCO_SXR) != LIBLMS7_SUCCESS)
+    {
+        LMS7_log(LMS7_ERROR, "CalibrateTxSetup::TuneVCO(VCO_SXR) fail");
         return LIBLMS7_FAILURE;
+    }
 
     //SXT
     Modify_SPI_Reg_bits(self, LMS7param(MAC), 2);
     Modify_SPI_Reg_bits(self, LMS7param(PD_LOCH_T2RBUF), 1); //PD_LOCH_T2RBUF 1
     if (SetFrequencySX(self, Tx, SXTfreqMHz, mRefClkSXT_MHz) != LIBLMS7_SUCCESS)
+    {
+        LMS7_logf(LMS7_ERROR, "CalibrateTxSetup::SetFrequencySX(Tx, %fMHz, %fMHz) fail", SXTfreqMHz, mRefClkSXT_MHz);
         return LIBLMS7_FAILURE;
+    }
     if (TuneVCO(self, VCO_SXT) != LIBLMS7_SUCCESS)
+    {
+        LMS7_log(LMS7_ERROR, "CalibrateTxSetup::TuneVCO(VCO_SXT) fail");
         return LIBLMS7_FAILURE;
+    }
     Modify_SPI_Reg_bits(self, LMS7param(MAC), ch);
 
     //TXTSP
@@ -587,7 +608,10 @@ liblms7_status CalibrateTxSetup(LMS7002M_t *self, float_type bandwidth_MHz)
 
         float_type sxrFreq = SXTfreqMHz - bandwidth_MHz / 4 - 1 - offset;
         if (SetFrequencySX(self, Rx, sxrFreq, mRefClkSXR_MHz) != LIBLMS7_SUCCESS)
+        {
+            LMS7_log(LMS7_ERROR, "CalibrateTxSetup::SetFrequencySX(Rx) fail");
             return LIBLMS7_FAILURE;
+        }
         SetNCOFrequency(self, Tx, 0, bandwidth_MHz / 4 + offset);
     }
     else
@@ -1191,7 +1215,10 @@ liblms7_status CalibrateRxSetup(LMS7002M_t *self, float_type bandwidth_MHz)
 
     liblms7_status status = SetFrequencyCGEN(self, 122.88);
     if (status != LIBLMS7_SUCCESS)
+    {
+        LMS7_log(LMS7_ERROR, "CalibrateRxSetup::SetFrequencyCGEN() fail");
         return status;
+    }
 
     //    //SXR
     Modify_SPI_Reg_bits(self, LMS7param(MAC), 1);
@@ -1202,7 +1229,10 @@ liblms7_status CalibrateRxSetup(LMS7002M_t *self, float_type bandwidth_MHz)
     Modify_SPI_Reg_bits(self, LMS7param(PD_LOCH_T2RBUF), 1); //PD_LOCH_t2RBUF 1
     status = SetFrequencySX(self, Tx, SXRfreqMHz + bandwidth_MHz / 4, mRefClkSXT_MHz);
     if ( status != LIBLMS7_SUCCESS)
+    {
+        LMS7_logf(LMS7_ERROR, "CalibrateRxSetup::SetFrequencySX(Tx, %fMHz, %fMHz) fail", SXRfreqMHz + bandwidth_MHz / 4, mRefClkSXT_MHz);
         return status;
+    }
     Modify_SPI_Reg_bits(self, LMS7param(MAC), ch);
 
     //TXTSP
