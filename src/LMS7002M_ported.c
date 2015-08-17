@@ -4,6 +4,7 @@
 
 #include "LMS7002M_ported.h"
 #include <LMS7002M/LMS7002M_logger.h>
+#include <LMS7002M/LMS7002M_time.h>
 
 #include <stdlib.h> //labs
 
@@ -110,6 +111,8 @@ liblms7_status TuneVCO(LMS7002M_t *self, VCO_Module module) // 0-cgen, 1-SXR, 2-
 	while(i>=0)
 	{
         Modify_SPI_Reg_bits_(self, addrCSW_VCO, lsb + i, lsb + i, 1); // CSW_VCO<i>=1
+
+        LMS7_sleep_for(((50*LMS7_time_tps())/1000000)); //50 us -> ticks
         cmphl = (uint8_t)Get_SPI_Reg_bits_(self, addrCMP, 13, 12);
         if ( (cmphl&0x01) == 1) // reduce CSW
             Modify_SPI_Reg_bits_(self, addrCSW_VCO, lsb + i, lsb + i, 0); // CSW_VCO<i>=0
@@ -125,6 +128,8 @@ liblms7_status TuneVCO(LMS7002M_t *self, VCO_Module module) // 0-cgen, 1-SXR, 2-
             while(csw_lowest>=0)
             {
                 Modify_SPI_Reg_bits_(self, addrCSW_VCO, msb, lsb, csw_lowest);
+
+                LMS7_sleep_for(((50*LMS7_time_tps())/1000000)); //50 us -> ticks
                 if(Get_SPI_Reg_bits_(self, addrCMP, 13, 12) == 0)
                     break;
                 else
@@ -137,12 +142,17 @@ liblms7_status TuneVCO(LMS7002M_t *self, VCO_Module module) // 0-cgen, 1-SXR, 2-
         Modify_SPI_Reg_bits(self, LMS7param(SPDUP_VCO_CGEN), 0); //SHORT_NOISEFIL=1 SPDUP_VCO_ Short the noise filter resistor to speed up the settling time
     else
         Modify_SPI_Reg_bits(self, LMS7param(SPDUP_VCO_CGEN), 0); //SHORT_NOISEFIL=1 SPDUP_VCO_ Short the noise filter resistor to speed up the settling time
+
+    LMS7_sleep_for(((50*LMS7_time_tps())/1000000)); //50 us -> ticks
 	cmphl = (uint8_t)Get_SPI_Reg_bits_(self, addrCMP, 13, 12);
     Modify_SPI_Reg_bits(self, LMS7param(MAC), ch); //restore previously used channel
 	if(cmphl == 2)
         return LIBLMS7_SUCCESS;
     else
+    {
+        LMS7_log(LMS7_ERROR, "TuneVCO fail");
         return LIBLMS7_FAILURE;
+    }
 }
 
 /** @brief Returns given parameter value from chip register
