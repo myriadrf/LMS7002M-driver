@@ -424,11 +424,17 @@ LMS7002M_API void LMS7002M_txtsp_set_dc_correction(
 
 /*!
  * IQ imbalance correction value for Tx TSP chain.
- * Correction values are maximum 1.0 (full scale).
+ *
+ * - The gain is the ratio of I/Q, and should be near 1.0
+ * - Gain values greater than 1.0 max out I and reduce Q.
+ * - Gain values less than 1.0 max out Q and reduce I.
+ * - A gain value of 1.0 bypasses the magnitude correction.
+ * - A phase value of 0.0 bypasses the phase correction.
+ *
  * \param self an instance of the LMS7002M driver
  * \param channel the channel LMS_CHA or LMS_CHB
- * \param phase the phase correction [-1.0, 1.0]
- * \param gain the magnitude correction [-1.0, 1.0]
+ * \param phase the phase correction (radians)
+ * \param gain the magnitude correction (I/Q ratio)
  */
 LMS7002M_API void LMS7002M_txtsp_set_iq_correction(
     LMS7002M_t *self,
@@ -630,11 +636,17 @@ LMS7002M_API void LMS7002M_rxtsp_set_dc_correction(
 
 /*!
  * IQ imbalance correction value for Rx TSP chain.
- * Correction values are maximum 1.0 (full scale).
+ *
+ * - The gain is the ratio of I/Q, and should be near 1.0
+ * - Gain values greater than 1.0 max out I and reduce Q.
+ * - Gain values less than 1.0 max out Q and reduce I.
+ * - A gain value of 1.0 bypasses the magnitude correction.
+ * - A phase value of 0.0 bypasses the phase correction.
+ *
  * \param self an instance of the LMS7002M driver
  * \param channel the channel LMS_CHA or LMS_CHB
- * \param phase the phase correction [-1.0, 1.0]
- * \param gain the magnitude correction [-1.0, 1.0]
+ * \param phase the phase correction (radians)
+ * \param gain the magnitude correction (I/Q ratio)
  */
 LMS7002M_API void LMS7002M_rxtsp_set_iq_correction(
     LMS7002M_t *self,

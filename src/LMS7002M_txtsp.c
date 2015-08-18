@@ -11,6 +11,7 @@
 ///
 
 #include <stdlib.h>
+#include <math.h> //M_PI
 #include "LMS7002M_impl.h"
 
 void LMS7002M_txtsp_enable(LMS7002M_t *self, const LMS7002M_chan_t channel, const bool enable)
@@ -130,13 +131,18 @@ void LMS7002M_txtsp_set_iq_correction(
     LMS7002M_set_mac_ch(self, channel);
 
     const bool bypassPhase = (phase == 0.0);
-    const bool bypassGain = (gain == 0.0);
+    const bool bypassGain = (gain == 1.0);
     self->regs->reg_0x0208_ph_byp = bypassPhase?1:0;
     self->regs->reg_0x0208_gc_byp = bypassGain?1:0;
     LMS7002M_regs_spi_write(self, 0x0208);
 
-    //TODO
-    //self->regs->reg_0x0203_iqcorr = 
-    //self->regs->reg_0x0202_gcorri = 
-    //self->regs->reg_0x0201_gcorrq = 
+    self->regs->reg_0x0203_iqcorr = (int)(2047*(phase/(M_PI/4)));
+    self->regs->reg_0x0202_gcorri = 2047;
+    self->regs->reg_0x0201_gcorrq = 2047;
+    if (gain > 1.0) self->regs->reg_0x0201_gcorrq = (int)((1.0/gain)*2047);
+    if (gain < 1.0) self->regs->reg_0x0202_gcorri = (int)((gain/1.0)*2047);
+
+    LMS7002M_regs_spi_write(self, 0x0203);
+    LMS7002M_regs_spi_write(self, 0x0202);
+    LMS7002M_regs_spi_write(self, 0x0201);
 }
