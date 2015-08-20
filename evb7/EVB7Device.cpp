@@ -184,6 +184,8 @@ EVB7::EVB7(void):
         this->setGain(SOAPY_SDR_TX, i, "IAMP", 0.0);
         this->setBandwidth(SOAPY_SDR_RX, i, 200e6);
         this->setBandwidth(SOAPY_SDR_TX, i, 200e6);
+        this->setIQBalance(SOAPY_SDR_RX, i, std::polar(1.0, 0.0));
+        this->setIQBalance(SOAPY_SDR_TX, i, std::polar(1.0, 0.0));
     }
 
     //LMS7002M_dump_ini(_lms, "/root/src/regs.ini");
@@ -331,6 +333,24 @@ std::complex<double> EVB7::getDCOffset(const int direction, const size_t channel
     {
         return SoapySDR::Device::getDCOffset(direction, channel);
     }
+}
+
+void EVB7::setIQBalance(const int direction, const size_t channel, const std::complex<double> &balance)
+{
+    if (direction == SOAPY_SDR_TX)
+    {
+        LMS7002M_txtsp_set_iq_correction(_lms, ch2LMS(channel), std::arg(balance), std::abs(balance));
+    }
+    else
+    {
+        LMS7002M_rxtsp_set_iq_correction(_lms, ch2LMS(channel), std::arg(balance), std::abs(balance));
+    }
+    _cachedIqBalValues[direction][channel] = balance;
+}
+
+std::complex<double> EVB7::getIQBalance(const int direction, const size_t channel) const
+{
+    return _cachedIqBalValues.at(direction).at(channel);
 }
 
 /*******************************************************************

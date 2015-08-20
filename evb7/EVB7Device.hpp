@@ -182,6 +182,12 @@ public:
 
     std::complex<double> getDCOffset(const int direction, const size_t channel) const;
 
+    void setIQBalance(const int direction, const size_t channel, const std::complex<double> &balance);
+
+    std::complex<double> getIQBalance(const int direction, const size_t channel) const;
+
+    std::map<int, std::map<size_t, std::complex<double>>> _cachedIqBalValues;
+
     /*******************************************************************
      * Gain API
      ******************************************************************/
