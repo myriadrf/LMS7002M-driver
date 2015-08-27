@@ -118,6 +118,10 @@ double LMS7002M_tbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channe
     {
         LMS7_logf(LMS7_ERROR, "CalibrateTx(%f MHz) Fail - %s", bw/1e6, liblms7_status_strings[status]);
     }
+    else
+    {
+        if (self->sxt_freq != 0.0) LMS7002M_set_lo_freq(self, LMS_TX, self->sxt_fref, self->sxt_freq, NULL);
+    }
 
     return actual;
 }
