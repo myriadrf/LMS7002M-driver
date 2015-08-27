@@ -189,6 +189,7 @@ EVB7::EVB7(void):
     }
 
     //LMS7002M_dump_ini(_lms, "/root/src/regs.ini");
+    SoapySDR::log(SOAPY_SDR_INFO, "Initialization complete");
 }
 
 EVB7::~EVB7(void)
@@ -377,7 +378,7 @@ void EVB7::setGain(const int direction, const size_t channel, const std::string 
 {
     std::lock_guard<std::mutex> lock(_mutex);
 
-    SoapySDR::logf(SOAPY_SDR_INFO, "EVB7::setGain(%d, ch%d, %s, %f dB)", direction, channel, name.c_str(), value);
+    SoapySDR::logf(SOAPY_SDR_INFO, "EVB7::setGain(%s, ch%d, %s, %f dB)", dir2Str(direction), channel, name.c_str(), value);
 
     double &actualValue = _cachedGainValues[direction][channel][name];
 
@@ -441,7 +442,7 @@ void EVB7::setFrequency(const int direction, const size_t channel, const std::st
 {
     std::lock_guard<std::mutex> lock(_mutex);
 
-    SoapySDR::logf(SOAPY_SDR_INFO, "EVB7::setFrequency(%d, ch%d, %s, %f MHz)", direction, channel, name.c_str(), frequency/1e6);
+    SoapySDR::logf(SOAPY_SDR_INFO, "EVB7::setFrequency(%s, ch%d, %s, %f MHz)", dir2Str(direction), channel, name.c_str(), frequency/1e6);
 
     if (name == "RF")
     {
@@ -510,7 +511,7 @@ void EVB7::setSampleRate(const int direction, const size_t, const double rate)
 
     const double baseRate = this->getTSPRate(direction);
     const double factor = baseRate/rate;
-    SoapySDR::logf(SOAPY_SDR_INFO, "EVB7::setSampleRate(%d, %f MHz), baseRate %f MHz, factor %f", direction, rate/1e6, baseRate/1e6, factor);
+    SoapySDR::logf(SOAPY_SDR_INFO, "EVB7::setSampleRate(%s, %f MHz), baseRate %f MHz, factor %f", dir2Str(direction), rate/1e6, baseRate/1e6, factor);
     if (factor < 2.0) throw std::runtime_error("EVB7::setSampleRate() -- rate too high");
     int intFactor = 1 << int((std::log(factor)/std::log(2.0)) + 0.5);
     if (intFactor > 32) throw std::runtime_error("EVB7::setSampleRate() -- rate too low");
@@ -556,6 +557,8 @@ std::vector<double> EVB7::listSampleRates(const int direction, const size_t) con
 void EVB7::setBandwidth(const int direction, const size_t channel, const double bw)
 {
     std::lock_guard<std::mutex> lock(_mutex);
+
+    SoapySDR::logf(SOAPY_SDR_INFO, "EVB7::setBandwidth(%s, ch%d, %f MHz)", dir2Str(direction), channel, bw/1e6);
 
     double &actualBw = _cachedFilterBws[direction][channel];
     if (direction == SOAPY_SDR_RX)

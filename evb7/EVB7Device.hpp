@@ -341,6 +341,11 @@ private:
         return (channel == 0)?LMS_CHA:LMS_CHB;
     }
 
+    const char *dir2Str(const int direction) const
+    {
+        return (direction == SOAPY_SDR_RX)?"RX":"TX";
+    }
+
     void *_regs;
     void *_spiHandle;
     LMS7002M_t *_lms;
