@@ -29,7 +29,7 @@
 class EVB7 : public SoapySDR::Device
 {
 public:
-    EVB7(void);
+    EVB7(const SoapySDR::Kwargs &args);
 
     ~EVB7(void);
 

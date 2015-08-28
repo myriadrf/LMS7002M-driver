@@ -14,7 +14,7 @@
 /***********************************************************************
  * Constructor
  **********************************************************************/
-EVB7::EVB7(void):
+EVB7::EVB7(const SoapySDR::Kwargs &args):
     _regs(NULL),
     _spiHandle(NULL),
     _lms(NULL),
@@ -160,7 +160,7 @@ EVB7::EVB7(void):
 /*
     LMS7002M_rxtsp_tsg_tone(_lms, LMS_CHA);
     LMS7002M_rxtsp_tsg_tone(_lms, LMS_CHB);
-    */
+    //*/
 /*
     sleep(1);
     SoapySDR::logf(SOAPY_SDR_INFO, "FPGA_REG_RD_RX_CHA 0x%x", xumem_read32(_regs, FPGA_REG_RD_RX_CHA));
@@ -187,6 +187,13 @@ EVB7::EVB7(void):
         this->setIQBalance(SOAPY_SDR_RX, i, std::polar(1.0, 0.0));
         this->setIQBalance(SOAPY_SDR_TX, i, std::polar(1.0, 0.0));
     }
+
+    //device args settings applied for debugging purposes
+    #define writeArgToSetting(a, k) if (a.count(k) != 0) this->writeSetting(k, a.at(k))
+    writeArgToSetting(args, "FPGA_TX_TEST");
+    writeArgToSetting(args, "FPGA_TSG_CONST");
+    writeArgToSetting(args, "RXTSP_TSG_CONST");
+    writeArgToSetting(args, "TXTSP_TSG_CONST");
 
     //LMS7002M_dump_ini(_lms, "/root/src/regs.ini");
     SoapySDR::log(SOAPY_SDR_INFO, "Initialization complete");
@@ -726,10 +733,9 @@ std::vector<SoapySDR::Kwargs> findEVB7(const SoapySDR::Kwargs &args)
 /***********************************************************************
  * Make device instance
  **********************************************************************/
-SoapySDR::Device *makeEVB7(const SoapySDR::Kwargs &)
+SoapySDR::Device *makeEVB7(const SoapySDR::Kwargs &args)
 {
-    //ignore the args because again, the sdr is the board
-    return new EVB7();
+    return new EVB7(args);
 }
 
 /***********************************************************************
