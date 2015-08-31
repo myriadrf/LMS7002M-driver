@@ -295,6 +295,8 @@ std::string EVB7::getAntenna(const int direction, const size_t channel) const
  ******************************************************************/
 void EVB7::setDCOffsetMode(const int direction, const size_t channel, const bool automatic)
 {
+    std::lock_guard<std::mutex> lock(_mutex);
+
     if (direction == SOAPY_SDR_RX)
     {
         LMS7002M_rxtsp_set_dc_correction(_lms, ch2LMS(channel), automatic, 7/*max*/);
@@ -320,6 +322,8 @@ bool EVB7::getDCOffsetMode(const int direction, const size_t channel) const
 
 void EVB7::setDCOffset(const int direction, const size_t channel, const std::complex<double> &offset)
 {
+    std::lock_guard<std::mutex> lock(_mutex);
+
     if (direction == SOAPY_SDR_TX)
     {
         LMS7002M_txtsp_set_dc_correction(_lms, ch2LMS(channel), offset.real(), offset.imag());
@@ -345,6 +349,8 @@ std::complex<double> EVB7::getDCOffset(const int direction, const size_t channel
 
 void EVB7::setIQBalance(const int direction, const size_t channel, const std::complex<double> &balance)
 {
+    std::lock_guard<std::mutex> lock(_mutex);
+
     if (direction == SOAPY_SDR_TX)
     {
         LMS7002M_txtsp_set_iq_correction(_lms, ch2LMS(channel), std::arg(balance), std::abs(balance));
@@ -671,6 +677,8 @@ void EVB7::setHardwareTime(const long long timeNs, const std::string &)
 void EVB7::writeSetting(const std::string &key, const std::string &value)
 {
     SoapySDR::logf(SOAPY_SDR_INFO, "EVB7::writeSetting(%s, %s)", key.c_str(), value.c_str());
+
+    std::lock_guard<std::mutex> lock(_mutex);
 
     //undo any changes caused by one of the other keys with these enable calls
     if (key == "FPGA_TX_TEST") this->writeRegister(FPGA_REG_WR_TX_TEST, (value == "TRUE")?1:0);
