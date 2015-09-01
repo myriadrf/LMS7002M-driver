@@ -59,7 +59,7 @@ void LMS7002M_rxtsp_set_decim(LMS7002M_t *self, const LMS7002M_chan_t channel, c
 void LMS7002M_rxtsp_set_freq(LMS7002M_t *self, const LMS7002M_chan_t channel, const double freqRel)
 {
     LMS7002M_set_mac_ch(self, channel);
-    self->regs->reg_0x040c_cmix_byp = 0;
+    self->regs->reg_0x040c_cmix_byp = (freqRel==0.0)?1:0;
     LMS7002M_regs_spi_write(self, 0x040c);
     LMS7002M_set_nco_freq(self, LMS_RX, channel, freqRel);
 }
@@ -158,12 +158,12 @@ void LMS7002M_rxtsp_set_iq_correction(
     LMS7002M_set_mac_ch(self, channel);
 
     const bool bypassPhase = (phase == 0.0);
-    const bool bypassGain = (gain == 1.0);
+    const bool bypassGain = (gain == 1.0) || (gain == 0.0);
     self->regs->reg_0x040c_ph_byp = bypassPhase?1:0;
     self->regs->reg_0x040c_gc_byp = bypassGain?1:0;
     LMS7002M_regs_spi_write(self, 0x040c);
 
-    self->regs->reg_0x0403_iqcorr = (int)(2047*(phase/(M_PI/4)));
+    self->regs->reg_0x0403_iqcorr = (int)(2047*(phase/(M_PI/2)));
     self->regs->reg_0x0402_gcorri = 2047;
     self->regs->reg_0x0401_gcorrq = 2047;
     if (gain > 1.0) self->regs->reg_0x0401_gcorrq = (int)((1.0/gain)*2047);
