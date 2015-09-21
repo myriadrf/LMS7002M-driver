@@ -25,7 +25,7 @@ void convert_cf32_to_word32(const void *inp, void *outp, const size_t n)
     for (size_t i = 0; i < n; i+=2) //simd convert 2 complex samples
     {
         float32x4_t sampsf = vld1q_f32(in);
-        float32x4_t scaled = vmulq_n_f32(sampsf, float32_t(30e3f));
+        float32x4_t scaled = vmulq_n_f32(sampsf, float32_t(32768.0f));
         int32x4_t samps32 = vcvtq_s32_f32(scaled);
         int16x4_t samps16 = vmovn_s32(samps32);
         vst1_s16(out, samps16);
@@ -34,8 +34,8 @@ void convert_cf32_to_word32(const void *inp, void *outp, const size_t n)
     }
     if ((n % 2) == 1) //remainder
     {
-        *(out++) = int16_t(*(in++)*30e3f);
-        *(out++) = int16_t(*(in++)*30e3f);
+        *(out++) = int16_t(*(in++)*32768.0f);
+        *(out++) = int16_t(*(in++)*32768.0f);
     }
 }
 
@@ -53,15 +53,15 @@ void convert_word32_to_cf32(const void *inp, void *outp, const size_t n)
         int16x4_t samps16 = vld1_s16(in);
         int32x4_t samps32 = vmovl_s16(samps16);
         float32x4_t sampsf = vcvtq_f32_s32(samps32);
-        float32x4_t scaled = vmulq_n_f32(sampsf, float32_t(1.0/30e3f));
+        float32x4_t scaled = vmulq_n_f32(sampsf, float32_t(1.0/32768.0f));
         vst1q_f32(out, scaled);
         out += 4;
         in += 4;
     }
     if ((n % 2) == 1) //remainder
     {
-        *(out++) = float(*(in++)/30e3f);
-        *(out++) = float(*(in++)/30e3f);
+        *(out++) = float(*(in++)/32768.0f);
+        *(out++) = float(*(in++)/32768.0f);
     }
 }
 
