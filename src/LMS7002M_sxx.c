@@ -18,7 +18,7 @@
 
 static long long sxx_cmp_sleep_ticks(void)
 {
-    return (50*LMS7_time_tps())/1000000; //50 us -> ticks
+    return (LMS7_time_tps())/1000; //1 ms -> ticks
 }
 
 void LMS7002M_sxx_enable(LMS7002M_t *self, const LMS7002M_dir_t direction, const bool enable)

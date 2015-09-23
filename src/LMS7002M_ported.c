@@ -10,6 +10,11 @@
 
 #define VECTOR_MAX 1024
 
+static long long ported_cmp_sleep_ticks(void)
+{
+    return (LMS7_time_tps())/1000; //1 ms -> ticks
+}
+
 /**	@return Current CLKGEN frequency in MHz
     Returned frequency depends on reference clock used for Receiver
 */
@@ -112,7 +117,7 @@ liblms7_status TuneVCO(LMS7002M_t *self, VCO_Module module) // 0-cgen, 1-SXR, 2-
 	{
         Modify_SPI_Reg_bits_(self, addrCSW_VCO, lsb + i, lsb + i, 1); // CSW_VCO<i>=1
 
-        LMS7_sleep_for(((50*LMS7_time_tps())/1000000)); //50 us -> ticks
+        LMS7_sleep_for(ported_cmp_sleep_ticks());
         cmphl = (uint8_t)Get_SPI_Reg_bits_(self, addrCMP, 13, 12);
         if ( (cmphl&0x01) == 1) // reduce CSW
             Modify_SPI_Reg_bits_(self, addrCSW_VCO, lsb + i, lsb + i, 0); // CSW_VCO<i>=0
@@ -143,7 +148,7 @@ liblms7_status TuneVCO(LMS7002M_t *self, VCO_Module module) // 0-cgen, 1-SXR, 2-
     else
         Modify_SPI_Reg_bits(self, LMS7param(SPDUP_VCO_CGEN), 0); //SHORT_NOISEFIL=1 SPDUP_VCO_ Short the noise filter resistor to speed up the settling time
 
-    LMS7_sleep_for(((50*LMS7_time_tps())/1000000)); //50 us -> ticks
+    LMS7_sleep_for(ported_cmp_sleep_ticks());
 	cmphl = (uint8_t)Get_SPI_Reg_bits_(self, addrCMP, 13, 12);
     Modify_SPI_Reg_bits(self, LMS7param(MAC), ch); //restore previously used channel
 	if(cmphl == 2)

@@ -17,7 +17,7 @@
 
 static long long cgen_cmp_sleep_ticks(void)
 {
-    return (50*LMS7_time_tps())/1000000; //50 us -> ticks
+    return (LMS7_time_tps())/1000; //1 ms -> ticks
 }
 
 int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, const double fout, double *factual)
