@@ -48,8 +48,8 @@ EVB7::EVB7(const SoapySDR::Kwargs &args):
     //setup LMS7002M
     _lms = LMS7002M_create(spidev_interface_transact, _spiHandle);
     if (_lms == NULL) std::runtime_error("EVB7 fail to LMS7002M_create()");
-    LMS7002M_set_spi_mode(_lms, 4); //set 4-wire spi mode first
     LMS7002M_reset(_lms);
+    LMS7002M_set_spi_mode(_lms, 4); //set 4-wire spi before reading back
 
     //LMS7002M_load_ini(_lms, "/root/src/TBB_to_LPFL_RBB_loopback.ini");
     //LMS7002M_set_spi_mode(_lms, 4); //set 4-wire spi mode first
