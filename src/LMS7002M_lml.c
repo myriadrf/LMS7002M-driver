@@ -32,6 +32,10 @@ void LMS7002M_reset(LMS7002M_t *self)
     LMS7002M_regs_spi_write(self, 0x0020);
     LMS7002M_regs_spi_write(self, 0x002E);//must write
 
+    //reset the register cache to match the device
+    LMS7002M_regs_init(&self->_regs[0]);
+    LMS7002M_regs_init(&self->_regs[1]);
+
     //optional code to default all registers on reset (doesnt seem to be needed)
     /*
     LMS7002M_set_mac_ch(self, LMS_CHA);
