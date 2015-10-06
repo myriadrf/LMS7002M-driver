@@ -125,21 +125,3 @@ double LMS7002M_tbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channe
 
     return actual;
 }
-
-double LMS7002M_tbb_set_iamp(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain)
-{
-    LMS7002M_set_mac_ch(self, channel);
-    int value = (int)(gain + 0.5);
-    if (value < 0) value = 0;
-    if (value > 63) value = 63;
-
-    //ensure enabled iamp
-    self->regs->reg_0x0105_pd_lpfiamp_tbb = 0;
-    LMS7002M_regs_spi_write(self, 0x0105);
-
-    //TODO this may need calibration
-
-    self->regs->reg_0x0108_cg_iamp_tbb = value;
-
-    return gain;
-}

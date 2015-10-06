@@ -507,15 +507,6 @@ LMS7002M_API void LMS7002M_tbb_enable_loopback(LMS7002M_t *self, const LMS7002M_
  */
 LMS7002M_API double LMS7002M_tbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, const double bw);
 
-/*!
- * Set the IAMP gain for the TX baseband.
- * \param self an instance of the LMS7002M driver
- * \param channel the channel LMS_CHA or LMS_CHB
- * \param gain the gain value in dB 0.0 to 63.0
- * \return the actual gain value in dB
- */
-LMS7002M_API double LMS7002M_tbb_set_iamp(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain);
-
 //=====================================================================//
 // TRF (transmit RF frontend)
 //=====================================================================//
