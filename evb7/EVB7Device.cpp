@@ -436,7 +436,7 @@ SoapySDR::Range EVB7::getGainRange(const int direction, const size_t channel, co
     if (direction == SOAPY_SDR_RX and name == "TIA") return SoapySDR::Range(0.0, 12.0);
     if (direction == SOAPY_SDR_RX and name == "PGA") return SoapySDR::Range(-12.0, 19.0);
     if (direction == SOAPY_SDR_TX and name == "PAD") return SoapySDR::Range(-52.0, 0.0);
-    if (direction == SOAPY_SDR_TX and name == "LB_PAD") return SoapySDR::Range(-24.0, 0.0);
+    if (direction == SOAPY_SDR_TX and name == "LB_PAD") return SoapySDR::Range(-4.3, 0.0);
     return SoapySDR::Device::getGainRange(direction, channel, name);
 }
 

@@ -67,26 +67,17 @@ double LMS7002M_trf_set_pad(LMS7002M_t *self, const LMS7002M_chan_t channel, con
 
 double LMS7002M_trf_set_loopback_pad(LMS7002M_t *self, const LMS7002M_chan_t channel, const double gain)
 {
-    const double pmax = 0;
-    double loss = pmax-gain;
-
-    //clip
-    if (loss > 24) loss = 24;
-    if (loss < 0) loss = 0;
-
-    //integer round
-    int loss_int = (int)((pow(10, loss/20)/5) + 0.5);
+    //there are 4 discrete gain values, use the midpoints
+    double actual = 0.0;
+    int val = 0;
+    if      (gain >= (-1.4-0)/2)   val = 0, actual = 0.0;
+    else if (gain >= (-1.4-3.3)/2) val = 1, actual = -1.4;
+    else if (gain >= (-3.3-4.3)/2) val = 2, actual = -3.3;
+    else                           val = 3, actual = -4.3;
 
     LMS7002M_set_mac_ch(self, channel);
-    self->regs->reg_0x0101_l_loopb_txpad_trf = loss_int;
+    self->regs->reg_0x0101_l_loopb_txpad_trf = val;
     LMS7002M_regs_spi_write(self, 0x0101);
 
-    switch(loss_int)
-    {
-    case 0: return pmax-0.0;
-    case 1: return pmax-20*log10(5.0);
-    case 2: return pmax-20*log10(11.0);
-    case 3: return pmax-20*log10(16.0);
-    }
-    return 0.0;
+    return actual;
 }
