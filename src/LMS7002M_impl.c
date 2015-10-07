@@ -63,12 +63,26 @@ int LMS7002M_spi_read(LMS7002M_t *self, const int addr)
 
 void LMS7002M_regs_spi_write(LMS7002M_t *self, const int addr)
 {
-    LMS7002M_spi_write(self, addr, LMS7002M_regs_get(self->regs, addr));
+    int value = LMS7002M_regs_get(self->regs, addr);
+    LMS7002M_spi_write(self, addr, value);
+
+    //for CHAB mode: duplicate to the CHB register shadow
+    if (self->regs->reg_0x0020_mac == REG_0X0020_MAC_CHAB)
+    {
+        LMS7002M_regs_set(&self->_regs[1], addr, value);
+    }
 }
 
 void LMS7002M_regs_spi_write2(LMS7002M_t *self, const int addr, const int regAddr)
 {
-    LMS7002M_spi_write(self, addr, LMS7002M_regs_get(self->regs, regAddr));
+    int value = LMS7002M_regs_get(self->regs, regAddr);
+    LMS7002M_spi_write(self, addr, value);
+
+    //for CHAB mode: duplicate to the CHB register shadow
+    if (self->regs->reg_0x0020_mac == REG_0X0020_MAC_CHAB)
+    {
+        LMS7002M_regs_set(&self->_regs[1], regAddr, value);
+    }
 }
 
 void LMS7002M_regs_spi_read(LMS7002M_t *self, const int addr)
