@@ -128,15 +128,6 @@ LMS7002M_API int LMS7002M_spi_read(LMS7002M_t *self, const int addr);
 LMS7002M_API void LMS7002M_regs_spi_write(LMS7002M_t *self, const int addr);
 
 /*!
- * When we have RX/TX identical registers based on the same table.
- * Use this call to specify a distinct actual address and lookup addr.
- * \param self an instance of the LMS7002M driver
- * \param addr the 16 bit register address to write over SPI
- * \param regAddr the 16 bit register address to lookup in regs
- */
-LMS7002M_API void LMS7002M_regs_spi_write2(LMS7002M_t *self, const int addr, const int regAddr);
-
-/*!
  * Read a spi register, filling in the fields in the regs structure.
  * \param self an instance of the LMS7002M driver
  * \param addr the 16 bit register address
