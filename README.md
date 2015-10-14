@@ -21,6 +21,13 @@ To ensure that the driver can talk to the LMS7002M independent of the hardware,
 the caller provides the driver instance with SPI access callback functions.
 These functions implement the hardware-dependent SPI register access routines.
 
+## Using LMS7002M API
+
+The C sources in the src/ directory can be compiled into any C or C++ project.
+As an alternative, the CMake build exists in the root directory
+to build a LMS7002M static library and to install header files.
+A client project can link against this library in standard fashion.
+
 ## Licensing information
 
 Use, modification and distribution is subject to the Apache License
