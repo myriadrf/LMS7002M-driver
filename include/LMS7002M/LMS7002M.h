@@ -494,9 +494,10 @@ LMS7002M_API void LMS7002M_tbb_enable_loopback(LMS7002M_t *self, const LMS7002M_
  * \param self an instance of the LMS7002M driver
  * \param channel the channel LMS_CHA or LMS_CHB
  * \param bw the complex bandwidth in Hz
- * \return the actual filter width in Hz
+ * \param bwactual the actual filter width in Hz or NULL
+ * \return 0 for success or error code on failure
  */
-LMS7002M_API double LMS7002M_tbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, const double bw);
+LMS7002M_API int LMS7002M_tbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, const double bw, double *bwactual);
 
 //=====================================================================//
 // TRF (transmit RF frontend)
@@ -690,9 +691,10 @@ LMS7002M_API double LMS7002M_rbb_set_pga(LMS7002M_t *self, const LMS7002M_chan_t
  * \param self an instance of the LMS7002M driver
  * \param channel the channel LMS_CHA or LMS_CHB
  * \param bw the complex bandwidth in Hz
- * \return the actual filter width in Hz
+ * \param bwactual the actual filter width in Hz or NULL
+ * \return 0 for success or error code on failure
  */
-LMS7002M_API double LMS7002M_rbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, const double bw);
+LMS7002M_API int LMS7002M_rbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, const double bw, double *bwactual);
 
 //=====================================================================//
 // RFE (receive RF frontend)

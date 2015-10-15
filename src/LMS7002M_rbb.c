@@ -105,7 +105,7 @@ double LMS7002M_rbb_set_pga(LMS7002M_t *self, const LMS7002M_chan_t channel, con
     return G_PGA_RBB - 12.0;
 }
 
-double LMS7002M_rbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, const double bw)
+int LMS7002M_rbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, const double bw, double *bwactual)
 {
     LMS7002M_set_mac_ch(self, channel);
 
@@ -124,6 +124,7 @@ double LMS7002M_rbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channe
     else if (bw <= 66.0e6) val = 4, actual = 66.0e6;
     else if (bw <= 108.0e6) val = 7, actual = 108.0e6;
     else bypass = true;
+    if (bwactual != NULL) *bwactual = actual;
 
     //only one filter is actually used
     self->regs->reg_0x0117_rcc_ctl_lpfl_rbb = val;
@@ -158,5 +159,5 @@ double LMS7002M_rbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channe
         //if (self->sxr_freq != 0.0) LMS7002M_set_lo_freq(self, LMS_RX, self->sxr_fref, self->sxr_freq, NULL);
     }
 
-    return actual;
+    return (int)status;
 }

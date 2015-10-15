@@ -565,15 +565,18 @@ void EVB7::setBandwidth(const int direction, const size_t channel, const double 
 
     SoapySDR::logf(SOAPY_SDR_INFO, "EVB7::setBandwidth(%s, ch%d, %f MHz)", dir2Str(direction), channel, bw/1e6);
 
+    int ret = 0;
     double &actualBw = _cachedFilterBws[direction][channel];
     if (direction == SOAPY_SDR_RX)
     {
-        actualBw = LMS7002M_rbb_set_filter_bw(_lms, ch2LMS(channel), bw);
+        ret = LMS7002M_rbb_set_filter_bw(_lms, ch2LMS(channel), bw, &actualBw);
     }
     if (direction == SOAPY_SDR_TX)
     {
-        actualBw = LMS7002M_tbb_set_filter_bw(_lms, ch2LMS(channel), bw);
+        ret = LMS7002M_tbb_set_filter_bw(_lms, ch2LMS(channel), bw, &actualBw);
     }
+
+    if (ret != 0) throw std::runtime_error("EVB7::setBandwidth(" + std::to_string(bw/1e6) + " MHz) failed - " + std::to_string(ret));
 }
 
 double EVB7::getBandwidth(const int direction, const size_t channel) const

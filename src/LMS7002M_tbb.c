@@ -74,7 +74,7 @@ void LMS7002M_tbb_enable_loopback(LMS7002M_t *self, const LMS7002M_chan_t channe
     LMS7002M_regs_spi_write(self, 0x0105);
 }
 
-double LMS7002M_tbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, const double bw)
+int LMS7002M_tbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, const double bw, double *bwactual)
 {
     LMS7002M_set_mac_ch(self, channel);
 
@@ -92,6 +92,7 @@ double LMS7002M_tbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channe
     else if (bw <= 38.0e6) val = 97, actual = 38.0e6;
     else if (bw <= 54.0e6) val = 163, actual = 54.0e6;
     else bypass = true;
+    if (bwactual != NULL) *bwactual = actual;
 
     //only one filter is actually used
     self->regs->reg_0x0109_rcal_lpfh_tbb = val;
@@ -125,5 +126,5 @@ double LMS7002M_tbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channe
         //if (self->sxt_freq != 0.0) LMS7002M_set_lo_freq(self, LMS_TX, self->sxt_fref, self->sxt_freq, NULL);
     }
 
-    return actual;
+    return (int)status;
 }

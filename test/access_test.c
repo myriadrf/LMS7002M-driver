@@ -192,15 +192,15 @@ int main(int argc, char **argv)
 
     //calibrate side A - we can only calibrate one side at a time
     printf("======== Set and calibrate RX:A =========\n");
-    LMS7002M_rbb_set_filter_bw(lms, LMS_CHA, 10e6);
+    LMS7002M_rbb_set_filter_bw(lms, LMS_CHA, 10e6, NULL);
     printf("======== Set and calibrate TX:A =========\n");
-    LMS7002M_tbb_set_filter_bw(lms, LMS_CHA, 10e6);
+    LMS7002M_tbb_set_filter_bw(lms, LMS_CHA, 10e6, NULL);
 
     //calibrate side B - we can only calibrate one side at a time
     printf("======== Set and calibrate RX:B =========\n");
-    LMS7002M_rbb_set_filter_bw(lms, LMS_CHB, 10e6);
+    LMS7002M_rbb_set_filter_bw(lms, LMS_CHB, 10e6, NULL);
     printf("======== Set and calibrate TX:B =========\n");
-    LMS7002M_tbb_set_filter_bw(lms, LMS_CHB, 10e6);
+    LMS7002M_tbb_set_filter_bw(lms, LMS_CHB, 10e6, NULL);
 
     //inject test signal into TBB
     const bool TBB_TEST_ON = false;
