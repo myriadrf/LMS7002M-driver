@@ -3,6 +3,7 @@
  */
 
 #include "LMS7002M_ported.h"
+#include <LMS7002M/LMS7002M_logger.h>
 
 #include <math.h> //pow
 
@@ -23,6 +24,7 @@ const float_type gRxLPF_high_higher_limit = 70;
 
 liblms7_status TuneTxFilterSetup(LMS7002M_t *self, TxFilter type, float_type cutoff_MHz)
 {
+    LMS7_logf(LMS7_DEBUG, "TuneTxFilterSetup(%d, %f MHz)", (int)type, cutoff_MHz);
     Modify_SPI_Reg_bits(self, LMS7param(EN_G_RFE), 0);
     Modify_SPI_Reg_bits(self, LMS7param(EN_G_TRF), 0);
 
@@ -87,6 +89,7 @@ liblms7_status TuneTxFilterSetup(LMS7002M_t *self, TxFilter type, float_type cut
 
 liblms7_status TuneTxFilter(LMS7002M_t *self, TxFilter type, float_type cutoff_MHz)
 {   
+    LMS7_logf(LMS7_DEBUG, "TuneTxFilter(%d, %f MHz)", (int)type, cutoff_MHz);
     liblms7_status status;
     float_type lowLimit = 0;
     float_type highLimit = 1000;
@@ -314,6 +317,7 @@ void FilterTuning_AdjustGains(LMS7002M_t *self)
 
 liblms7_status TuneTxFilterLowBandChain(LMS7002M_t *self, float_type bandwidth, float_type realpole_MHz)
 {
+    LMS7_logf(LMS7_DEBUG, "TuneTxFilterLowBandChain(%f MHz, realpole=%f MHz)", bandwidth, realpole_MHz);
     uint32_t rssi;
     uint32_t rssi_value_10k;
     bool prevRSSIbigger;
@@ -424,6 +428,7 @@ TxFilterLowBandChainEnd:
 
 liblms7_status TuneRxFilter(LMS7002M_t *self, RxFilter filter, float_type bandwidth_MHz)
 {
+    LMS7_logf(LMS7_DEBUG, "TuneRxFilter(%d, %f MHz)", (int)filter, bandwidth_MHz);
     liblms7_status status;
     uint16_t cfb_tia_rfe;
     uint16_t c_ctl_lpfl_rbb;
@@ -518,6 +523,7 @@ RxFilterTuneEnd:
 
 liblms7_status TuneRxFilterSetup(LMS7002M_t *self, RxFilter type, float_type cutoff_MHz)
 {
+    LMS7_logf(LMS7_DEBUG, "TuneRxFilterSetup(%d, %f MHz)", (int)type, cutoff_MHz);
     liblms7_status status;
     uint8_t ch = (uint8_t)Get_SPI_Reg_bits(self, LMS7param(MAC));
 
@@ -625,6 +631,7 @@ liblms7_status TuneRxFilterSetup(LMS7002M_t *self, RxFilter type, float_type cut
 
 liblms7_status RFE_TIA_Calibration(LMS7002M_t *self, float_type TIA_freq_MHz)
 {
+    LMS7_logf(LMS7_DEBUG, "RFE_TIA_Calibration(%f MHz)", TIA_freq_MHz);
     liblms7_status status;
     bool prevRSSIbigger;
     uint8_t ccomp_tia_rfe_value;
@@ -699,11 +706,13 @@ liblms7_status RFE_TIA_Calibration(LMS7002M_t *self, float_type TIA_freq_MHz)
         }
         prevRSSIbigger = rssi > rssi_value_50k;
     }
+    LMS7_logf(LMS7_ERROR, "RFE_TIA_Calibration() - failed to set CFB_TIA_RFE");
     return LIBLMS7_FAILURE;
 }
 
 liblms7_status RxLPFLow_Calibration(LMS7002M_t *self, float_type RxLPFL_freq_MHz)
 {
+    LMS7_logf(LMS7_DEBUG, "RxLPFLow_Calibration(%f MHz)", RxLPFL_freq_MHz);
     liblms7_status status;
     uint32_t rssi;
     uint32_t rssi_value_50k;
@@ -772,11 +781,13 @@ liblms7_status RxLPFLow_Calibration(LMS7002M_t *self, float_type RxLPFL_freq_MHz
         }
         prevRSSIbigger = rssi > rssi_value_50k;
     }
+    LMS7_logf(LMS7_ERROR, "RxLPFLow_Calibration() - failed to set C_CTL_LPFL_RBB");
     return LIBLMS7_FAILURE;
 }
 
 liblms7_status RxLPFHigh_Calibration(LMS7002M_t *self, float_type RxLPFH_freq_MHz)
 {
+    LMS7_logf(LMS7_DEBUG, "RxLPFHigh_Calibration(%f MHz)", RxLPFH_freq_MHz);
     liblms7_status status;
     int16_t c_ctl_lpfh_rbb;
     int16_t rcc_ctl_lpfh_rbb;
@@ -842,5 +853,6 @@ liblms7_status RxLPFHigh_Calibration(LMS7002M_t *self, float_type RxLPFH_freq_MH
         }
         prevRSSIbigger = rssi > rssi_value_50k;
     }
+    LMS7_logf(LMS7_ERROR, "RxLPFHigh_Calibration() - failed to set C_CTL_LPFH_RBB");
     return LIBLMS7_FAILURE;
 }
