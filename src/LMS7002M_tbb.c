@@ -104,9 +104,11 @@ double LMS7002M_tbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channe
     else LMS7002M_tbb_set_path(self, channel, LMS7002M_TBB_LBF);
 
     //run the calibration for this bandwidth setting
+    LMS7_logf(LMS7_DEBUG, "CalibrateTx(%f MHz)", bw/1e6);
     liblms7_status status = CalibrateTx(self, bw/1e6);
     if (!bypass && status == LIBLMS7_SUCCESS)
     {
+        LMS7_log(LMS7_DEBUG, "TuneTxFilter");
         TxFilter filter;
         if (hb) filter = TX_HIGHBAND;
         else if (bw >= 2.4e6) filter = TX_LADDER;

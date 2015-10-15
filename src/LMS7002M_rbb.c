@@ -137,11 +137,17 @@ double LMS7002M_rbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channe
     else LMS7002M_rbb_set_path(self, channel, LMS7002M_RBB_LBF);
 
     //run the calibration for this bandwidth setting
+    LMS7_logf(LMS7_DEBUG, "CalibrateRx(%f MHz)", bw/1e6);
     liblms7_status status = CalibrateRx(self, bw/1e6);
     if (!bypass && status == LIBLMS7_SUCCESS)
     {
+        LMS7_log(LMS7_DEBUG, "TuneRxFilter");
         status = TuneRxFilter(self, hb?RX_LPF_HIGHBAND:RX_LPF_LOWBAND, bw/1e6);
-        if (status == LIBLMS7_SUCCESS) status = TuneRxFilter(self, RX_TIA, bw/1e6);
+    }
+    if (status == LIBLMS7_SUCCESS)
+    {
+        LMS7_log(LMS7_DEBUG, "TuneRxFilter(RX_TIA)");
+        status = TuneRxFilter(self, RX_TIA, bw/1e6);
     }
     if (status != LIBLMS7_SUCCESS)
     {
