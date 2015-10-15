@@ -76,6 +76,7 @@ liblms7_status SetFrequencyCGEN(LMS7002M_t *self, const float_type freq_MHz)
 */
 liblms7_status TuneVCO(LMS7002M_t *self, VCO_Module module) // 0-cgen, 1-SXR, 2-SXT
 {
+	LMS7_logf(LMS7_DEBUG, "TuneVCO(%d)", (int)module);
 	int8_t i;
 	uint8_t cmphl; //comparators
 	int16_t csw_lowest = -1;
@@ -119,6 +120,7 @@ liblms7_status TuneVCO(LMS7002M_t *self, VCO_Module module) // 0-cgen, 1-SXR, 2-
 
         LMS7_sleep_for(ported_cmp_sleep_ticks());
         cmphl = (uint8_t)Get_SPI_Reg_bits_(self, addrCMP, 13, 12);
+        LMS7_logf(LMS7_DEBUG, "i=%d, hi=%d, lo=%d", i, cmphl >> 1, cmphl & 0x1);
         if ( (cmphl&0x01) == 1) // reduce CSW
             Modify_SPI_Reg_bits_(self, addrCSW_VCO, lsb + i, lsb + i, 0); // CSW_VCO<i>=0
         if( cmphl == 2 && csw_lowest < 0)
@@ -141,6 +143,7 @@ liblms7_status TuneVCO(LMS7002M_t *self, VCO_Module module) // 0-cgen, 1-SXR, 2-
                     --csw_lowest;
             }
         }
+        LMS7_logf(LMS7_INFO, "lowest CSW_VCO %i, highest CSW_VCO %i", csw_lowest, csw_highest);
         Modify_SPI_Reg_bits_(self, addrCSW_VCO, msb, lsb, csw_lowest+(csw_highest-csw_lowest)/2);
     }
     if (module == VCO_CGEN)
