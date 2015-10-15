@@ -174,6 +174,14 @@ int main(int argc, char **argv)
     LMS7002M_sxx_enable(lms, LMS_RX, true);
     LMS7002M_sxx_enable(lms, LMS_TX, true);
 
+    //tune the frontends
+    printf("======== Tune the frontends =========\n");
+    ret = LMS7002M_set_lo_freq(lms, LMS_TX, REF_FREQ, 2.500e9, &actualRate);
+    printf("%d - Actual TX LO freq %f MHz\n", ret, actualRate/1e6);
+
+    ret = LMS7002M_set_lo_freq(lms, LMS_RX, REF_FREQ, 2.500e9, &actualRate);
+    printf("%d - Actual RX LO freq %f MHz\n", ret, actualRate/1e6);
+
     //setup defaults along the chain
     LMS7002M_rfe_set_path(lms, LMS_CHAB, LMS7002M_RFE_LNAH);
     LMS7002M_trf_select_band(lms, LMS_CHAB, 2);
@@ -182,15 +190,17 @@ int main(int argc, char **argv)
     LMS7002M_rfe_set_tia(lms, LMS_CHAB, 12.0);
     LMS7002M_rbb_set_pga(lms, LMS_CHAB, 19.0);
 
-    LMS7002M_rbb_set_filter_bw(lms, LMS_CHAB, 200e6);
-    LMS7002M_tbb_set_filter_bw(lms, LMS_CHAB, 200e6);
+    //calibrate side A - we can only calibrate one side at a time
+    printf("======== Set and calibrate RX:A =========\n");
+    LMS7002M_rbb_set_filter_bw(lms, LMS_CHA, 10e6);
+    printf("======== Set and calibrate TX:A =========\n");
+    LMS7002M_tbb_set_filter_bw(lms, LMS_CHA, 10e6);
 
-    //tune the frontends
-    ret = LMS7002M_set_lo_freq(lms, LMS_TX, REF_FREQ, 2.500e9, &actualRate);
-    printf("%d - Actual TX LO freq %f MHz\n", ret, actualRate/1e6);
-
-    ret = LMS7002M_set_lo_freq(lms, LMS_RX, REF_FREQ, 2.500e9, &actualRate);
-    printf("%d - Actual RX LO freq %f MHz\n", ret, actualRate/1e6);
+    //calibrate side B - we can only calibrate one side at a time
+    printf("======== Set and calibrate RX:B =========\n");
+    LMS7002M_rbb_set_filter_bw(lms, LMS_CHB, 10e6);
+    printf("======== Set and calibrate TX:B =========\n");
+    LMS7002M_tbb_set_filter_bw(lms, LMS_CHB, 10e6);
 
     //inject test signal into TBB
     const bool TBB_TEST_ON = false;
