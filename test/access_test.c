@@ -183,7 +183,7 @@ int main(int argc, char **argv)
     printf("%d - Actual RX LO freq %f MHz\n", ret, actualRate/1e6);
 
     //setup defaults along the chain
-    LMS7002M_rfe_set_path(lms, LMS_CHAB, LMS7002M_RFE_LNAH);
+    LMS7002M_rfe_set_path(lms, LMS_CHAB, LMS7002M_RFE_LNAW);
     LMS7002M_trf_select_band(lms, LMS_CHAB, 2);
 
     LMS7002M_rfe_set_lna(lms, LMS_CHAB, 40.0);
