@@ -110,7 +110,7 @@ liblms7_status TuneVCO(LMS7002M_t *self, VCO_Module module) // 0-cgen, 1-SXR, 2-
 	if(module == VCO_CGEN)
         Modify_SPI_Reg_bits(self, LMS7param(SPDUP_VCO_CGEN), 1); //SHORT_NOISEFIL=1 SPDUP_VCO_ Short the noise filter resistor to speed up the settling time
 	else
-        Modify_SPI_Reg_bits(self, LMS7param(SPDUP_VCO_CGEN), 1); //SHORT_NOISEFIL=1 SPDUP_VCO_ Short the noise filter resistor to speed up the settling time
+        Modify_SPI_Reg_bits(self, LMS7param(SPDUP_VCO), 1); //SHORT_NOISEFIL=1 SPDUP_VCO_ Short the noise filter resistor to speed up the settling time
 	Modify_SPI_Reg_bits_(self, addrCSW_VCO , msb, lsb , 0); //Set SWC_VCO<7:0>=<00000000>
 
 	i=7;
@@ -136,7 +136,7 @@ liblms7_status TuneVCO(LMS7002M_t *self, VCO_Module module) // 0-cgen, 1-SXR, 2-
             {
                 Modify_SPI_Reg_bits_(self, addrCSW_VCO, msb, lsb, csw_lowest);
 
-                LMS7_sleep_for(((50*LMS7_time_tps())/1000000)); //50 us -> ticks
+                LMS7_sleep_for(ported_cmp_sleep_ticks());
                 if(Get_SPI_Reg_bits_(self, addrCMP, 13, 12) == 0)
                     break;
                 else
@@ -149,7 +149,7 @@ liblms7_status TuneVCO(LMS7002M_t *self, VCO_Module module) // 0-cgen, 1-SXR, 2-
     if (module == VCO_CGEN)
         Modify_SPI_Reg_bits(self, LMS7param(SPDUP_VCO_CGEN), 0); //SHORT_NOISEFIL=1 SPDUP_VCO_ Short the noise filter resistor to speed up the settling time
     else
-        Modify_SPI_Reg_bits(self, LMS7param(SPDUP_VCO_CGEN), 0); //SHORT_NOISEFIL=1 SPDUP_VCO_ Short the noise filter resistor to speed up the settling time
+        Modify_SPI_Reg_bits(self, LMS7param(SPDUP_VCO), 0); //SHORT_NOISEFIL=1 SPDUP_VCO_ Short the noise filter resistor to speed up the settling time
 
     LMS7_sleep_for(ported_cmp_sleep_ticks());
 	cmphl = (uint8_t)Get_SPI_Reg_bits_(self, addrCMP, 13, 12);
@@ -158,7 +158,7 @@ liblms7_status TuneVCO(LMS7002M_t *self, VCO_Module module) // 0-cgen, 1-SXR, 2-
         return LIBLMS7_SUCCESS;
     else
     {
-        LMS7_log(LMS7_ERROR, "TuneVCO fail");
+        LMS7_logf(LMS7_ERROR, "TuneVCO fail - cmphl = %d", cmphl);
         return LIBLMS7_FAILURE;
     }
 }
@@ -242,6 +242,22 @@ liblms7_status Modify_SPI_Reg_mask(LMS7002M_t *self, const uint16_t *addr, const
 */
 liblms7_status SetFrequencySX(LMS7002M_t *self, bool Tx, float_type freq_MHz, float_type refClk_MHz)
 {
+    LMS7_logf(LMS7_DEBUG, "SetFrequencySX(%s, freq=%f MHz, ref=%f MHz)", Tx?"Tx":"Rx", freq_MHz, refClk_MHz);
+
+    if (Tx)
+        mRefClkSXT_MHz = refClk_MHz;
+    else
+        mRefClkSXR_MHz = refClk_MHz;
+
+    uint8_t ch = (uint8_t)Get_SPI_Reg_bits(self, LMS7param(MAC)); //remember used channel
+
+    int status = LMS7002M_set_lo_freq(self, Tx?LMS_TX:LMS_RX, refClk_MHz*1e6, freq_MHz*1e6, NULL);
+
+    Modify_SPI_Reg_bits(self, LMS7param(MAC), ch); //restore previously used channel
+
+    return status;
+    /*
+
     #define sxVCO_N 2 //number of entries in VCO frequencies
     //const uint8_t sxVCO_N = 2; //number of entries in VCO frequencies
     const float_type m_dThrF = 5500; //threshold to enable additional divider
@@ -288,6 +304,7 @@ liblms7_status SetFrequencySX(LMS7002M_t *self, bool Tx, float_type freq_MHz, fl
     else
         mRefClkSXR_MHz = refClk_MHz;
     return TuneVCO(self, Tx ? VCO_SXT : VCO_SXR); //Rx-1, Tx-2
+    */
 }
 
 /**	@brief Returns currently set SXR/SXT frequency
