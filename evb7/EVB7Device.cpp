@@ -181,8 +181,8 @@ EVB7::EVB7(const SoapySDR::Kwargs &args):
         this->setGain(SOAPY_SDR_RX, i, "TIA", 0.0);
         this->setGain(SOAPY_SDR_RX, i, "PGA", 0.0);
         this->setGain(SOAPY_SDR_TX, i, "PAD", 0.0);
-        this->setBandwidth(SOAPY_SDR_RX, i, 200e6);
-        this->setBandwidth(SOAPY_SDR_TX, i, 200e6);
+        _cachedFilterBws[SOAPY_SDR_RX][i] = 10e6;
+        _cachedFilterBws[SOAPY_SDR_TX][i] = 10e6;
         this->setIQBalance(SOAPY_SDR_RX, i, std::polar(1.0, 0.0));
         this->setIQBalance(SOAPY_SDR_TX, i, std::polar(1.0, 0.0));
     }
