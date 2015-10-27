@@ -10,6 +10,7 @@
 #include "EVB7Device.hpp"
 #include <SoapySDR/Registry.hpp>
 #include <LMS7002M/LMS7002M_logger.h>
+#include <fstream>
 
 /***********************************************************************
  * Constructor
@@ -194,6 +195,9 @@ EVB7::EVB7(const SoapySDR::Kwargs &args):
     writeArgToSetting(args, "RXTSP_TSG_CONST");
     writeArgToSetting(args, "TXTSP_TSG_CONST");
 
+    //load the calibration data if present
+    this->loadCalData();
+
     //LMS7002M_dump_ini(_lms, "/root/src/regs.ini");
     SoapySDR::log(SOAPY_SDR_INFO, "Initialization complete");
 }
@@ -234,6 +238,87 @@ EVB7::~EVB7(void)
 
     //register unmap
     xumem_unmap_phys(_regs, FPGA_REGS_SIZE);
+}
+
+/*******************************************************************
+ * Cal hooks
+ ******************************************************************/
+void EVB7::loadCalData(void)
+{
+    std::ifstream calFile("/root/results.csv");
+    size_t calLineNumber = 0;
+    std::vector<std::string> calHeaders;
+    std::string line;
+    while (std::getline(calFile, line))
+    {
+        //std::cout << line << std::endl;
+        std::map<std::string, std::string> calEntry;
+        std::vector<std::string> entries;
+        for (char ch : line)
+        {
+            if (entries.empty()) entries.push_back("");
+            if (entries.back().empty() and std::isblank(ch)) continue;
+            if (ch == ',') entries.push_back("");
+            else entries.back().push_back(ch);
+        }
+        if (calLineNumber == 0)
+        {
+            calHeaders = entries;
+        }
+        else
+        {
+            for (size_t i = 0; i < entries.size(); i++)
+            {
+                calEntry[calHeaders[i]] = entries[i];
+            }
+            _calData.push_back(calEntry);
+        }
+        calLineNumber++;
+    }
+    if (not _calData.empty()) SoapySDR::log(SOAPY_SDR_INFO, "Loaded calibration data");
+}
+
+void EVB7::applyCalData(const int direction, const size_t channel, const double rfFreq)
+{
+    std::map<std::string, std::string> closestEntry;
+    double closestFreq = 0.0;
+    for (const auto &entry : _calData)
+    {
+        if (direction == SOAPY_SDR_RX and std::stoul(entry.at("RX Channel")) != channel) continue;
+        if (direction == SOAPY_SDR_TX and std::stoul(entry.at("TX Channel")) != channel) continue;
+        const double calFreq = std::stod(entry.at("Frequency"));
+        if (std::abs(rfFreq-calFreq) < std::abs(rfFreq-closestFreq))
+        {
+            closestEntry = entry;
+            closestFreq = calFreq;
+        }
+    }
+
+    if (closestFreq != 0.0)
+    {
+        SoapySDR::logf(SOAPY_SDR_INFO, "Using cal data at %f MHz", closestFreq/1e6);
+
+        if (direction == SOAPY_SDR_TX)
+        {
+            double realTxDc, imagTxDc;
+            std::sscanf(closestEntry.at("TX DC correction").c_str(), "(%lf%lfj)", &realTxDc, &imagTxDc);
+            SoapySDR::logf(SOAPY_SDR_INFO, "Parse TX DC correction %s -> %f %f", closestEntry.at("TX DC correction").c_str(), realTxDc, imagTxDc);
+            //this->setDCOffset(direction, channel, std::complex<double>(realTxDc, imagTxDc));
+
+            double realTxIq, imagTxIq;
+            std::sscanf(closestEntry.at("TX IQ correction").c_str(), "(%lf%lfj)", &realTxIq, &imagTxIq);
+            SoapySDR::logf(SOAPY_SDR_INFO, "Parse TX IQ correction %s -> %f %f", closestEntry.at("TX IQ correction").c_str(), realTxIq, imagTxIq);
+            //this->setIQBalance(direction, channel, std::complex<double>(realTxIq, imagTxIq));
+        }
+
+        if (direction == SOAPY_SDR_RX)
+        {
+            double realRxIq, imagRxIq;
+            std::sscanf(closestEntry.at("RX IQ correction").c_str(), "(%lf%lfj)", &realRxIq, &imagRxIq);
+            SoapySDR::logf(SOAPY_SDR_INFO, "Parse RX IQ correction %s -> %f %f", closestEntry.at("RX IQ correction").c_str(), realRxIq, imagRxIq);
+            //this->setIQBalance(direction, channel, std::complex<double>(realRxIq, imagRxIq));
+        }
+    }
 }
 
 /*******************************************************************
@@ -445,7 +530,7 @@ SoapySDR::Range EVB7::getGainRange(const int direction, const size_t channel, co
  ******************************************************************/
 void EVB7::setFrequency(const int direction, const size_t channel, const std::string &name, const double frequency, const SoapySDR::Kwargs &)
 {
-    std::lock_guard<std::mutex> lock(_mutex);
+    std::unique_lock<std::mutex> lock(_mutex);
 
     SoapySDR::logf(SOAPY_SDR_INFO, "EVB7::setFrequency(%s, ch%d, %s, %f MHz)", dir2Str(direction), channel, name.c_str(), frequency/1e6);
 
@@ -456,6 +541,11 @@ void EVB7::setFrequency(const int direction, const size_t channel, const std::st
         if (ret != 0) throw std::runtime_error("EVB7::setFrequency(" + std::to_string(frequency/1e6) + " MHz) failed - " + std::to_string(ret));
         _cachedFreqValues[direction][0][name] = actualFreq;
         _cachedFreqValues[direction][1][name] = actualFreq;
+
+        //try to apply the cal data when turned
+        lock.unlock();
+        this->applyCalData(direction, channel, frequency);
+        lock.lock();
     }
 
     if (name == "BB")

@@ -160,6 +160,12 @@ public:
     StreamFormat _txFormat;
 
     /*******************************************************************
+     * Cal hooks
+     ******************************************************************/
+    void loadCalData(void);
+    void applyCalData(const int direction, const size_t channel, const double rfFreq);
+
+    /*******************************************************************
      * Antenna API
      ******************************************************************/
     std::vector<std::string> listAntennas(const int direction, const size_t channel) const;
@@ -354,6 +360,9 @@ private:
     pzdud_t *_tx_data_dma;
     pzdud_t *_tx_stat_dma;
     double _masterClockRate;
+
+    //calibration data
+    std::vector<std::map<std::string, std::string>> _calData;
 
     //register protection
     std::mutex _mutex;
