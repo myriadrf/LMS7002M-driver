@@ -303,12 +303,12 @@ void EVB7::applyCalData(const int direction, const size_t channel, const double 
             double realTxDc, imagTxDc;
             std::sscanf(closestEntry.at("TX DC correction").c_str(), "(%lf%lfj)", &realTxDc, &imagTxDc);
             SoapySDR::logf(SOAPY_SDR_INFO, "Parse TX DC correction %s -> %f %f", closestEntry.at("TX DC correction").c_str(), realTxDc, imagTxDc);
-            //this->setDCOffset(direction, channel, std::complex<double>(realTxDc, imagTxDc));
+            this->setDCOffset(direction, channel, std::complex<double>(realTxDc, imagTxDc));
 
             double realTxIq, imagTxIq;
             std::sscanf(closestEntry.at("TX IQ correction").c_str(), "(%lf%lfj)", &realTxIq, &imagTxIq);
             SoapySDR::logf(SOAPY_SDR_INFO, "Parse TX IQ correction %s -> %f %f", closestEntry.at("TX IQ correction").c_str(), realTxIq, imagTxIq);
-            //this->setIQBalance(direction, channel, std::complex<double>(realTxIq, imagTxIq));
+            this->setIQBalance(direction, channel, std::complex<double>(realTxIq, imagTxIq));
         }
 
         if (direction == SOAPY_SDR_RX)
@@ -316,7 +316,7 @@ void EVB7::applyCalData(const int direction, const size_t channel, const double 
             double realRxIq, imagRxIq;
             std::sscanf(closestEntry.at("RX IQ correction").c_str(), "(%lf%lfj)", &realRxIq, &imagRxIq);
             SoapySDR::logf(SOAPY_SDR_INFO, "Parse RX IQ correction %s -> %f %f", closestEntry.at("RX IQ correction").c_str(), realRxIq, imagRxIq);
-            //this->setIQBalance(direction, channel, std::complex<double>(realRxIq, imagRxIq));
+            this->setIQBalance(direction, channel, std::complex<double>(realRxIq, imagRxIq));
         }
     }
 }
