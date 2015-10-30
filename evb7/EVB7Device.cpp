@@ -9,8 +9,24 @@
 
 #include "EVB7Device.hpp"
 #include <SoapySDR/Registry.hpp>
+#include <SoapySDR/Logger.hpp>
 #include <LMS7002M/LMS7002M_logger.h>
 #include <fstream>
+
+void customLogHandler(const LMS7_log_level_t level, const char *message)
+{
+    switch (level)
+    {
+    case LMS7_FATAL:    SoapySDR::log(SOAPY_SDR_FATAL, message); break;
+    case LMS7_CRITICAL: SoapySDR::log(SOAPY_SDR_CRITICAL, message); break;
+    case LMS7_ERROR:    SoapySDR::log(SOAPY_SDR_ERROR, message); break;
+    case LMS7_WARNING:  SoapySDR::log(SOAPY_SDR_WARNING, message); break;
+    case LMS7_NOTICE:   SoapySDR::log(SOAPY_SDR_NOTICE, message); break;
+    case LMS7_INFO:     SoapySDR::log(SOAPY_SDR_INFO, message); break;
+    case LMS7_DEBUG:    SoapySDR::log(SOAPY_SDR_DEBUG, message); break;
+    case LMS7_TRACE:    SoapySDR::log(SOAPY_SDR_TRACE, message); break;
+    }
+}
 
 /***********************************************************************
  * Constructor
@@ -25,8 +41,11 @@ EVB7::EVB7(const SoapySDR::Kwargs &args):
     _tx_stat_dma(NULL),
     _masterClockRate(1.0e6)
 {
+    LMS7_set_log_handler(&customLogHandler);
     LMS7_set_log_level(LMS7_INFO);
-    SoapySDR::logf(SOAPY_SDR_INFO, "EVB7()");
+    SoapySDR::logf(SOAPY_SDR_INFO, "###########################################################");
+    SoapySDR::logf(SOAPY_SDR_INFO, "EVB7() setup START");
+    SoapySDR::logf(SOAPY_SDR_INFO, "###########################################################");
     setvbuf(stdout, NULL, _IOLBF, 0);
 
     //map FPGA registers
@@ -176,6 +195,7 @@ EVB7::EVB7(const SoapySDR::Kwargs &args):
         _cachedFreqValues[SOAPY_SDR_TX][i]["RF"] = 1e9;
         _cachedFreqValues[SOAPY_SDR_RX][i]["BB"] = 0;
         _cachedFreqValues[SOAPY_SDR_TX][i]["BB"] = 0;
+        _cachedFreqValues[SOAPY_SDR_TX][i]["SIGGEN"] = 0;
         this->setAntenna(SOAPY_SDR_RX, i, "LNAW");
         this->setAntenna(SOAPY_SDR_TX, i, "BAND1");
         this->setGain(SOAPY_SDR_RX, i, "LNA", 0.0);
