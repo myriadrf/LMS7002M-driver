@@ -659,7 +659,8 @@ std::vector<double> EVB7::listSampleRates(const int direction, const size_t) con
 {
     const double baseRate = this->getTSPRate(direction);
     std::vector<double> rates;
-    for (int i = 5; i >= 0; i--)
+    //from baseRate/32 to baseRate/2
+    for (int i = 5; i >= 1; i--)
     {
         rates.push_back(baseRate/(1 << i));
     }
