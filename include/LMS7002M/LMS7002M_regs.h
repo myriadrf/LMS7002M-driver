@@ -270,6 +270,10 @@ struct LMS7002M_regs_struct
     int reg_0x002f_ver;
     int reg_0x002f_rev;
     int reg_0x002f_mask;
+    int reg_0x0081_en_dir_ldo;
+    int reg_0x0081_en_dir_cgen;
+    int reg_0x0081_en_dir_xbuf;
+    int reg_0x0081_en_dir_afe;
     int reg_0x0082_isel_dac_afe;
     int reg_0x0082_mode_interleave_afe;
     int reg_0x0082_mux_afe_1;
@@ -327,6 +331,38 @@ struct LMS7002M_regs_struct
     int reg_0x008c_cp3_cgen;
     int reg_0x008c_cz_cgen;
     int reg_0x008d_resrv_cgn;
+    int reg_0x0092_en_ldo_dig;
+    int reg_0x0092_en_ldo_diggn;
+    int reg_0x0092_en_ldo_digsxr;
+    int reg_0x0092_en_ldo_digsxt;
+    int reg_0x0092_en_ldo_divgn;
+    int reg_0x0092_en_ldo_divsxr;
+    int reg_0x0092_en_ldo_divsxt;
+    int reg_0x0092_en_ldo_lna12;
+    int reg_0x0092_en_ldo_lna14;
+    int reg_0x0092_en_ldo_mxrfe;
+    int reg_0x0092_en_ldo_rbb;
+    int reg_0x0092_en_ldo_rxbuf;
+    int reg_0x0092_en_ldo_tbb;
+    int reg_0x0092_en_ldo_tia12;
+    int reg_0x0092_en_ldo_tia14;
+    int reg_0x0092_en_g_ldo;
+    int reg_0x0093_en_loadimp_ldo_tlob;
+    int reg_0x0093_en_loadimp_ldo_tpad;
+    int reg_0x0093_en_loadimp_ldo_txbuf;
+    int reg_0x0093_en_loadimp_ldo_vcogn;
+    int reg_0x0093_en_loadimp_ldo_vcosxr;
+    int reg_0x0093_en_loadimp_ldo_vcosxt;
+    int reg_0x0093_en_ldo_afe;
+    int reg_0x0093_en_ldo_cpgn;
+    int reg_0x0093_en_ldo_cpsxr;
+    int reg_0x0093_en_ldo_tlob;
+    int reg_0x0093_en_ldo_tpad;
+    int reg_0x0093_en_ldo_txbuf;
+    int reg_0x0093_en_ldo_vcogn;
+    int reg_0x0093_en_ldo_vcosxr;
+    int reg_0x0093_en_ldo_vcosxt;
+    int reg_0x0093_en_ldo_cpsxt;
     int reg_0x0100_en_lowbwlomx_tmx_trf;
     int reg_0x0100_en_nexttx_trf;
     int reg_0x0100_en_amphf_pdet_trf;
@@ -574,6 +610,7 @@ static inline void LMS7002M_regs_init(LMS7002M_regs_t *regs)
     LMS7002M_regs_set(regs, 0x002C, 0xffff);
     LMS7002M_regs_set(regs, 0x002E, 0x0);
     LMS7002M_regs_set(regs, 0x002F, 0x3840);
+    LMS7002M_regs_set(regs, 0x0081, 0xad43);
     LMS7002M_regs_set(regs, 0x0082, 0x800b);
     LMS7002M_regs_set(regs, 0x0085, 0x1);
     LMS7002M_regs_set(regs, 0x0086, 0x4905);
@@ -584,6 +621,8 @@ static inline void LMS7002M_regs_init(LMS7002M_regs_t *regs)
     LMS7002M_regs_set(regs, 0x008B, 0x1900);
     LMS7002M_regs_set(regs, 0x008C, 0x67b);
     LMS7002M_regs_set(regs, 0x008D, 0x0);
+    LMS7002M_regs_set(regs, 0x0092, 0x1);
+    LMS7002M_regs_set(regs, 0x0093, 0x0);
     LMS7002M_regs_set(regs, 0x0100, 0x3409);
     LMS7002M_regs_set(regs, 0x0101, 0x7800);
     LMS7002M_regs_set(regs, 0x0102, 0x3180);
@@ -773,6 +812,14 @@ static inline void LMS7002M_regs_set(LMS7002M_regs_t *regs, const int addr, cons
         regs->reg_0x002f_mask = (value >> 0) & 0x3f;
         return;
     }
+    if (addr == 0x0081)
+    {
+        regs->reg_0x0081_en_dir_ldo = (value >> 3) & 0x1;
+        regs->reg_0x0081_en_dir_cgen = (value >> 2) & 0x1;
+        regs->reg_0x0081_en_dir_xbuf = (value >> 1) & 0x1;
+        regs->reg_0x0081_en_dir_afe = (value >> 0) & 0x1;
+        return;
+    }
     if (addr == 0x0082)
     {
         regs->reg_0x0082_isel_dac_afe = (value >> 13) & 0x7;
@@ -868,6 +915,46 @@ static inline void LMS7002M_regs_set(LMS7002M_regs_t *regs, const int addr, cons
     if (addr == 0x008D)
     {
         regs->reg_0x008d_resrv_cgn = (value >> 0) & 0x7;
+        return;
+    }
+    if (addr == 0x0092)
+    {
+        regs->reg_0x0092_en_ldo_dig = (value >> 15) & 0x1;
+        regs->reg_0x0092_en_ldo_diggn = (value >> 14) & 0x1;
+        regs->reg_0x0092_en_ldo_digsxr = (value >> 13) & 0x1;
+        regs->reg_0x0092_en_ldo_digsxt = (value >> 12) & 0x1;
+        regs->reg_0x0092_en_ldo_divgn = (value >> 11) & 0x1;
+        regs->reg_0x0092_en_ldo_divsxr = (value >> 10) & 0x1;
+        regs->reg_0x0092_en_ldo_divsxt = (value >> 9) & 0x1;
+        regs->reg_0x0092_en_ldo_lna12 = (value >> 8) & 0x1;
+        regs->reg_0x0092_en_ldo_lna14 = (value >> 7) & 0x1;
+        regs->reg_0x0092_en_ldo_mxrfe = (value >> 6) & 0x1;
+        regs->reg_0x0092_en_ldo_rbb = (value >> 5) & 0x1;
+        regs->reg_0x0092_en_ldo_rxbuf = (value >> 4) & 0x1;
+        regs->reg_0x0092_en_ldo_tbb = (value >> 3) & 0x1;
+        regs->reg_0x0092_en_ldo_tia12 = (value >> 2) & 0x1;
+        regs->reg_0x0092_en_ldo_tia14 = (value >> 1) & 0x1;
+        regs->reg_0x0092_en_g_ldo = (value >> 0) & 0x1;
+        return;
+    }
+    if (addr == 0x0093)
+    {
+        regs->reg_0x0093_en_loadimp_ldo_tlob = (value >> 15) & 0x1;
+        regs->reg_0x0093_en_loadimp_ldo_tpad = (value >> 14) & 0x1;
+        regs->reg_0x0093_en_loadimp_ldo_txbuf = (value >> 13) & 0x1;
+        regs->reg_0x0093_en_loadimp_ldo_vcogn = (value >> 12) & 0x1;
+        regs->reg_0x0093_en_loadimp_ldo_vcosxr = (value >> 11) & 0x1;
+        regs->reg_0x0093_en_loadimp_ldo_vcosxt = (value >> 10) & 0x1;
+        regs->reg_0x0093_en_ldo_afe = (value >> 9) & 0x1;
+        regs->reg_0x0093_en_ldo_cpgn = (value >> 8) & 0x1;
+        regs->reg_0x0093_en_ldo_cpsxr = (value >> 7) & 0x1;
+        regs->reg_0x0093_en_ldo_tlob = (value >> 6) & 0x1;
+        regs->reg_0x0093_en_ldo_tpad = (value >> 5) & 0x1;
+        regs->reg_0x0093_en_ldo_txbuf = (value >> 4) & 0x1;
+        regs->reg_0x0093_en_ldo_vcogn = (value >> 3) & 0x1;
+        regs->reg_0x0093_en_ldo_vcosxr = (value >> 2) & 0x1;
+        regs->reg_0x0093_en_ldo_vcosxt = (value >> 1) & 0x1;
+        regs->reg_0x0093_en_ldo_cpsxt = (value >> 0) & 0x1;
         return;
     }
     if (addr == 0x0100)
@@ -1480,6 +1567,13 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr)
         value |= (regs->reg_0x002f_rev & 0x1f) << 6;
         value |= (regs->reg_0x002f_mask & 0x3f) << 0;
     }
+    if (addr == 0x0081)
+    {
+        value |= (regs->reg_0x0081_en_dir_ldo & 0x1) << 3;
+        value |= (regs->reg_0x0081_en_dir_cgen & 0x1) << 2;
+        value |= (regs->reg_0x0081_en_dir_xbuf & 0x1) << 1;
+        value |= (regs->reg_0x0081_en_dir_afe & 0x1) << 0;
+    }
     if (addr == 0x0082)
     {
         value |= (regs->reg_0x0082_isel_dac_afe & 0x7) << 13;
@@ -1566,6 +1660,44 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr)
     if (addr == 0x008D)
     {
         value |= (regs->reg_0x008d_resrv_cgn & 0x7) << 0;
+    }
+    if (addr == 0x0092)
+    {
+        value |= (regs->reg_0x0092_en_ldo_dig & 0x1) << 15;
+        value |= (regs->reg_0x0092_en_ldo_diggn & 0x1) << 14;
+        value |= (regs->reg_0x0092_en_ldo_digsxr & 0x1) << 13;
+        value |= (regs->reg_0x0092_en_ldo_digsxt & 0x1) << 12;
+        value |= (regs->reg_0x0092_en_ldo_divgn & 0x1) << 11;
+        value |= (regs->reg_0x0092_en_ldo_divsxr & 0x1) << 10;
+        value |= (regs->reg_0x0092_en_ldo_divsxt & 0x1) << 9;
+        value |= (regs->reg_0x0092_en_ldo_lna12 & 0x1) << 8;
+        value |= (regs->reg_0x0092_en_ldo_lna14 & 0x1) << 7;
+        value |= (regs->reg_0x0092_en_ldo_mxrfe & 0x1) << 6;
+        value |= (regs->reg_0x0092_en_ldo_rbb & 0x1) << 5;
+        value |= (regs->reg_0x0092_en_ldo_rxbuf & 0x1) << 4;
+        value |= (regs->reg_0x0092_en_ldo_tbb & 0x1) << 3;
+        value |= (regs->reg_0x0092_en_ldo_tia12 & 0x1) << 2;
+        value |= (regs->reg_0x0092_en_ldo_tia14 & 0x1) << 1;
+        value |= (regs->reg_0x0092_en_g_ldo & 0x1) << 0;
+    }
+    if (addr == 0x0093)
+    {
+        value |= (regs->reg_0x0093_en_loadimp_ldo_tlob & 0x1) << 15;
+        value |= (regs->reg_0x0093_en_loadimp_ldo_tpad & 0x1) << 14;
+        value |= (regs->reg_0x0093_en_loadimp_ldo_txbuf & 0x1) << 13;
+        value |= (regs->reg_0x0093_en_loadimp_ldo_vcogn & 0x1) << 12;
+        value |= (regs->reg_0x0093_en_loadimp_ldo_vcosxr & 0x1) << 11;
+        value |= (regs->reg_0x0093_en_loadimp_ldo_vcosxt & 0x1) << 10;
+        value |= (regs->reg_0x0093_en_ldo_afe & 0x1) << 9;
+        value |= (regs->reg_0x0093_en_ldo_cpgn & 0x1) << 8;
+        value |= (regs->reg_0x0093_en_ldo_cpsxr & 0x1) << 7;
+        value |= (regs->reg_0x0093_en_ldo_tlob & 0x1) << 6;
+        value |= (regs->reg_0x0093_en_ldo_tpad & 0x1) << 5;
+        value |= (regs->reg_0x0093_en_ldo_txbuf & 0x1) << 4;
+        value |= (regs->reg_0x0093_en_ldo_vcogn & 0x1) << 3;
+        value |= (regs->reg_0x0093_en_ldo_vcosxr & 0x1) << 2;
+        value |= (regs->reg_0x0093_en_ldo_vcosxt & 0x1) << 1;
+        value |= (regs->reg_0x0093_en_ldo_cpsxt & 0x1) << 0;
     }
     if (addr == 0x0100)
     {
@@ -2013,6 +2145,7 @@ static inline const int *LMS7002M_regs_addrs(void)
     0x002C,
     0x002E,
     0x002F,
+    0x0081,
     0x0082,
     0x0085,
     0x0086,
@@ -2023,6 +2156,8 @@ static inline const int *LMS7002M_regs_addrs(void)
     0x008B,
     0x008C,
     0x008D,
+    0x0092,
+    0x0093,
     0x0100,
     0x0101,
     0x0102,

@@ -1,0 +1,12 @@
+[
+{
+    "addr" : "0x0081",
+    "fields" : {
+        "EN_DIR_LDO" : {"bits":"3"},
+        "EN_DIR_CGEN" : {"bits":"2"},
+        "EN_DIR_XBUF" : {"bits":"1"},
+        "EN_DIR_AFE" : {"bits":"0"}
+    },
+    "default": "10101101 01000011"
+}
+]

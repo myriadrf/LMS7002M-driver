@@ -1,0 +1,46 @@
+[
+{
+    "addr" : "0x0092",
+    "fields" : {
+        "EN_LDO_DIG" : {"bits":"15"},
+        "EN_LDO_DIGGN" : {"bits":"14"},
+        "EN_LDO_DIGSXR" : {"bits":"13"},
+        "EN_LDO_DIGSXT" : {"bits":"12"},
+        "EN_LDO_DIVGN" : {"bits":"11"},
+        "EN_LDO_DIVSXR" : {"bits":"10"},
+        "EN_LDO_DIVSXT" : {"bits":"9"},
+        "EN_LDO_LNA12" : {"bits":"8"},
+        "EN_LDO_LNA14" : {"bits":"7"},
+        "EN_LDO_MXRFE" : {"bits":"6"},
+        "EN_LDO_RBB" : {"bits":"5"},
+        "EN_LDO_RXBUF" : {"bits":"4"},
+        "EN_LDO_TBB" : {"bits":"3"},
+        "EN_LDO_TIA12" : {"bits":"2"},
+        "EN_LDO_TIA14" : {"bits":"1"},
+        "EN_G_LDO" : {"bits":"0"}
+    },
+    "default": "00000000 00000001"
+},
+{
+    "addr" : "0x0093",
+    "fields" : {
+        "EN_LOADIMP_LDO_TLOB" : {"bits":"15"},
+        "EN_LOADIMP_LDO_TPAD" : {"bits":"14"},
+        "EN_LOADIMP_LDO_TXBUF" : {"bits":"13"},
+        "EN_LOADIMP_LDO_VCOGN" : {"bits":"12"},
+        "EN_LOADIMP_LDO_VCOSXR" : {"bits":"11"},
+        "EN_LOADIMP_LDO_VCOSXT" : {"bits":"10"},
+        "EN_LDO_AFE" : {"bits":"9"},
+        "EN_LDO_CPGN" : {"bits":"8"},
+        "EN_LDO_CPSXR" : {"bits":"7"},
+        "EN_LDO_TLOB" : {"bits":"6"},
+        "EN_LDO_TPAD" : {"bits":"5"},
+        "EN_LDO_TXBUF" : {"bits":"4"},
+        "EN_LDO_VCOGN" : {"bits":"3"},
+        "EN_LDO_VCOSXR" : {"bits":"2"},
+        "EN_LDO_VCOSXT" : {"bits":"1"},
+        "EN_LDO_CPSXT" : {"bits":"0"}
+    },
+    "default": "00000000 00000000"
+}
+]
