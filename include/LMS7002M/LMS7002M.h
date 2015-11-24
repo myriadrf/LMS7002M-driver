@@ -268,6 +268,22 @@ LMS7002M_API void LMS7002M_ldo_enable(LMS7002M_t *self, const bool enable, const
 // XBUF
 //=====================================================================//
 
+/*!
+ * Share the TX XBUF clock chain to the RX XBUF clock chain.
+ * Enabled sharing when there is no clock provided to the RX input.
+ * \param self an instance of the LMS7002M driver
+ * \param enable true to enable sharing, false to use separate inputs
+ */
+LMS7002M_API void LMS7002M_xbuf_share_tx(LMS7002M_t *self, const bool enable);
+
+/*!
+ * Enable input biasing the DC voltage level for clock inputs.
+ * When disabled, the input clocks should be DC coupled.
+ * \param self an instance of the LMS7002M driver
+ * \param enable true to enable input bias, false to disable
+ */
+LMS7002M_API void LMS7002M_xbuf_enable_bias(LMS7002M_t *self, const bool enable);
+
 //=====================================================================//
 // AFE (ADCs and DACs)
 //=====================================================================//
