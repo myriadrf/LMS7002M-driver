@@ -251,6 +251,24 @@ LMS7002M_API void LMS7002M_set_mac_dir(LMS7002M_t *self, const LMS7002M_dir_t di
 LMS7002M_API void LMS7002M_set_diq_mux(LMS7002M_t *self, const LMS7002M_dir_t direction, const int positions[4]);
 
 //=====================================================================//
+// LDO
+//=====================================================================//
+
+#define LMS7002M_LDO_ALL 0 //!< A group that represents all LDOs
+
+/*!
+ * Enable/disable a group of LDOs.
+ * \param self an instance of the LMS7002M driver
+ * \param enable true to enable, false to power down
+ * \param group a group of LDOs see LMS7002M_LDO_*
+ */
+LMS7002M_API void LMS7002M_ldo_enable(LMS7002M_t *self, const bool enable, const int group);
+
+//=====================================================================//
+// XBUF
+//=====================================================================//
+
+//=====================================================================//
 // AFE (ADCs and DACs)
 //=====================================================================//
 

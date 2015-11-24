@@ -62,6 +62,20 @@ void LMS7002M_power_down(LMS7002M_t *self)
     self->regs->reg_0x0020_txen_a = 0;
     self->regs->reg_0x0020_txen_b = 0;
     LMS7002M_regs_spi_write(self, 0x0020);
+
+    LMS7002M_ldo_enable(self, false, LMS7002M_LDO_ALL);
+    LMS7002M_afe_enable(self, LMS_TX, LMS_CHA, false);
+    LMS7002M_afe_enable(self, LMS_TX, LMS_CHB, false);
+    LMS7002M_afe_enable(self, LMS_RX, LMS_CHA, false);
+    LMS7002M_afe_enable(self, LMS_RX, LMS_CHB, false);
+    LMS7002M_rxtsp_enable(self, LMS_CHAB, false);
+    LMS7002M_txtsp_enable(self, LMS_CHAB, false);
+    LMS7002M_rbb_enable(self, LMS_CHAB, false);
+    LMS7002M_tbb_enable(self, LMS_CHAB, false);
+    LMS7002M_rfe_enable(self, LMS_CHAB, false);
+    LMS7002M_trf_enable(self, LMS_CHAB, false);
+    LMS7002M_sxx_enable(self, LMS_RX, false);
+    LMS7002M_sxx_enable(self, LMS_TX, false);
 }
 
 void LMS7002M_configure_lml_port(LMS7002M_t *self, const LMS7002M_port_t portNo, const LMS7002M_dir_t direction, const int mclkDiv)
