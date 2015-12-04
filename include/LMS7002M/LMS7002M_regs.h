@@ -363,6 +363,116 @@ struct LMS7002M_regs_struct
     int reg_0x0093_en_ldo_vcosxr;
     int reg_0x0093_en_ldo_vcosxt;
     int reg_0x0093_en_ldo_cpsxt;
+    int reg_0x0094_en_loadimp_ldo_cpsxt;
+    int reg_0x0094_en_loadimp_ldo_dig;
+    int reg_0x0094_en_loadimp_ldo_diggn;
+    int reg_0x0094_en_loadimp_ldo_digsxr;
+    int reg_0x0094_en_loadimp_ldo_digsxt;
+    int reg_0x0094_en_loadimp_ldo_divgn;
+    int reg_0x0094_en_loadimp_ldo_divsxr;
+    int reg_0x0094_en_loadimp_ldo_divsxt;
+    int reg_0x0094_en_loadimp_ldo_lna12;
+    int reg_0x0094_en_loadimp_ldo_lna14;
+    int reg_0x0094_en_loadimp_ldo_mxrfe;
+    int reg_0x0094_en_loadimp_ldo_rbb;
+    int reg_0x0094_en_loadimp_ldo_rxbuf;
+    int reg_0x0094_en_loadimp_ldo_tbb;
+    int reg_0x0094_en_loadimp_ldo_tia12;
+    int reg_0x0094_en_loadimp_ldo_tia14;
+    int reg_0x0095_byp_ldo_tbb;
+    int reg_0x0095_byp_ldo_tia12;
+    int reg_0x0095_byp_ldo_tia14;
+    int reg_0x0095_byp_ldo_tlob;
+    int reg_0x0095_byp_ldo_tpad;
+    int reg_0x0095_byp_ldo_txbuf;
+    int reg_0x0095_byp_ldo_vcogn;
+    int reg_0x0095_byp_ldo_vcosxr;
+    int reg_0x0095_byp_ldo_vcosxt;
+    int reg_0x0095_en_loadimp_ldo_afe;
+    int reg_0x0095_en_loadimp_ldo_cpgn;
+    int reg_0x0095_en_loadimp_ldo_cpsxr;
+    int reg_0x0096_byp_ldo_afe;
+    int reg_0x0096_byp_ldo_cpgn;
+    int reg_0x0096_byp_ldo_cpsxr;
+    int reg_0x0096_byp_ldo_cpsxt;
+    int reg_0x0096_byp_ldo_dig;
+    int reg_0x0096_byp_ldo_diggn;
+    int reg_0x0096_byp_ldo_digsxr;
+    int reg_0x0096_byp_ldo_digsxt;
+    int reg_0x0096_byp_ldo_divgn;
+    int reg_0x0096_byp_ldo_divsxr;
+    int reg_0x0096_byp_ldo_divsxt;
+    int reg_0x0096_byp_ldo_lna12;
+    int reg_0x0096_byp_ldo_lna14;
+    int reg_0x0096_byp_ldo_mxrfe;
+    int reg_0x0096_byp_ldo_rbb;
+    int reg_0x0096_byp_ldo_rxbuf;
+    int reg_0x0097_spdup_ldo_divsxr;
+    int reg_0x0097_spdup_ldo_divsxt;
+    int reg_0x0097_spdup_ldo_lna12;
+    int reg_0x0097_spdup_ldo_lna14;
+    int reg_0x0097_spdup_ldo_mxrfe;
+    int reg_0x0097_spdup_ldo_rbb;
+    int reg_0x0097_spdup_ldo_rxbuf;
+    int reg_0x0097_spdup_ldo_tbb;
+    int reg_0x0097_spdup_ldo_tia12;
+    int reg_0x0097_spdup_ldo_tia14;
+    int reg_0x0097_spdup_ldo_tlob;
+    int reg_0x0097_spdup_ldo_tpad;
+    int reg_0x0097_spdup_ldo_txbuf;
+    int reg_0x0097_spdup_ldo_vcogn;
+    int reg_0x0097_spdup_ldo_vcosxr;
+    int reg_0x0097_spdup_ldo_vcosxt;
+    int reg_0x0098_spdup_ldo_afe;
+    int reg_0x0098_spdup_ldo_cpgn;
+    int reg_0x0098_spdup_ldo_cpsxr;
+    int reg_0x0098_spdup_ldo_cpsxt;
+    int reg_0x0098_spdup_ldo_dig;
+    int reg_0x0098_spdup_ldo_diggn;
+    int reg_0x0098_spdup_ldo_digsxr;
+    int reg_0x0098_spdup_ldo_digsxt;
+    int reg_0x0098_spdup_ldo_divgn;
+    int reg_0x0099_rdiv_vcosxr;
+    int reg_0x0099_rdiv_vcosxt;
+    int reg_0x009a_rdiv_txbuf;
+    int reg_0x009a_rdiv_vcogn;
+    int reg_0x009b_rdiv_tlob;
+    int reg_0x009b_rdiv_tpad;
+    int reg_0x009c_rdiv_tia12;
+    int reg_0x009c_rdiv_tia14;
+    int reg_0x009d_rdiv_rxbuf;
+    int reg_0x009d_rdiv_tbb;
+    int reg_0x009e_rdiv_mxrfe;
+    int reg_0x009e_rdiv_rbb;
+    int reg_0x009f_rdiv_lna12;
+    int reg_0x009f_rdiv_lna14;
+    int reg_0x00a0_rdiv_divsxr;
+    int reg_0x00a0_rdiv_divsxt;
+    int reg_0x00a1_rdiv_digsxt;
+    int reg_0x00a1_rdiv_divgn;
+    int reg_0x00a2_rdiv_diggn;
+    int reg_0x00a2_rdiv_digsxr;
+    int reg_0x00a3_rdiv_cpsxt;
+    int reg_0x00a3_rdiv_dig;
+    int reg_0x00a4_rdiv_cpgn;
+    int reg_0x00a4_rdiv_cpsxr;
+    int reg_0x00a5_rdiv_spibuf;
+    int reg_0x00a5_rdiv_afe;
+    int reg_0x00a6_spdup_ldo_spibuf;
+    int reg_0x00a6_spdup_ldo_digip2;
+    int reg_0x00a6_spdup_ldo_digip1;
+    int reg_0x00a6_byp_ldo_spibuf;
+    int reg_0x00a6_byp_ldo_digip2;
+    int reg_0x00a6_byp_ldo_digip1;
+    int reg_0x00a6_en_loadimp_ldo_spibuf;
+    int reg_0x00a6_en_loadimp_ldo_digip2;
+    int reg_0x00a6_en_loadimp_ldo_digip1;
+    int reg_0x00a6_pd_ldo_spibuf;
+    int reg_0x00a6_pd_ldo_digip2;
+    int reg_0x00a6_pd_ldo_digip1;
+    int reg_0x00a6_en_g_ldop;
+    int reg_0x00a7_rdiv_digip2;
+    int reg_0x00a7_rdiv_digip1;
     int reg_0x0100_en_lowbwlomx_tmx_trf;
     int reg_0x0100_en_nexttx_trf;
     int reg_0x0100_en_amphf_pdet_trf;
@@ -623,6 +733,26 @@ static inline void LMS7002M_regs_init(LMS7002M_regs_t *regs)
     LMS7002M_regs_set(regs, 0x008D, 0x0);
     LMS7002M_regs_set(regs, 0x0092, 0x1);
     LMS7002M_regs_set(regs, 0x0093, 0x0);
+    LMS7002M_regs_set(regs, 0x0094, 0x0);
+    LMS7002M_regs_set(regs, 0x0095, 0x0);
+    LMS7002M_regs_set(regs, 0x0096, 0x0);
+    LMS7002M_regs_set(regs, 0x0097, 0x0);
+    LMS7002M_regs_set(regs, 0x0098, 0x0);
+    LMS7002M_regs_set(regs, 0x0099, 0x6565);
+    LMS7002M_regs_set(regs, 0x009A, 0x658c);
+    LMS7002M_regs_set(regs, 0x009B, 0x6565);
+    LMS7002M_regs_set(regs, 0x009C, 0x658c);
+    LMS7002M_regs_set(regs, 0x009D, 0x6565);
+    LMS7002M_regs_set(regs, 0x009E, 0x658c);
+    LMS7002M_regs_set(regs, 0x009F, 0x658c);
+    LMS7002M_regs_set(regs, 0x00A0, 0x6565);
+    LMS7002M_regs_set(regs, 0x00A1, 0x6565);
+    LMS7002M_regs_set(regs, 0x00A2, 0x6565);
+    LMS7002M_regs_set(regs, 0x00A3, 0x6565);
+    LMS7002M_regs_set(regs, 0x00A4, 0x6565);
+    LMS7002M_regs_set(regs, 0x00A5, 0x6565);
+    LMS7002M_regs_set(regs, 0x00A6, 0x1);
+    LMS7002M_regs_set(regs, 0x00A7, 0x6565);
     LMS7002M_regs_set(regs, 0x0100, 0x3409);
     LMS7002M_regs_set(regs, 0x0101, 0x7800);
     LMS7002M_regs_set(regs, 0x0102, 0x3180);
@@ -955,6 +1085,196 @@ static inline void LMS7002M_regs_set(LMS7002M_regs_t *regs, const int addr, cons
         regs->reg_0x0093_en_ldo_vcosxr = (value >> 2) & 0x1;
         regs->reg_0x0093_en_ldo_vcosxt = (value >> 1) & 0x1;
         regs->reg_0x0093_en_ldo_cpsxt = (value >> 0) & 0x1;
+        return;
+    }
+    if (addr == 0x0094)
+    {
+        regs->reg_0x0094_en_loadimp_ldo_cpsxt = (value >> 15) & 0x1;
+        regs->reg_0x0094_en_loadimp_ldo_dig = (value >> 14) & 0x1;
+        regs->reg_0x0094_en_loadimp_ldo_diggn = (value >> 13) & 0x1;
+        regs->reg_0x0094_en_loadimp_ldo_digsxr = (value >> 12) & 0x1;
+        regs->reg_0x0094_en_loadimp_ldo_digsxt = (value >> 11) & 0x1;
+        regs->reg_0x0094_en_loadimp_ldo_divgn = (value >> 10) & 0x1;
+        regs->reg_0x0094_en_loadimp_ldo_divsxr = (value >> 9) & 0x1;
+        regs->reg_0x0094_en_loadimp_ldo_divsxt = (value >> 8) & 0x1;
+        regs->reg_0x0094_en_loadimp_ldo_lna12 = (value >> 7) & 0x1;
+        regs->reg_0x0094_en_loadimp_ldo_lna14 = (value >> 6) & 0x1;
+        regs->reg_0x0094_en_loadimp_ldo_mxrfe = (value >> 5) & 0x1;
+        regs->reg_0x0094_en_loadimp_ldo_rbb = (value >> 4) & 0x1;
+        regs->reg_0x0094_en_loadimp_ldo_rxbuf = (value >> 3) & 0x1;
+        regs->reg_0x0094_en_loadimp_ldo_tbb = (value >> 2) & 0x1;
+        regs->reg_0x0094_en_loadimp_ldo_tia12 = (value >> 1) & 0x1;
+        regs->reg_0x0094_en_loadimp_ldo_tia14 = (value >> 0) & 0x1;
+        return;
+    }
+    if (addr == 0x0095)
+    {
+        regs->reg_0x0095_byp_ldo_tbb = (value >> 15) & 0x1;
+        regs->reg_0x0095_byp_ldo_tia12 = (value >> 14) & 0x1;
+        regs->reg_0x0095_byp_ldo_tia14 = (value >> 13) & 0x1;
+        regs->reg_0x0095_byp_ldo_tlob = (value >> 12) & 0x1;
+        regs->reg_0x0095_byp_ldo_tpad = (value >> 11) & 0x1;
+        regs->reg_0x0095_byp_ldo_txbuf = (value >> 10) & 0x1;
+        regs->reg_0x0095_byp_ldo_vcogn = (value >> 9) & 0x1;
+        regs->reg_0x0095_byp_ldo_vcosxr = (value >> 8) & 0x1;
+        regs->reg_0x0095_byp_ldo_vcosxt = (value >> 7) & 0x1;
+        regs->reg_0x0095_en_loadimp_ldo_afe = (value >> 2) & 0x1;
+        regs->reg_0x0095_en_loadimp_ldo_cpgn = (value >> 1) & 0x1;
+        regs->reg_0x0095_en_loadimp_ldo_cpsxr = (value >> 0) & 0x1;
+        return;
+    }
+    if (addr == 0x0096)
+    {
+        regs->reg_0x0096_byp_ldo_afe = (value >> 15) & 0x1;
+        regs->reg_0x0096_byp_ldo_cpgn = (value >> 14) & 0x1;
+        regs->reg_0x0096_byp_ldo_cpsxr = (value >> 13) & 0x1;
+        regs->reg_0x0096_byp_ldo_cpsxt = (value >> 12) & 0x1;
+        regs->reg_0x0096_byp_ldo_dig = (value >> 11) & 0x1;
+        regs->reg_0x0096_byp_ldo_diggn = (value >> 10) & 0x1;
+        regs->reg_0x0096_byp_ldo_digsxr = (value >> 9) & 0x1;
+        regs->reg_0x0096_byp_ldo_digsxt = (value >> 8) & 0x1;
+        regs->reg_0x0096_byp_ldo_divgn = (value >> 7) & 0x1;
+        regs->reg_0x0096_byp_ldo_divsxr = (value >> 6) & 0x1;
+        regs->reg_0x0096_byp_ldo_divsxt = (value >> 5) & 0x1;
+        regs->reg_0x0096_byp_ldo_lna12 = (value >> 4) & 0x1;
+        regs->reg_0x0096_byp_ldo_lna14 = (value >> 3) & 0x1;
+        regs->reg_0x0096_byp_ldo_mxrfe = (value >> 2) & 0x1;
+        regs->reg_0x0096_byp_ldo_rbb = (value >> 1) & 0x1;
+        regs->reg_0x0096_byp_ldo_rxbuf = (value >> 0) & 0x1;
+        return;
+    }
+    if (addr == 0x0097)
+    {
+        regs->reg_0x0097_spdup_ldo_divsxr = (value >> 15) & 0x1;
+        regs->reg_0x0097_spdup_ldo_divsxt = (value >> 14) & 0x1;
+        regs->reg_0x0097_spdup_ldo_lna12 = (value >> 13) & 0x1;
+        regs->reg_0x0097_spdup_ldo_lna14 = (value >> 12) & 0x1;
+        regs->reg_0x0097_spdup_ldo_mxrfe = (value >> 11) & 0x1;
+        regs->reg_0x0097_spdup_ldo_rbb = (value >> 10) & 0x1;
+        regs->reg_0x0097_spdup_ldo_rxbuf = (value >> 9) & 0x1;
+        regs->reg_0x0097_spdup_ldo_tbb = (value >> 8) & 0x1;
+        regs->reg_0x0097_spdup_ldo_tia12 = (value >> 7) & 0x1;
+        regs->reg_0x0097_spdup_ldo_tia14 = (value >> 6) & 0x1;
+        regs->reg_0x0097_spdup_ldo_tlob = (value >> 5) & 0x1;
+        regs->reg_0x0097_spdup_ldo_tpad = (value >> 4) & 0x1;
+        regs->reg_0x0097_spdup_ldo_txbuf = (value >> 3) & 0x1;
+        regs->reg_0x0097_spdup_ldo_vcogn = (value >> 2) & 0x1;
+        regs->reg_0x0097_spdup_ldo_vcosxr = (value >> 1) & 0x1;
+        regs->reg_0x0097_spdup_ldo_vcosxt = (value >> 0) & 0x1;
+        return;
+    }
+    if (addr == 0x0098)
+    {
+        regs->reg_0x0098_spdup_ldo_afe = (value >> 8) & 0x1;
+        regs->reg_0x0098_spdup_ldo_cpgn = (value >> 7) & 0x1;
+        regs->reg_0x0098_spdup_ldo_cpsxr = (value >> 6) & 0x1;
+        regs->reg_0x0098_spdup_ldo_cpsxt = (value >> 5) & 0x1;
+        regs->reg_0x0098_spdup_ldo_dig = (value >> 4) & 0x1;
+        regs->reg_0x0098_spdup_ldo_diggn = (value >> 3) & 0x1;
+        regs->reg_0x0098_spdup_ldo_digsxr = (value >> 2) & 0x1;
+        regs->reg_0x0098_spdup_ldo_digsxt = (value >> 1) & 0x1;
+        regs->reg_0x0098_spdup_ldo_divgn = (value >> 0) & 0x1;
+        return;
+    }
+    if (addr == 0x0099)
+    {
+        regs->reg_0x0099_rdiv_vcosxr = (value >> 8) & 0xff;
+        regs->reg_0x0099_rdiv_vcosxt = (value >> 0) & 0xff;
+        return;
+    }
+    if (addr == 0x009A)
+    {
+        regs->reg_0x009a_rdiv_txbuf = (value >> 8) & 0xff;
+        regs->reg_0x009a_rdiv_vcogn = (value >> 0) & 0xff;
+        return;
+    }
+    if (addr == 0x009B)
+    {
+        regs->reg_0x009b_rdiv_tlob = (value >> 8) & 0xff;
+        regs->reg_0x009b_rdiv_tpad = (value >> 0) & 0xff;
+        return;
+    }
+    if (addr == 0x009C)
+    {
+        regs->reg_0x009c_rdiv_tia12 = (value >> 8) & 0xff;
+        regs->reg_0x009c_rdiv_tia14 = (value >> 0) & 0xff;
+        return;
+    }
+    if (addr == 0x009D)
+    {
+        regs->reg_0x009d_rdiv_rxbuf = (value >> 8) & 0xff;
+        regs->reg_0x009d_rdiv_tbb = (value >> 0) & 0xff;
+        return;
+    }
+    if (addr == 0x009E)
+    {
+        regs->reg_0x009e_rdiv_mxrfe = (value >> 8) & 0xff;
+        regs->reg_0x009e_rdiv_rbb = (value >> 0) & 0xff;
+        return;
+    }
+    if (addr == 0x009F)
+    {
+        regs->reg_0x009f_rdiv_lna12 = (value >> 8) & 0xff;
+        regs->reg_0x009f_rdiv_lna14 = (value >> 0) & 0xff;
+        return;
+    }
+    if (addr == 0x00A0)
+    {
+        regs->reg_0x00a0_rdiv_divsxr = (value >> 8) & 0xff;
+        regs->reg_0x00a0_rdiv_divsxt = (value >> 0) & 0xff;
+        return;
+    }
+    if (addr == 0x00A1)
+    {
+        regs->reg_0x00a1_rdiv_digsxt = (value >> 8) & 0xff;
+        regs->reg_0x00a1_rdiv_divgn = (value >> 0) & 0xff;
+        return;
+    }
+    if (addr == 0x00A2)
+    {
+        regs->reg_0x00a2_rdiv_diggn = (value >> 8) & 0xff;
+        regs->reg_0x00a2_rdiv_digsxr = (value >> 0) & 0xff;
+        return;
+    }
+    if (addr == 0x00A3)
+    {
+        regs->reg_0x00a3_rdiv_cpsxt = (value >> 8) & 0xff;
+        regs->reg_0x00a3_rdiv_dig = (value >> 0) & 0xff;
+        return;
+    }
+    if (addr == 0x00A4)
+    {
+        regs->reg_0x00a4_rdiv_cpgn = (value >> 8) & 0xff;
+        regs->reg_0x00a4_rdiv_cpsxr = (value >> 0) & 0xff;
+        return;
+    }
+    if (addr == 0x00A5)
+    {
+        regs->reg_0x00a5_rdiv_spibuf = (value >> 8) & 0xff;
+        regs->reg_0x00a5_rdiv_afe = (value >> 0) & 0xff;
+        return;
+    }
+    if (addr == 0x00A6)
+    {
+        regs->reg_0x00a6_spdup_ldo_spibuf = (value >> 12) & 0x1;
+        regs->reg_0x00a6_spdup_ldo_digip2 = (value >> 11) & 0x1;
+        regs->reg_0x00a6_spdup_ldo_digip1 = (value >> 10) & 0x1;
+        regs->reg_0x00a6_byp_ldo_spibuf = (value >> 9) & 0x1;
+        regs->reg_0x00a6_byp_ldo_digip2 = (value >> 8) & 0x1;
+        regs->reg_0x00a6_byp_ldo_digip1 = (value >> 7) & 0x1;
+        regs->reg_0x00a6_en_loadimp_ldo_spibuf = (value >> 6) & 0x1;
+        regs->reg_0x00a6_en_loadimp_ldo_digip2 = (value >> 5) & 0x1;
+        regs->reg_0x00a6_en_loadimp_ldo_digip1 = (value >> 4) & 0x1;
+        regs->reg_0x00a6_pd_ldo_spibuf = (value >> 3) & 0x1;
+        regs->reg_0x00a6_pd_ldo_digip2 = (value >> 2) & 0x1;
+        regs->reg_0x00a6_pd_ldo_digip1 = (value >> 1) & 0x1;
+        regs->reg_0x00a6_en_g_ldop = (value >> 0) & 0x1;
+        return;
+    }
+    if (addr == 0x00A7)
+    {
+        regs->reg_0x00a7_rdiv_digip2 = (value >> 8) & 0xff;
+        regs->reg_0x00a7_rdiv_digip1 = (value >> 0) & 0xff;
         return;
     }
     if (addr == 0x0100)
@@ -1699,6 +2019,176 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr)
         value |= (regs->reg_0x0093_en_ldo_vcosxt & 0x1) << 1;
         value |= (regs->reg_0x0093_en_ldo_cpsxt & 0x1) << 0;
     }
+    if (addr == 0x0094)
+    {
+        value |= (regs->reg_0x0094_en_loadimp_ldo_cpsxt & 0x1) << 15;
+        value |= (regs->reg_0x0094_en_loadimp_ldo_dig & 0x1) << 14;
+        value |= (regs->reg_0x0094_en_loadimp_ldo_diggn & 0x1) << 13;
+        value |= (regs->reg_0x0094_en_loadimp_ldo_digsxr & 0x1) << 12;
+        value |= (regs->reg_0x0094_en_loadimp_ldo_digsxt & 0x1) << 11;
+        value |= (regs->reg_0x0094_en_loadimp_ldo_divgn & 0x1) << 10;
+        value |= (regs->reg_0x0094_en_loadimp_ldo_divsxr & 0x1) << 9;
+        value |= (regs->reg_0x0094_en_loadimp_ldo_divsxt & 0x1) << 8;
+        value |= (regs->reg_0x0094_en_loadimp_ldo_lna12 & 0x1) << 7;
+        value |= (regs->reg_0x0094_en_loadimp_ldo_lna14 & 0x1) << 6;
+        value |= (regs->reg_0x0094_en_loadimp_ldo_mxrfe & 0x1) << 5;
+        value |= (regs->reg_0x0094_en_loadimp_ldo_rbb & 0x1) << 4;
+        value |= (regs->reg_0x0094_en_loadimp_ldo_rxbuf & 0x1) << 3;
+        value |= (regs->reg_0x0094_en_loadimp_ldo_tbb & 0x1) << 2;
+        value |= (regs->reg_0x0094_en_loadimp_ldo_tia12 & 0x1) << 1;
+        value |= (regs->reg_0x0094_en_loadimp_ldo_tia14 & 0x1) << 0;
+    }
+    if (addr == 0x0095)
+    {
+        value |= (regs->reg_0x0095_byp_ldo_tbb & 0x1) << 15;
+        value |= (regs->reg_0x0095_byp_ldo_tia12 & 0x1) << 14;
+        value |= (regs->reg_0x0095_byp_ldo_tia14 & 0x1) << 13;
+        value |= (regs->reg_0x0095_byp_ldo_tlob & 0x1) << 12;
+        value |= (regs->reg_0x0095_byp_ldo_tpad & 0x1) << 11;
+        value |= (regs->reg_0x0095_byp_ldo_txbuf & 0x1) << 10;
+        value |= (regs->reg_0x0095_byp_ldo_vcogn & 0x1) << 9;
+        value |= (regs->reg_0x0095_byp_ldo_vcosxr & 0x1) << 8;
+        value |= (regs->reg_0x0095_byp_ldo_vcosxt & 0x1) << 7;
+        value |= (regs->reg_0x0095_en_loadimp_ldo_afe & 0x1) << 2;
+        value |= (regs->reg_0x0095_en_loadimp_ldo_cpgn & 0x1) << 1;
+        value |= (regs->reg_0x0095_en_loadimp_ldo_cpsxr & 0x1) << 0;
+    }
+    if (addr == 0x0096)
+    {
+        value |= (regs->reg_0x0096_byp_ldo_afe & 0x1) << 15;
+        value |= (regs->reg_0x0096_byp_ldo_cpgn & 0x1) << 14;
+        value |= (regs->reg_0x0096_byp_ldo_cpsxr & 0x1) << 13;
+        value |= (regs->reg_0x0096_byp_ldo_cpsxt & 0x1) << 12;
+        value |= (regs->reg_0x0096_byp_ldo_dig & 0x1) << 11;
+        value |= (regs->reg_0x0096_byp_ldo_diggn & 0x1) << 10;
+        value |= (regs->reg_0x0096_byp_ldo_digsxr & 0x1) << 9;
+        value |= (regs->reg_0x0096_byp_ldo_digsxt & 0x1) << 8;
+        value |= (regs->reg_0x0096_byp_ldo_divgn & 0x1) << 7;
+        value |= (regs->reg_0x0096_byp_ldo_divsxr & 0x1) << 6;
+        value |= (regs->reg_0x0096_byp_ldo_divsxt & 0x1) << 5;
+        value |= (regs->reg_0x0096_byp_ldo_lna12 & 0x1) << 4;
+        value |= (regs->reg_0x0096_byp_ldo_lna14 & 0x1) << 3;
+        value |= (regs->reg_0x0096_byp_ldo_mxrfe & 0x1) << 2;
+        value |= (regs->reg_0x0096_byp_ldo_rbb & 0x1) << 1;
+        value |= (regs->reg_0x0096_byp_ldo_rxbuf & 0x1) << 0;
+    }
+    if (addr == 0x0097)
+    {
+        value |= (regs->reg_0x0097_spdup_ldo_divsxr & 0x1) << 15;
+        value |= (regs->reg_0x0097_spdup_ldo_divsxt & 0x1) << 14;
+        value |= (regs->reg_0x0097_spdup_ldo_lna12 & 0x1) << 13;
+        value |= (regs->reg_0x0097_spdup_ldo_lna14 & 0x1) << 12;
+        value |= (regs->reg_0x0097_spdup_ldo_mxrfe & 0x1) << 11;
+        value |= (regs->reg_0x0097_spdup_ldo_rbb & 0x1) << 10;
+        value |= (regs->reg_0x0097_spdup_ldo_rxbuf & 0x1) << 9;
+        value |= (regs->reg_0x0097_spdup_ldo_tbb & 0x1) << 8;
+        value |= (regs->reg_0x0097_spdup_ldo_tia12 & 0x1) << 7;
+        value |= (regs->reg_0x0097_spdup_ldo_tia14 & 0x1) << 6;
+        value |= (regs->reg_0x0097_spdup_ldo_tlob & 0x1) << 5;
+        value |= (regs->reg_0x0097_spdup_ldo_tpad & 0x1) << 4;
+        value |= (regs->reg_0x0097_spdup_ldo_txbuf & 0x1) << 3;
+        value |= (regs->reg_0x0097_spdup_ldo_vcogn & 0x1) << 2;
+        value |= (regs->reg_0x0097_spdup_ldo_vcosxr & 0x1) << 1;
+        value |= (regs->reg_0x0097_spdup_ldo_vcosxt & 0x1) << 0;
+    }
+    if (addr == 0x0098)
+    {
+        value |= (regs->reg_0x0098_spdup_ldo_afe & 0x1) << 8;
+        value |= (regs->reg_0x0098_spdup_ldo_cpgn & 0x1) << 7;
+        value |= (regs->reg_0x0098_spdup_ldo_cpsxr & 0x1) << 6;
+        value |= (regs->reg_0x0098_spdup_ldo_cpsxt & 0x1) << 5;
+        value |= (regs->reg_0x0098_spdup_ldo_dig & 0x1) << 4;
+        value |= (regs->reg_0x0098_spdup_ldo_diggn & 0x1) << 3;
+        value |= (regs->reg_0x0098_spdup_ldo_digsxr & 0x1) << 2;
+        value |= (regs->reg_0x0098_spdup_ldo_digsxt & 0x1) << 1;
+        value |= (regs->reg_0x0098_spdup_ldo_divgn & 0x1) << 0;
+    }
+    if (addr == 0x0099)
+    {
+        value |= (regs->reg_0x0099_rdiv_vcosxr & 0xff) << 8;
+        value |= (regs->reg_0x0099_rdiv_vcosxt & 0xff) << 0;
+    }
+    if (addr == 0x009A)
+    {
+        value |= (regs->reg_0x009a_rdiv_txbuf & 0xff) << 8;
+        value |= (regs->reg_0x009a_rdiv_vcogn & 0xff) << 0;
+    }
+    if (addr == 0x009B)
+    {
+        value |= (regs->reg_0x009b_rdiv_tlob & 0xff) << 8;
+        value |= (regs->reg_0x009b_rdiv_tpad & 0xff) << 0;
+    }
+    if (addr == 0x009C)
+    {
+        value |= (regs->reg_0x009c_rdiv_tia12 & 0xff) << 8;
+        value |= (regs->reg_0x009c_rdiv_tia14 & 0xff) << 0;
+    }
+    if (addr == 0x009D)
+    {
+        value |= (regs->reg_0x009d_rdiv_rxbuf & 0xff) << 8;
+        value |= (regs->reg_0x009d_rdiv_tbb & 0xff) << 0;
+    }
+    if (addr == 0x009E)
+    {
+        value |= (regs->reg_0x009e_rdiv_mxrfe & 0xff) << 8;
+        value |= (regs->reg_0x009e_rdiv_rbb & 0xff) << 0;
+    }
+    if (addr == 0x009F)
+    {
+        value |= (regs->reg_0x009f_rdiv_lna12 & 0xff) << 8;
+        value |= (regs->reg_0x009f_rdiv_lna14 & 0xff) << 0;
+    }
+    if (addr == 0x00A0)
+    {
+        value |= (regs->reg_0x00a0_rdiv_divsxr & 0xff) << 8;
+        value |= (regs->reg_0x00a0_rdiv_divsxt & 0xff) << 0;
+    }
+    if (addr == 0x00A1)
+    {
+        value |= (regs->reg_0x00a1_rdiv_digsxt & 0xff) << 8;
+        value |= (regs->reg_0x00a1_rdiv_divgn & 0xff) << 0;
+    }
+    if (addr == 0x00A2)
+    {
+        value |= (regs->reg_0x00a2_rdiv_diggn & 0xff) << 8;
+        value |= (regs->reg_0x00a2_rdiv_digsxr & 0xff) << 0;
+    }
+    if (addr == 0x00A3)
+    {
+        value |= (regs->reg_0x00a3_rdiv_cpsxt & 0xff) << 8;
+        value |= (regs->reg_0x00a3_rdiv_dig & 0xff) << 0;
+    }
+    if (addr == 0x00A4)
+    {
+        value |= (regs->reg_0x00a4_rdiv_cpgn & 0xff) << 8;
+        value |= (regs->reg_0x00a4_rdiv_cpsxr & 0xff) << 0;
+    }
+    if (addr == 0x00A5)
+    {
+        value |= (regs->reg_0x00a5_rdiv_spibuf & 0xff) << 8;
+        value |= (regs->reg_0x00a5_rdiv_afe & 0xff) << 0;
+    }
+    if (addr == 0x00A6)
+    {
+        value |= (regs->reg_0x00a6_spdup_ldo_spibuf & 0x1) << 12;
+        value |= (regs->reg_0x00a6_spdup_ldo_digip2 & 0x1) << 11;
+        value |= (regs->reg_0x00a6_spdup_ldo_digip1 & 0x1) << 10;
+        value |= (regs->reg_0x00a6_byp_ldo_spibuf & 0x1) << 9;
+        value |= (regs->reg_0x00a6_byp_ldo_digip2 & 0x1) << 8;
+        value |= (regs->reg_0x00a6_byp_ldo_digip1 & 0x1) << 7;
+        value |= (regs->reg_0x00a6_en_loadimp_ldo_spibuf & 0x1) << 6;
+        value |= (regs->reg_0x00a6_en_loadimp_ldo_digip2 & 0x1) << 5;
+        value |= (regs->reg_0x00a6_en_loadimp_ldo_digip1 & 0x1) << 4;
+        value |= (regs->reg_0x00a6_pd_ldo_spibuf & 0x1) << 3;
+        value |= (regs->reg_0x00a6_pd_ldo_digip2 & 0x1) << 2;
+        value |= (regs->reg_0x00a6_pd_ldo_digip1 & 0x1) << 1;
+        value |= (regs->reg_0x00a6_en_g_ldop & 0x1) << 0;
+    }
+    if (addr == 0x00A7)
+    {
+        value |= (regs->reg_0x00a7_rdiv_digip2 & 0xff) << 8;
+        value |= (regs->reg_0x00a7_rdiv_digip1 & 0xff) << 0;
+    }
     if (addr == 0x0100)
     {
         value |= (regs->reg_0x0100_en_lowbwlomx_tmx_trf & 0x1) << 15;
@@ -2158,6 +2648,26 @@ static inline const int *LMS7002M_regs_addrs(void)
     0x008D,
     0x0092,
     0x0093,
+    0x0094,
+    0x0095,
+    0x0096,
+    0x0097,
+    0x0098,
+    0x0099,
+    0x009A,
+    0x009B,
+    0x009C,
+    0x009D,
+    0x009E,
+    0x009F,
+    0x00A0,
+    0x00A1,
+    0x00A2,
+    0x00A3,
+    0x00A4,
+    0x00A5,
+    0x00A6,
+    0x00A7,
     0x0100,
     0x0101,
     0x0102,

@@ -42,5 +42,236 @@
         "EN_LDO_CPSXT" : {"bits":"0"}
     },
     "default": "00000000 00000000"
+},
+{
+    "addr" : "0x0094",
+    "fields" : {
+        "EN_LOADIMP_LDO_CPSXT" : {"bits":"15"},
+        "EN_LOADIMP_LDO_DIG" : {"bits":"14"},
+        "EN_LOADIMP_LDO_DIGGN" : {"bits":"13"},
+        "EN_LOADIMP_LDO_DIGSXR" : {"bits":"12"},
+        "EN_LOADIMP_LDO_DIGSXT" : {"bits":"11"},
+        "EN_LOADIMP_LDO_DIVGN" : {"bits":"10"},
+        "EN_LOADIMP_LDO_DIVSXR" : {"bits":"9"},
+        "EN_LOADIMP_LDO_DIVSXT" : {"bits":"8"},
+        "EN_LOADIMP_LDO_LNA12" : {"bits":"7"},
+        "EN_LOADIMP_LDO_LNA14" : {"bits":"6"},
+        "EN_LOADIMP_LDO_MXRFE" : {"bits":"5"},
+        "EN_LOADIMP_LDO_RBB" : {"bits":"4"},
+        "EN_LOADIMP_LDO_RXBUF" : {"bits":"3"},
+        "EN_LOADIMP_LDO_TBB" : {"bits":"2"},
+        "EN_LOADIMP_LDO_TIA12" : {"bits":"1"},
+        "EN_LOADIMP_LDO_TIA14" : {"bits":"0"}
+    },
+    "default": "00000000 00000000"
+},
+{
+    "addr" : "0x0095",
+    "fields" : {
+        "BYP_LDO_TBB" : {"bits":"15"},
+        "BYP_LDO_TIA12" : {"bits":"14"},
+        "BYP_LDO_TIA14" : {"bits":"13"},
+        "BYP_LDO_TLOB" : {"bits":"12"},
+        "BYP_LDO_TPAD" : {"bits":"11"},
+        "BYP_LDO_TXBUF" : {"bits":"10"},
+        "BYP_LDO_VCOGN" : {"bits":"9"},
+        "BYP_LDO_VCOSXR" : {"bits":"8"},
+        "BYP_LDO_VCOSXT" : {"bits":"7"},
+        "EN_LOADIMP_LDO_AFE" : {"bits":"2"},
+        "EN_LOADIMP_LDO_CPGN" : {"bits":"1"},
+        "EN_LOADIMP_LDO_CPSXR" : {"bits":"0"}
+    },
+    "default": "00000000 00000000"
+},
+{
+    "addr" : "0x0096",
+    "fields" : {
+        "BYP_LDO_AFE" : {"bits":"15"},
+        "BYP_LDO_CPGN" : {"bits":"14"},
+        "BYP_LDO_CPSXR" : {"bits":"13"},
+        "BYP_LDO_CPSXT" : {"bits":"12"},
+        "BYP_LDO_DIG" : {"bits":"11"},
+        "BYP_LDO_DIGGN" : {"bits":"10"},
+        "BYP_LDO_DIGSXR" : {"bits":"9"},
+        "BYP_LDO_DIGSXT" : {"bits":"8"},
+        "BYP_LDO_DIVGN" : {"bits":"7"},
+        "BYP_LDO_DIVSXR" : {"bits":"6"},
+        "BYP_LDO_DIVSXT" : {"bits":"5"},
+        "BYP_LDO_LNA12" : {"bits":"4"},
+        "BYP_LDO_LNA14" : {"bits":"3"},
+        "BYP_LDO_MXRFE" : {"bits":"2"},
+        "BYP_LDO_RBB" : {"bits":"1"},
+        "BYP_LDO_RXBUF" : {"bits":"0"}
+    },
+    "default": "00000000 00000000"
+},
+{
+    "addr" : "0x0097",
+    "fields" : {
+        "SPDUP_LDO_DIVSXR" : {"bits":"15"},
+        "SPDUP_LDO_DIVSXT" : {"bits":"14"},
+        "SPDUP_LDO_LNA12" : {"bits":"13"},
+        "SPDUP_LDO_LNA14" : {"bits":"12"},
+        "SPDUP_LDO_MXRFE" : {"bits":"11"},
+        "SPDUP_LDO_RBB" : {"bits":"10"},
+        "SPDUP_LDO_RXBUF" : {"bits":"9"},
+        "SPDUP_LDO_TBB" : {"bits":"8"},
+        "SPDUP_LDO_TIA12" : {"bits":"7"},
+        "SPDUP_LDO_TIA14" : {"bits":"6"},
+        "SPDUP_LDO_TLOB" : {"bits":"5"},
+        "SPDUP_LDO_TPAD" : {"bits":"4"},
+        "SPDUP_LDO_TXBUF" : {"bits":"3"},
+        "SPDUP_LDO_VCOGN" : {"bits":"2"},
+        "SPDUP_LDO_VCOSXR" : {"bits":"1"},
+        "SPDUP_LDO_VCOSXT" : {"bits":"0"}
+    },
+    "default": "00000000 00000000"
+},
+{
+    "addr" : "0x0098",
+    "fields" : {
+        "SPDUP_LDO_AFE" : {"bits":"8"},
+        "SPDUP_LDO_CPGN" : {"bits":"7"},
+        "SPDUP_LDO_CPSXR" : {"bits":"6"},
+        "SPDUP_LDO_CPSXT" : {"bits":"5"},
+        "SPDUP_LDO_DIG" : {"bits":"4"},
+        "SPDUP_LDO_DIGGN" : {"bits":"3"},
+        "SPDUP_LDO_DIGSXR" : {"bits":"2"},
+        "SPDUP_LDO_DIGSXT" : {"bits":"1"},
+        "SPDUP_LDO_DIVGN" : {"bits":"0"}
+    },
+    "default": "00000000 00000000"
+},
+{
+    "addr" : "0x0099",
+    "fields" : {
+        "RDIV_VCOSXR" : {"bits":"15:8"},
+        "RDIV_VCOSXT" : {"bits":"7:0"}
+    },
+    "default": "01100101 01100101"
+},
+{
+    "addr" : "0x009A",
+    "fields" : {
+        "RDIV_TXBUF" : {"bits":"15:8"},
+        "RDIV_VCOGN" : {"bits":"7:0"}
+    },
+    "default": "01100101 10001100"
+},
+{
+    "addr" : "0x009B",
+    "fields" : {
+        "RDIV_TLOB" : {"bits":"15:8"},
+        "RDIV_TPAD" : {"bits":"7:0"}
+    },
+    "default": "01100101 01100101"
+},
+{
+    "addr" : "0x009C",
+    "fields" : {
+        "RDIV_TIA12" : {"bits":"15:8"},
+        "RDIV_TIA14" : {"bits":"7:0"}
+    },
+    "default": "01100101 10001100"
+},
+{
+    "addr" : "0x009D",
+    "fields" : {
+        "RDIV_RXBUF" : {"bits":"15:8"},
+        "RDIV_TBB" : {"bits":"7:0"}
+    },
+    "default": "01100101 01100101"
+},
+{
+    "addr" : "0x009E",
+    "fields" : {
+        "RDIV_MXRFE" : {"bits":"15:8"},
+        "RDIV_RBB" : {"bits":"7:0"}
+    },
+    "default": "01100101 10001100"
+},
+{
+    "addr" : "0x009F",
+    "fields" : {
+        "RDIV_LNA12" : {"bits":"15:8"},
+        "RDIV_LNA14" : {"bits":"7:0"}
+    },
+    "default": "01100101 10001100"
+},
+{
+    "addr" : "0x00A0",
+    "fields" : {
+        "RDIV_DIVSXR" : {"bits":"15:8"},
+        "RDIV_DIVSXT" : {"bits":"7:0"}
+    },
+    "default": "01100101 01100101"
+},
+{
+    "addr" : "0x00A1",
+    "fields" : {
+        "RDIV_DIGSXT" : {"bits":"15:8"},
+        "RDIV_DIVGN" : {"bits":"7:0"}
+    },
+    "default": "01100101 01100101"
+},
+{
+    "addr" : "0x00A2",
+    "fields" : {
+        "RDIV_DIGGN" : {"bits":"15:8"},
+        "RDIV_DIGSXR" : {"bits":"7:0"}
+    },
+    "default": "01100101 01100101"
+},
+{
+    "addr" : "0x00A3",
+    "fields" : {
+        "RDIV_CPSXT" : {"bits":"15:8"},
+        "RDIV_DIG" : {"bits":"7:0"}
+    },
+    "default": "01100101 01100101"
+},
+{
+    "addr" : "0x00A4",
+    "fields" : {
+        "RDIV_CPGN" : {"bits":"15:8"},
+        "RDIV_CPSXR" : {"bits":"7:0"}
+    },
+    "default": "01100101 01100101"
+},
+{
+    "addr" : "0x00A5",
+    "fields" : {
+        "RDIV_SPIBUF" : {"bits":"15:8"},
+        "RDIV_AFE" : {"bits":"7:0"}
+    },
+    "default": "01100101 01100101"
+},
+{
+    "addr" : "0x00A6",
+    "fields" : {
+        "SPDUP_LDO_SPIBUF" : {"bits":"12"},
+        "SPDUP_LDO_DIGIp2" : {"bits":"11"},
+        "SPDUP_LDO_DIGIp1" : {"bits":"10"},
+        "BYP_LDO_SPIBUF" : {"bits":"9"},
+        "BYP_LDO_DIGIp2" : {"bits":"8"},
+        "BYP_LDO_DIGIp1" : {"bits":"7"},
+        "EN_LOADIMP_LDO_SPIBUF" : {"bits":"6"},
+        "EN_LOADIMP_LDO_DIGIp2" : {"bits":"5"},
+        "EN_LOADIMP_LDO_DIGIp1" : {"bits":"4"},
+        "PD_LDO_SPIBUF" : {"bits":"3"},
+        "PD_LDO_DIGIp2" : {"bits":"2"},
+        "PD_LDO_DIGIp1" : {"bits":"1"},
+        "EN_G_LDOP" : {"bits":"0"}
+    },
+    "default": "00000000 00000001"
+},
+{
+    "addr" : "0x00A7",
+    "fields" : {
+        "RDIV_DIGIp2" : {"bits":"15:8"},
+        "RDIV_DIGIp1" : {"bits":"7:0"}
+    },
+    "default": "01100101 01100101"
 }
+
 ]
