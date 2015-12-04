@@ -22,6 +22,7 @@ include_directories(include)
 file(GLOB LMS7002M_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/LMS7002M_*.c")
 add_library(LMS7002M STATIC ${LMS7002M_SOURCES})
 install(TARGETS LMS7002M DESTINATION lib${LIB_SUFFIX})
+set_property(TARGET LMS7002M PROPERTY POSITION_INDEPENDENT_CODE TRUE)
 
 ########################################################################
 # install headers
