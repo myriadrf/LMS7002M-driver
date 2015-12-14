@@ -145,7 +145,7 @@ int LMS7002M_rbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, 
         LMS7_log(LMS7_DEBUG, "TuneRxFilter");
         status = TuneRxFilter(self, hb?RX_LPF_HIGHBAND:RX_LPF_LOWBAND, bw/1e6);
     }
-    if (status == LIBLMS7_SUCCESS)
+    if (status == LIBLMS7_SUCCESS && channel == LMS_CHA)
     {
         LMS7_log(LMS7_DEBUG, "TuneRxFilter(RX_TIA)");
         status = TuneRxFilter(self, RX_TIA, bw/1e6);
