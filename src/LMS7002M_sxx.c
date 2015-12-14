@@ -33,7 +33,7 @@ void LMS7002M_sxx_enable(LMS7002M_t *self, const LMS7002M_dir_t direction, const
 
 int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, const double fref, const double fout, double *factual)
 {
-    LMS7_logf(LMS7_INFO, "SXX tune %f MHz begin", fout/1e6);
+    LMS7_logf(LMS7_INFO, "SXX tune %f MHz (fref=%f MHz) begin", fout/1e6, fref/1e6);
 
     LMS7002M_set_mac_dir(self, direction);
 
@@ -103,6 +103,8 @@ int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, const
     if (direction == LMS_TX) self->sxt_freq = fout;
     if (direction == LMS_RX) self->sxr_fref = fref;
     if (direction == LMS_TX) self->sxt_fref = fref;
+    if (direction == LMS_RX) self->sxr_fref_mhz = fref/1e6;
+    if (direction == LMS_TX) self->sxt_fref_mhz = fref/1e6;
 
     //reset
     self->regs->reg_0x011c_reset_n = 0;

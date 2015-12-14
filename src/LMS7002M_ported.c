@@ -47,6 +47,14 @@ float_type GetReferenceClk_TSP_MHz(LMS7002M_t *self, bool tx)
 */
 liblms7_status SetFrequencyCGEN(LMS7002M_t *self, const float_type freq_MHz)
 {
+    uint8_t ch = (uint8_t)Get_SPI_Reg_bits(self, LMS7param(MAC)); //remember used channel
+
+    int status = LMS7002M_set_data_clock(self, self->cgen_fref, freq_MHz*1e6, NULL);
+
+    Modify_SPI_Reg_bits(self, LMS7param(MAC), ch); //restore previously used channel
+
+    return status;
+    /*
     float_type dFvco;
     float_type dFrac;
     int16_t iHdiv;
@@ -68,6 +76,7 @@ liblms7_status SetFrequencyCGEN(LMS7002M_t *self, const float_type freq_MHz)
     Modify_SPI_Reg_bits(self, LMS7param(DIV_OUTCH_CGEN), iHdiv); //DIV_OUTCH_CGEN
 
     return TuneVCO(self, VCO_CGEN);
+    */
 }
 
 /** @brief Performs VCO tuning operations for CLKGEN, SXR, SXT modules

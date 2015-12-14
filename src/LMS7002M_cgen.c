@@ -22,7 +22,7 @@ static long long cgen_cmp_sleep_ticks(void)
 
 int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, const double fout, double *factual)
 {
-    LMS7_logf(LMS7_INFO, "CGEN tune %f MHz begin", fout/1e6);
+    LMS7_logf(LMS7_INFO, "CGEN tune %f MHz (fref=%f MHz) begin", fout/1e6, fref/1e6);
 
     //always use the channel A shadow, CGEN is in global register space
     LMS7002M_set_mac_ch(self, LMS_CHA);
