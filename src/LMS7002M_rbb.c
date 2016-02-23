@@ -105,6 +105,7 @@ double LMS7002M_rbb_set_pga(LMS7002M_t *self, const LMS7002M_chan_t channel, con
     return G_PGA_RBB - 12.0;
 }
 
+/*
 int LMS7002M_rbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, const double bw, double *bwactual)
 {
     LMS7002M_set_mac_ch(self, channel);
@@ -161,3 +162,4 @@ int LMS7002M_rbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, 
 
     return (int)status;
 }
+*/
