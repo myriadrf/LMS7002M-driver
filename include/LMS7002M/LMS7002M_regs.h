@@ -25,6 +25,9 @@ static inline void LMS7002M_regs_init(LMS7002M_regs_t *regs);
 //! set the fields from the value that belong to the register specified by addr
 static inline void LMS7002M_regs_set(LMS7002M_regs_t *regs, const int addr, const int value);
 
+//! get the reset or default value of register specified by its address
+static inline int LMS7002M_regs_default(const int addr);
+
 //! get the value of the register specified by the fields at the given address
 static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr);
 
@@ -284,6 +287,13 @@ struct LMS7002M_regs_struct
     int reg_0x0082_pd_tx_afe1;
     int reg_0x0082_pd_tx_afe2;
     int reg_0x0082_en_g_afe;
+    int reg_0x0084_mux_bias_out;
+    int reg_0x0084_rp_calib_bias;
+    int reg_0x0084_pd_frp_bias;
+    int reg_0x0084_pd_f_bias;
+    int reg_0x0084_pd_ptrp_bias;
+    int reg_0x0084_pd_pt_bias;
+    int reg_0x0084_pd_bias_master;
     int reg_0x0085_slfb_xbuf_rx;
     int reg_0x0085_slfb_xbuf_tx;
     int reg_0x0085_byp_xbuf_rx;
@@ -722,6 +732,7 @@ static inline void LMS7002M_regs_init(LMS7002M_regs_t *regs)
     LMS7002M_regs_set(regs, 0x002F, 0x3840);
     LMS7002M_regs_set(regs, 0x0081, 0xad43);
     LMS7002M_regs_set(regs, 0x0082, 0x800b);
+    LMS7002M_regs_set(regs, 0x0084, 0x400);
     LMS7002M_regs_set(regs, 0x0085, 0x1);
     LMS7002M_regs_set(regs, 0x0086, 0x4905);
     LMS7002M_regs_set(regs, 0x0087, 0x400);
@@ -820,6 +831,122 @@ static inline void LMS7002M_regs_init(LMS7002M_regs_t *regs)
     LMS7002M_regs_set(regs, 0x0441, 0x0);
     LMS7002M_regs_set(regs, 0x0442, 0x0);
     LMS7002M_regs_set(regs, 0x0443, 0x0);
+}
+
+static inline int LMS7002M_regs_default(const int addr)
+{
+    if (addr == 0x0020) return 0xffff;
+    if (addr == 0x0021) return 0xe9f;
+    if (addr == 0x0023) return 0x5559;
+    if (addr == 0x0024) return 0xe4e4;
+    if (addr == 0x0027) return 0xe4e4;
+    if (addr == 0x002A) return 0x86;
+    if (addr == 0x002B) return 0x10;
+    if (addr == 0x002C) return 0xffff;
+    if (addr == 0x002E) return 0x0;
+    if (addr == 0x002F) return 0x3840;
+    if (addr == 0x0081) return 0xad43;
+    if (addr == 0x0082) return 0x800b;
+    if (addr == 0x0084) return 0x400;
+    if (addr == 0x0085) return 0x1;
+    if (addr == 0x0086) return 0x4905;
+    if (addr == 0x0087) return 0x400;
+    if (addr == 0x0088) return 0x780;
+    if (addr == 0x0089) return 0x20;
+    if (addr == 0x008A) return 0x514;
+    if (addr == 0x008B) return 0x1900;
+    if (addr == 0x008C) return 0x67b;
+    if (addr == 0x008D) return 0x0;
+    if (addr == 0x0092) return 0x1;
+    if (addr == 0x0093) return 0x0;
+    if (addr == 0x0094) return 0x0;
+    if (addr == 0x0095) return 0x0;
+    if (addr == 0x0096) return 0x0;
+    if (addr == 0x0097) return 0x0;
+    if (addr == 0x0098) return 0x0;
+    if (addr == 0x0099) return 0x6565;
+    if (addr == 0x009A) return 0x658c;
+    if (addr == 0x009B) return 0x6565;
+    if (addr == 0x009C) return 0x658c;
+    if (addr == 0x009D) return 0x6565;
+    if (addr == 0x009E) return 0x658c;
+    if (addr == 0x009F) return 0x658c;
+    if (addr == 0x00A0) return 0x6565;
+    if (addr == 0x00A1) return 0x6565;
+    if (addr == 0x00A2) return 0x6565;
+    if (addr == 0x00A3) return 0x6565;
+    if (addr == 0x00A4) return 0x6565;
+    if (addr == 0x00A5) return 0x6565;
+    if (addr == 0x00A6) return 0x1;
+    if (addr == 0x00A7) return 0x6565;
+    if (addr == 0x0100) return 0x3409;
+    if (addr == 0x0101) return 0x7800;
+    if (addr == 0x0102) return 0x3180;
+    if (addr == 0x0103) return 0xa12;
+    if (addr == 0x0104) return 0x88;
+    if (addr == 0x0105) return 0x7;
+    if (addr == 0x0106) return 0x318c;
+    if (addr == 0x0107) return 0x318c;
+    if (addr == 0x0108) return 0x958c;
+    if (addr == 0x0109) return 0x61c1;
+    if (addr == 0x010A) return 0x104c;
+    if (addr == 0x010C) return 0x88fd;
+    if (addr == 0x010D) return 0x9e;
+    if (addr == 0x010E) return 0x2040;
+    if (addr == 0x010F) return 0x318c;
+    if (addr == 0x0110) return 0x994;
+    if (addr == 0x0111) return 0x83;
+    if (addr == 0x0112) return 0xc0e6;
+    if (addr == 0x0113) return 0x3c3;
+    if (addr == 0x0114) return 0x8d;
+    if (addr == 0x0115) return 0x9;
+    if (addr == 0x0116) return 0x8100;
+    if (addr == 0x0117) return 0x280c;
+    if (addr == 0x0118) return 0x18c;
+    if (addr == 0x0119) return 0x18cb;
+    if (addr == 0x011A) return 0x2e02;
+    if (addr == 0x011B) return 0x0;
+    if (addr == 0x011C) return 0xad43;
+    if (addr == 0x011D) return 0x400;
+    if (addr == 0x011E) return 0x780;
+    if (addr == 0x011F) return 0x3640;
+    if (addr == 0x0120) return 0xb980;
+    if (addr == 0x0121) return 0x8404;
+    if (addr == 0x0122) return 0x514;
+    if (addr == 0x0123) return 0x67b;
+    if (addr == 0x0124) return 0x0;
+    if (addr == 0x0200) return 0x81;
+    if (addr == 0x0201) return 0x7ff;
+    if (addr == 0x0202) return 0x7ff;
+    if (addr == 0x0203) return 0x0;
+    if (addr == 0x0204) return 0x0;
+    if (addr == 0x0205) return 0x0;
+    if (addr == 0x0206) return 0x0;
+    if (addr == 0x0207) return 0x0;
+    if (addr == 0x0208) return 0x0;
+    if (addr == 0x020C) return 0x0;
+    if (addr == 0x0240) return 0x20;
+    if (addr == 0x0241) return 0x0;
+    if (addr == 0x0242) return 0x0;
+    if (addr == 0x0243) return 0x0;
+    if (addr == 0x0400) return 0x81;
+    if (addr == 0x0401) return 0x7ff;
+    if (addr == 0x0402) return 0x7ff;
+    if (addr == 0x0403) return 0x0;
+    if (addr == 0x0404) return 0x0;
+    if (addr == 0x0405) return 0x0;
+    if (addr == 0x0406) return 0x0;
+    if (addr == 0x0407) return 0x0;
+    if (addr == 0x0408) return 0x0;
+    if (addr == 0x0409) return 0x0;
+    if (addr == 0x040A) return 0x0;
+    if (addr == 0x040B) return 0x0;
+    if (addr == 0x040C) return 0x0;
+    if (addr == 0x0440) return 0x20;
+    if (addr == 0x0441) return 0x0;
+    if (addr == 0x0442) return 0x0;
+    if (addr == 0x0443) return 0x0;
+    return -1;
 }
 
 static inline void LMS7002M_regs_set(LMS7002M_regs_t *regs, const int addr, const int value)
@@ -962,6 +1089,17 @@ static inline void LMS7002M_regs_set(LMS7002M_regs_t *regs, const int addr, cons
         regs->reg_0x0082_pd_tx_afe1 = (value >> 2) & 0x1;
         regs->reg_0x0082_pd_tx_afe2 = (value >> 1) & 0x1;
         regs->reg_0x0082_en_g_afe = (value >> 0) & 0x1;
+        return;
+    }
+    if (addr == 0x0084)
+    {
+        regs->reg_0x0084_mux_bias_out = (value >> 11) & 0x3;
+        regs->reg_0x0084_rp_calib_bias = (value >> 6) & 0x1f;
+        regs->reg_0x0084_pd_frp_bias = (value >> 4) & 0x1;
+        regs->reg_0x0084_pd_f_bias = (value >> 3) & 0x1;
+        regs->reg_0x0084_pd_ptrp_bias = (value >> 2) & 0x1;
+        regs->reg_0x0084_pd_pt_bias = (value >> 1) & 0x1;
+        regs->reg_0x0084_pd_bias_master = (value >> 0) & 0x1;
         return;
     }
     if (addr == 0x0085)
@@ -1907,6 +2045,16 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr)
         value |= (regs->reg_0x0082_pd_tx_afe2 & 0x1) << 1;
         value |= (regs->reg_0x0082_en_g_afe & 0x1) << 0;
     }
+    if (addr == 0x0084)
+    {
+        value |= (regs->reg_0x0084_mux_bias_out & 0x3) << 11;
+        value |= (regs->reg_0x0084_rp_calib_bias & 0x1f) << 6;
+        value |= (regs->reg_0x0084_pd_frp_bias & 0x1) << 4;
+        value |= (regs->reg_0x0084_pd_f_bias & 0x1) << 3;
+        value |= (regs->reg_0x0084_pd_ptrp_bias & 0x1) << 2;
+        value |= (regs->reg_0x0084_pd_pt_bias & 0x1) << 1;
+        value |= (regs->reg_0x0084_pd_bias_master & 0x1) << 0;
+    }
     if (addr == 0x0085)
     {
         value |= (regs->reg_0x0085_slfb_xbuf_rx & 0x1) << 8;
@@ -2637,6 +2785,7 @@ static inline const int *LMS7002M_regs_addrs(void)
     0x002F,
     0x0081,
     0x0082,
+    0x0084,
     0x0085,
     0x0086,
     0x0087,

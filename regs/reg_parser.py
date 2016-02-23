@@ -65,6 +65,9 @@ static inline void LMS7002M_regs_init(LMS7002M_regs_t *regs);
 //! set the fields from the value that belong to the register specified by addr
 static inline void LMS7002M_regs_set(LMS7002M_regs_t *regs, const int addr, const int value);
 
+//! get the reset or default value of register specified by its address
+static inline int LMS7002M_regs_default(const int addr);
+
 //! get the value of the register specified by the fields at the given address
 static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr);
 
@@ -97,6 +100,14 @@ static inline void LMS7002M_regs_init(LMS7002M_regs_t *regs)
     #for $reg in $regs
     LMS7002M_regs_set(regs, $reg.addr, $get_default($reg));
     #end for
+}
+
+static inline int LMS7002M_regs_default(const int addr)
+{
+    #for $reg in $regs
+    if (addr == $reg.addr) return $get_default($reg);
+    #end for
+    return -1;
 }
 
 static inline void LMS7002M_regs_set(LMS7002M_regs_t *regs, const int addr, const int value)

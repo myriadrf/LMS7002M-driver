@@ -1,0 +1,15 @@
+[
+{
+    "addr" : "0x0084",
+    "fields" : {
+        "MUX_BIAS_OUT" : {"bits":"12:11"},
+        "RP_CALIB_BIAS" : {"bits":"10:6"},
+        "PD_FRP_BIAS" : {"bits":"4"},
+        "PD_F_BIAS" : {"bits":"3"},
+        "PD_PTRP_BIAS" : {"bits":"2"},
+        "PD_PT_BIAS" : {"bits":"1"},
+        "PD_BIAS_MASTER" : {"bits":"0"}
+    },
+    "default": "00000100 00000000"
+}
+]
