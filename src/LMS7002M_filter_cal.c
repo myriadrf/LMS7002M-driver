@@ -59,6 +59,27 @@ static int cal_gain_selection(LMS7002M_t *self, const LMS7002M_chan_t channel)
     return rssi_value_50k;
 }
 
+static int setup_rx_cal_tone(LMS7002M_t *self, const LMS7002M_chan_t channel, const double bw)
+{
+    int status = 0;
+    LMS7002M_set_mac_ch(self, channel);
+    const double sxr_freq = self->sxt_freq-bw;
+    double sxr_freq_actual = 0;
+    status = LMS7002M_set_lo_freq(self, LMS_RX, self->sxr_fref, sxr_freq, &sxr_freq_actual);
+    LMS7002M_set_mac_ch(self, channel);
+    if (status != 0)
+    {
+        LMS7_logf(LMS7_ERROR, "LMS7002M_set_lo_freq(LMS_RX, %f MHz)", sxr_freq/1e6);
+        goto done;
+    }
+    double rxtsp_rate = self->cgen_freq/4;
+    const double rx_nco_freq = (self->sxt_freq-sxr_freq_actual)-1e6;
+    LMS7002M_rxtsp_set_freq(self, channel, rx_nco_freq/rxtsp_rate);
+
+    done:
+    return status;
+}
+
 /***********************************************************************
  * Prepare for RX filter self-calibration
  **********************************************************************/
@@ -233,19 +254,9 @@ static int rx_cal_tia_rfe(LMS7002M_t *self, const LMS7002M_chan_t channel, const
     //--- gain selection ---//
     const int rssi_value_50k = cal_gain_selection(self, channel);
 
-    //--- sxr and nco ---
-    const double sxr_freq = self->sxt_freq-bw;
-    double sxr_freq_actual = 0;
-    status = LMS7002M_set_lo_freq(self, LMS_RX, self->sxr_fref, sxr_freq, &sxr_freq_actual);
-    LMS7002M_set_mac_ch(self, channel);
-    if (status != 0)
-    {
-        LMS7_logf(LMS7_ERROR, "LMS7002M_set_lo_freq(LMS_RX, %f MHz)", sxr_freq/1e6);
-        goto done;
-    }
-    double rxtsp_rate = self->cgen_freq/4;
-    const double rx_nco_freq = (self->sxt_freq-sxr_freq_actual)-1e6;
-    LMS7002M_rxtsp_set_freq(self, channel, rx_nco_freq/rxtsp_rate);
+    //--- setup calibration tone ---
+    status = setup_rx_cal_tone(self, channel, bw);
+    if (status != 0) goto done;
 
     //--- cfb_tia_rf ---//
     uint16_t rssi_value = LMS7002M_rxtsp_read_rssi(self, channel);
@@ -264,7 +275,6 @@ static int rx_cal_tia_rfe(LMS7002M_t *self, const LMS7002M_chan_t channel, const
             goto done;
         }
     }
-
     LMS7_logf(LMS7_DEBUG, "cfb_tia_rfe = %d", LMS7002M_regs(self)->reg_0x0112_cfb_tia_rfe);
 
     done:
@@ -312,19 +322,9 @@ static int rx_cal_rbb_lpfl(LMS7002M_t *self, const LMS7002M_chan_t channel, cons
     //--- gain selection ---//
     const int rssi_value_50k = cal_gain_selection(self, channel);
 
-    //--- sxr and nco ---
-    const double sxr_freq = self->sxt_freq-bw;
-    double sxr_freq_actual = 0;
-    status = LMS7002M_set_lo_freq(self, LMS_RX, self->sxr_fref, sxr_freq, &sxr_freq_actual);
-    LMS7002M_set_mac_ch(self, channel);
-    if (status != 0)
-    {
-        LMS7_logf(LMS7_ERROR, "LMS7002M_set_lo_freq(LMS_RX, %f MHz)", sxr_freq/1e6);
-        goto done;
-    }
-    double rxtsp_rate = self->cgen_freq/4;
-    const double rx_nco_freq = (self->sxt_freq-sxr_freq_actual)-1e6;
-    LMS7002M_rxtsp_set_freq(self, channel, rx_nco_freq/rxtsp_rate);
+    //--- setup calibration tone ---
+    status = setup_rx_cal_tone(self, channel, bw);
+    if (status != 0) goto done;
 
     //--- c_ctl_lpfl_rbb ---//
     uint16_t rssi_value = LMS7002M_rxtsp_read_rssi(self, channel);
@@ -343,7 +343,6 @@ static int rx_cal_rbb_lpfl(LMS7002M_t *self, const LMS7002M_chan_t channel, cons
             goto done;
         }
     }
-
     LMS7_logf(LMS7_DEBUG, "c_ctl_lpfl_rbb = %d", LMS7002M_regs(self)->reg_0x0117_c_ctl_lpfl_rbb);
 
     done:
@@ -364,6 +363,55 @@ static int rx_cal_rbb_lpfh(LMS7002M_t *self, const LMS7002M_chan_t channel, cons
         status = -1;
         goto done;
     }
+
+    //--- c_ctl_lpfl_rbb, rcc_ctl_lpfl_rbb ---//
+    LMS7002M_regs(self)->reg_0x0116_c_ctl_lpfh_rbb = (int)(6000e6/bw - 50);
+    int rcc_ctl_lpfh_rbb = (int)(bw/10e6 - 3);
+    if (rcc_ctl_lpfh_rbb < 0) rcc_ctl_lpfh_rbb = 0;
+    LMS7002M_regs(self)->reg_0x0116_rcc_ctl_lpfh_rbb = rcc_ctl_lpfh_rbb;
+    LMS7002M_regs_spi_write(self, 0x0116);
+
+    //--- tia rfe registers and rbb ---//
+    LMS7002M_regs(self)->reg_0x0112_cfb_tia_rfe = 15;
+    LMS7002M_regs(self)->reg_0x0112_ccomp_tia_rfe = 1;
+    LMS7002M_regs(self)->reg_0x0114_rcomp_tia_rfe = 15;
+    LMS7002M_regs(self)->reg_0x0113_g_tia_rfe = 1;
+    LMS7002M_regs(self)->reg_0x0115_pd_lpfh_rbb = 0;
+    LMS7002M_regs(self)->reg_0x0115_pd_lpfl_rbb = 1;
+    LMS7002M_regs(self)->reg_0x0118_input_ctl_pga_rbb = 1;
+    LMS7002M_regs_spi_write(self, 0x0112);
+    LMS7002M_regs_spi_write(self, 0x0113);
+    LMS7002M_regs_spi_write(self, 0x0114);
+    LMS7002M_regs_spi_write(self, 0x0115);
+    LMS7002M_regs_spi_write(self, 0x0118);
+
+    //--- cgen already set prior ---//
+
+    //--- gain selection ---//
+    const int rssi_value_50k = cal_gain_selection(self, channel);
+
+    //--- setup calibration tone ---
+    status = setup_rx_cal_tone(self, channel, bw);
+    if (status != 0) goto done;
+
+    //--- c_ctl_lpfh_rbb ---//
+    uint16_t rssi_value = LMS7002M_rxtsp_read_rssi(self, channel);
+    const int adjust = (rssi_value < rssi_value_50k*0.7071)?-1:+1;
+    while (true)
+    {
+        LMS7002M_regs(self)->reg_0x0116_c_ctl_lpfh_rbb += adjust;
+        LMS7002M_regs_spi_write(self, 0x0116);
+        rssi_value = LMS7002M_rxtsp_read_rssi(self, channel);
+        if (rssi_value > rssi_value_50k*0.7071) break;
+        if (LMS7002M_regs(self)->reg_0x0116_c_ctl_lpfh_rbb == 0 ||
+            LMS7002M_regs(self)->reg_0x0116_c_ctl_lpfh_rbb == 255)
+        {
+            status = -1;
+            LMS7_logf(LMS7_ERROR, "failed to cal c_ctl_lpfh_rbb");
+            goto done;
+        }
+    }
+    LMS7_logf(LMS7_DEBUG, "c_ctl_lpfh_rbb = %d", LMS7002M_regs(self)->reg_0x0116_c_ctl_lpfh_rbb);
 
     done:
     return status;
