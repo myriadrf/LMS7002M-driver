@@ -4,8 +4,8 @@
 /// Main interface header for LMS7002M C driver.
 ///
 /// \copyright
-/// Copyright (c) 2014-2015 Fairwaves, Inc.
-/// Copyright (c) 2014-2015 Rice University
+/// Copyright (c) 2014-2016 Fairwaves, Inc.
+/// Copyright (c) 2014-2016 Rice University
 /// SPDX-License-Identifier: Apache-2.0
 /// http://www.apache.org/licenses/LICENSE-2.0
 ///
@@ -142,6 +142,18 @@ LMS7002M_API void LMS7002M_regs_spi_read(LMS7002M_t *self, const int addr);
  * \return the pointer to the unpacked LMS7002M fields
  */
 LMS7002M_API LMS7002M_regs_t *LMS7002M_regs(LMS7002M_t *self);
+
+/*!
+ * Write the entire internal register cache to the RFIC.
+ * \param self an instance of the LMS7002M driver
+ */
+LMS7002M_API void LMS7002M_regs_to_rfic(LMS7002M_t *self);
+
+/*!
+ * Read the the entire RFIC into the internal register cache.
+ * \param self an instance of the LMS7002M driver
+ */
+LMS7002M_API void LMS7002M_rfic_to_regs(LMS7002M_t *self);
 
 /*!
  * Dump the known registers to an INI format like the one used by the EVB7 GUI.

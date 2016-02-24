@@ -83,6 +83,36 @@ LMS7002M_regs_t *LMS7002M_regs(LMS7002M_t *self)
     return self->regs;
 }
 
+void LMS7002M_regs_to_rfic(LMS7002M_t *self)
+{
+    LMS7002M_set_mac_ch(self, LMS_CHA);
+    for (const int *addrp = LMS7002M_regs_addrs(); *addrp != 0; addrp++)
+    {
+        LMS7002M_regs_spi_write(self, *addrp);
+    }
+
+    LMS7002M_set_mac_ch(self, LMS_CHB);
+    for (const int *addrp = LMS7002M_regs_addrs(); *addrp != 0; addrp++)
+    {
+        LMS7002M_regs_spi_write(self, *addrp);
+    }
+}
+
+void LMS7002M_rfic_to_regs(LMS7002M_t *self)
+{
+    LMS7002M_set_mac_ch(self, LMS_CHA);
+    for (const int *addrp = LMS7002M_regs_addrs(); *addrp != 0; addrp++)
+    {
+        LMS7002M_regs_spi_read(self, *addrp);
+    }
+
+    LMS7002M_set_mac_ch(self, LMS_CHB);
+    for (const int *addrp = LMS7002M_regs_addrs(); *addrp != 0; addrp++)
+    {
+        LMS7002M_regs_spi_read(self, *addrp);
+    }
+}
+
 int LMS7002M_dump_ini(LMS7002M_t *self, const char *path)
 {
     FILE *p = fopen(path, "w");
