@@ -24,7 +24,6 @@ static void set_addrs_to_default(LMS7002M_t *self, const LMS7002M_chan_t channel
         LMS7002M_regs_set(LMS7002M_regs(self), addr, value);
         LMS7002M_regs_spi_write(self, addr);
     }
-
 }
 
 int LMS7002M_rbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, const double bw, double *bwactual)
@@ -176,7 +175,7 @@ int LMS7002M_rbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, 
     LMS7002M_regs(self)->reg_0x040c_cmix_gain = 1;
     LMS7002M_regs_spi_write(self, 0x040a);
     LMS7002M_regs_spi_write(self, 0x040c);
-    const double rx_nco_freq = (sxt_freq_actual-sxr_freq_actual)-1e6;
+    double rx_nco_freq = (sxt_freq_actual-sxr_freq_actual)-1e6;
     LMS7002M_rxtsp_set_freq(self, channel, rx_nco_freq/rxtsp_rate);
 
     ////////////////////////////////////////////////////////////////////
@@ -246,7 +245,56 @@ int LMS7002M_rbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, 
         LMS7002M_regs_spi_write(self, 0x0119);
     }
     rssi_value_50k = LMS7002M_rxtsp_read_rssi(self, channel);
-    LMS7_logf(LMS7_INFO, "rssi_value_50k = %d", rssi_value_50k);
+    LMS7_logf(LMS7_DEBUG, "rssi_value_50k = %d", rssi_value_50k);
+
+    //--- sxr and nco ---
+    sxr_freq = sxt_freq_actual - bw;
+    status = LMS7002M_set_lo_freq(self, LMS_RX, self->sxr_fref, sxr_freq, &sxr_freq_actual);
+    LMS7002M_set_mac_ch(self, channel);
+    if (status != 0)
+    {
+        LMS7_logf(LMS7_ERROR, "LMS7002M_set_lo_freq(LMS_RX, %f MHz)", sxr_freq/1e6);
+        goto done;
+    }
+    rx_nco_freq = (sxt_freq_actual-sxr_freq_actual)-1e6;
+    LMS7002M_rxtsp_set_freq(self, channel, rx_nco_freq/rxtsp_rate);
+
+    //--- cfb_tia_rf ---//
+    uint16_t rssi_value = LMS7002M_rxtsp_read_rssi(self, channel);
+    if (rssi_value < rssi_value_50k*0.7071)
+    {
+        while (true)
+        {
+            LMS7002M_regs(self)->reg_0x0112_cfb_tia_rfe--;
+            LMS7002M_regs_spi_write(self, 0x0112);
+            rssi_value = LMS7002M_rxtsp_read_rssi(self, channel);
+            if (rssi_value > rssi_value_50k*0.7071) break;
+            if (LMS7002M_regs(self)->reg_0x0112_cfb_tia_rfe == 0)
+            {
+                status = -1;
+                LMS7_logf(LMS7_ERROR, "failed to cal c_ctl_lpfh_rbb");
+                goto done;
+            }
+        }
+    }
+    else
+    {
+        while (true)
+        {
+            LMS7002M_regs(self)->reg_0x0112_cfb_tia_rfe++;
+            LMS7002M_regs_spi_write(self, 0x0112);
+            rssi_value = LMS7002M_rxtsp_read_rssi(self, channel);
+            if (rssi_value < rssi_value_50k*0.7071) break;
+            if (LMS7002M_regs(self)->reg_0x0112_cfb_tia_rfe == 4095)
+            {
+                status = -1;
+                LMS7_logf(LMS7_ERROR, "failed to cal c_ctl_lpfh_rbb");
+                goto done;
+            }
+        }
+    }
+
+    LMS7_logf(LMS7_DEBUG, "cfb_tia_rfe = %d", LMS7002M_regs(self)->reg_0x0112_cfb_tia_rfe);
 
     done:
 
