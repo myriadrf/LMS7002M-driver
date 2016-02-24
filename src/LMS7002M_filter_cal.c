@@ -424,6 +424,7 @@ int LMS7002M_rbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, 
 {
     LMS7002M_set_mac_ch(self, channel);
     int status = 0;
+    const int path = (bw < 20e6)?LMS7002M_RBB_LBF:LMS7002M_RBB_HBF;
 
     //check for initialized reference frequencies
     if (self->cgen_fref == 0.0)
@@ -497,8 +498,8 @@ int LMS7002M_rbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, 
     ////////////////////////////////////////////////////////////////////
     // RBB LPF calibration
     ////////////////////////////////////////////////////////////////////
-    if (bw < 20e6) status = rx_cal_rbb_lpfl(self, channel, bw);
-    else           status = rx_cal_rbb_lpfh(self, channel, bw);
+    if (path == LMS7002M_RBB_LBF) status = rx_cal_rbb_lpfl(self, channel, bw);
+    if (path == LMS7002M_RBB_HBF) status = rx_cal_rbb_lpfh(self, channel, bw);
     if (status != 0)
     {
         LMS7_logf(LMS7_ERROR, "rx_cal_rbb_lpf() failed");
@@ -507,12 +508,59 @@ int LMS7002M_rbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, 
 
     done:
 
-    //TODO stash cal results
+    ////////////////////////////////////////////////////////////////////
+    // stash tia + rbb calibration results
+    ////////////////////////////////////////////////////////////////////
+    LMS7002M_set_mac_ch(self, channel);
+    const int cfb_tia_rfe = LMS7002M_regs(self)->reg_0x0112_cfb_tia_rfe;
+    const int ccomp_tia_rfe = LMS7002M_regs(self)->reg_0x0112_ccomp_tia_rfe;
+    const int rcomp_tia_rfe = LMS7002M_regs(self)->reg_0x0114_rcomp_tia_rfe;
+    const int rcc_ctl_lpfl_rbb = LMS7002M_regs(self)->reg_0x0117_rcc_ctl_lpfl_rbb;
+    const int c_ctl_lpfl_rbb = LMS7002M_regs(self)->reg_0x0117_c_ctl_lpfl_rbb;
+    const int rcc_ctl_lpfh_rbb = LMS7002M_regs(self)->reg_0x0116_rcc_ctl_lpfh_rbb;
+    const int c_ctl_lpfh_rbb = LMS7002M_regs(self)->reg_0x0116_c_ctl_lpfh_rbb;
 
-    //restore original register values
+    ////////////////////////////////////////////////////////////////////
+    // restore original register values
+    ////////////////////////////////////////////////////////////////////
     memcpy(self->_regs, saved_map, sizeof(saved_map));
     LMS7002M_regs_to_rfic(self);
     LMS7002M_set_mac_ch(self, channel);
+
+    ////////////////////////////////////////////////////////////////////
+    // apply tia calibration results
+    ////////////////////////////////////////////////////////////////////
+    LMS7002M_set_mac_ch(self, channel);
+    LMS7002M_regs(self)->reg_0x010f_ict_tiamain_rfe = 2;
+    LMS7002M_regs(self)->reg_0x010f_ict_tiaout_rfe = 2;
+    LMS7002M_regs(self)->reg_0x0114_rfb_tia_rfe = 16;
+    LMS7002M_regs(self)->reg_0x0112_cfb_tia_rfe = cfb_tia_rfe;
+    LMS7002M_regs(self)->reg_0x0112_ccomp_tia_rfe = ccomp_tia_rfe;
+    LMS7002M_regs(self)->reg_0x0114_rcomp_tia_rfe = rcomp_tia_rfe;
+    LMS7002M_regs_spi_write(self, 0x010f);
+    LMS7002M_regs_spi_write(self, 0x0114);
+    LMS7002M_regs_spi_write(self, 0x0112);
+
+    ////////////////////////////////////////////////////////////////////
+    // apply rbb calibration results
+    ////////////////////////////////////////////////////////////////////
+    LMS7002M_regs(self)->reg_0x0117_rcc_ctl_lpfl_rbb = rcc_ctl_lpfl_rbb;
+    LMS7002M_regs(self)->reg_0x0117_c_ctl_lpfl_rbb = c_ctl_lpfl_rbb;
+    LMS7002M_regs(self)->reg_0x0116_rcc_ctl_lpfh_rbb = rcc_ctl_lpfh_rbb;
+    LMS7002M_regs(self)->reg_0x0116_c_ctl_lpfh_rbb = c_ctl_lpfh_rbb;
+    LMS7002M_regs(self)->reg_0x0119_ict_pga_out_rbb = 20;
+    LMS7002M_regs(self)->reg_0x0119_ict_pga_in_rbb = 20;
+    LMS7002M_regs(self)->reg_0x0116_r_ctl_lpf_rbb = 16;
+    LMS7002M_regs(self)->reg_0x011a_c_ctl_pga_rbb = 3;
+    LMS7002M_regs_spi_write(self, 0x0117);
+    LMS7002M_regs_spi_write(self, 0x0119);
+    LMS7002M_regs_spi_write(self, 0x0116);
+    LMS7002M_regs_spi_write(self, 0x011a);
+
+    ////////////////////////////////////////////////////////////////////
+    // set the filter selection
+    ////////////////////////////////////////////////////////////////////
+    LMS7002M_rbb_set_path(self, channel, path);
 
     if (bwactual != NULL) *bwactual = bw;
     return status;
