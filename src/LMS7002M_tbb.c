@@ -42,6 +42,15 @@ void LMS7002M_tbb_set_path(LMS7002M_t *self, const LMS7002M_chan_t channel, cons
     case LMS7002M_TBB_BYP:
         break;
 
+    case LMS7002M_RBB_S5:
+        self->regs->reg_0x0105_pd_lpfs5_tbb = 0;
+        break;
+
+    case LMS7002M_RBB_LAD:
+        self->regs->reg_0x010a_bypladder_tbb = 0;
+        self->regs->reg_0x0105_pd_lpflad_tbb = 0;
+        break;
+
     case LMS7002M_TBB_LBF:
         self->regs->reg_0x010a_bypladder_tbb = 0;
         self->regs->reg_0x0105_pd_lpflad_tbb = 0;
