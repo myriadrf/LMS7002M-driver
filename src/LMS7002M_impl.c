@@ -94,6 +94,9 @@ void LMS7002M_regs_to_rfic(LMS7002M_t *self)
     LMS7002M_set_mac_ch(self, LMS_CHB);
     for (const int *addrp = LMS7002M_regs_addrs(); *addrp != 0; addrp++)
     {
+        //ignore registers that do not depend on MAC
+        if (*addrp < 0x0100) continue;
+
         LMS7002M_regs_spi_write(self, *addrp);
     }
 }

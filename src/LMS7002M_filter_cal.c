@@ -12,7 +12,13 @@
 
 #include "LMS7002M_impl.h"
 #include <LMS7002M/LMS7002M_logger.h>
+#include <LMS7002M/LMS7002M_time.h>
 #include <string.h> //memcpy
+
+static long long cal_rssi_sleep_ticks(void)
+{
+    return (LMS7_time_tps())/1000; //1 ms -> ticks
+}
 
 static void set_addrs_to_default(LMS7002M_t *self, const LMS7002M_chan_t channel, const int start_addr, const int stop_addr)
 {
@@ -26,20 +32,12 @@ static void set_addrs_to_default(LMS7002M_t *self, const LMS7002M_chan_t channel
     }
 }
 
-static void reload_addr_range(LMS7002M_t *self, const LMS7002M_chan_t channel, const int start_addr, const int stop_addr)
-{
-    LMS7002M_set_mac_ch(self, channel);
-    for (int addr = start_addr; addr <= stop_addr; addr++)
-    {
-        LMS7002M_regs_spi_write(self, addr);
-    }
-}
-
 static int cal_gain_selection(LMS7002M_t *self, const LMS7002M_chan_t channel)
 {
     int rssi_value_50k = 0;
     while (true)
     {
+        LMS7_sleep_for(cal_rssi_sleep_ticks());
         rssi_value_50k = LMS7002M_rxtsp_read_rssi(self, channel);
         if (rssi_value_50k < 0x8400) break;
 
@@ -54,6 +52,7 @@ static int cal_gain_selection(LMS7002M_t *self, const LMS7002M_chan_t channel)
         LMS7002M_regs_spi_write(self, 0x0108);
         LMS7002M_regs_spi_write(self, 0x0119);
     }
+    LMS7_sleep_for(cal_rssi_sleep_ticks());
     rssi_value_50k = LMS7002M_rxtsp_read_rssi(self, channel);
     LMS7_logf(LMS7_DEBUG, "rssi_value_50k = %d", rssi_value_50k);
     return rssi_value_50k;
@@ -265,13 +264,14 @@ static int rx_cal_tia_rfe(LMS7002M_t *self, const LMS7002M_chan_t channel, const
     {
         LMS7002M_regs(self)->reg_0x0112_cfb_tia_rfe += adjust;
         LMS7002M_regs_spi_write(self, 0x0112);
+        LMS7_sleep_for(cal_rssi_sleep_ticks());
         rssi_value = LMS7002M_rxtsp_read_rssi(self, channel);
         if (rssi_value > rssi_value_50k*0.7071) break;
         if (LMS7002M_regs(self)->reg_0x0112_cfb_tia_rfe == 0 ||
             LMS7002M_regs(self)->reg_0x0112_cfb_tia_rfe == 4095)
         {
             status = -1;
-            LMS7_logf(LMS7_ERROR, "failed to cal c_ctl_lpfh_rbb");
+            LMS7_logf(LMS7_ERROR, "failed to cal c_ctl_lpfh_rbb -> %d", LMS7002M_regs(self)->reg_0x0112_cfb_tia_rfe);
             goto done;
         }
     }
@@ -333,13 +333,14 @@ static int rx_cal_rbb_lpfl(LMS7002M_t *self, const LMS7002M_chan_t channel, cons
     {
         LMS7002M_regs(self)->reg_0x0117_c_ctl_lpfl_rbb += adjust;
         LMS7002M_regs_spi_write(self, 0x0117);
+        LMS7_sleep_for(cal_rssi_sleep_ticks());
         rssi_value = LMS7002M_rxtsp_read_rssi(self, channel);
         if (rssi_value > rssi_value_50k*0.7071) break;
         if (LMS7002M_regs(self)->reg_0x0117_c_ctl_lpfl_rbb == 0 ||
             LMS7002M_regs(self)->reg_0x0117_c_ctl_lpfl_rbb == 2047)
         {
             status = -1;
-            LMS7_logf(LMS7_ERROR, "failed to cal c_ctl_lpfl_rbb");
+            LMS7_logf(LMS7_ERROR, "failed to cal c_ctl_lpfl_rbb -> %d", LMS7002M_regs(self)->reg_0x0117_c_ctl_lpfl_rbb);
             goto done;
         }
     }
@@ -401,13 +402,14 @@ static int rx_cal_rbb_lpfh(LMS7002M_t *self, const LMS7002M_chan_t channel, cons
     {
         LMS7002M_regs(self)->reg_0x0116_c_ctl_lpfh_rbb += adjust;
         LMS7002M_regs_spi_write(self, 0x0116);
+        LMS7_sleep_for(cal_rssi_sleep_ticks());
         rssi_value = LMS7002M_rxtsp_read_rssi(self, channel);
         if (rssi_value > rssi_value_50k*0.7071) break;
         if (LMS7002M_regs(self)->reg_0x0116_c_ctl_lpfh_rbb == 0 ||
             LMS7002M_regs(self)->reg_0x0116_c_ctl_lpfh_rbb == 255)
         {
             status = -1;
-            LMS7_logf(LMS7_ERROR, "failed to cal c_ctl_lpfh_rbb");
+            LMS7_logf(LMS7_ERROR, "failed to cal c_ctl_lpfh_rbb -> %d", LMS7002M_regs(self)->reg_0x0116_c_ctl_lpfh_rbb);
             goto done;
         }
     }
@@ -458,7 +460,6 @@ int LMS7002M_rbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, 
     while ((int)(cgen_freq/1e6) == (int)(bw/16e6)) cgen_freq -= 10e6;
     double cgen_freq_actual = 0.0;
     status = LMS7002M_set_data_clock(self, self->cgen_fref, cgen_freq, &cgen_freq_actual);
-    double rxtsp_rate = cgen_freq_actual/4;
     if (status != 0)
     {
         LMS7_logf(LMS7_ERROR, "LMS7002M_set_data_clock(%f MHz)", cgen_freq/1e6);
