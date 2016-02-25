@@ -4,8 +4,8 @@
 /// TX RF frontend controls for the LMS7002M C driver.
 ///
 /// \copyright
-/// Copyright (c) 2015-2015 Fairwaves, Inc.
-/// Copyright (c) 2015-2015 Rice University
+/// Copyright (c) 2015-2016 Fairwaves, Inc.
+/// Copyright (c) 2015-2016 Rice University
 /// SPDX-License-Identifier: Apache-2.0
 /// http://www.apache.org/licenses/LICENSE-2.0
 ///
@@ -23,6 +23,7 @@ void LMS7002M_trf_enable(LMS7002M_t *self, const LMS7002M_chan_t channel, const 
     self->regs->reg_0x0100_en_g_trf = enable?1:0;
     self->regs->reg_0x0100_pd_tlobuf_trf = 0;
     self->regs->reg_0x0100_pd_txpad_trf = 0;
+    self->regs->reg_0x0100_en_nexttx_trf = 1;
     LMS7002M_regs_spi_write(self, 0x0100);
 }
 

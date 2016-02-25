@@ -74,6 +74,7 @@ void LMS7002M_tbb_enable_loopback(LMS7002M_t *self, const LMS7002M_chan_t channe
     LMS7002M_regs_spi_write(self, 0x0105);
 }
 
+/*
 int LMS7002M_tbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, const double bw, double *bwactual)
 {
     LMS7002M_set_mac_ch(self, channel);
@@ -128,3 +129,4 @@ int LMS7002M_tbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, 
 
     return (int)status;
 }
+*/
