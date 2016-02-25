@@ -13,6 +13,7 @@ project(LMS7002MDriver C)
 if(CMAKE_COMPILER_IS_GNUCC)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
     add_definitions(-D_GNU_SOURCE)
+    add_definitions(-Wall)
 endif()
 
 ########################################################################

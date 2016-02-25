@@ -4,8 +4,8 @@
 /// RX RF frontend controls for the LMS7002M C driver.
 ///
 /// \copyright
-/// Copyright (c) 2015-2015 Fairwaves, Inc.
-/// Copyright (c) 2015-2015 Rice University
+/// Copyright (c) 2015-2016 Fairwaves, Inc.
+/// Copyright (c) 2015-2016 Rice University
 /// SPDX-License-Identifier: Apache-2.0
 /// http://www.apache.org/licenses/LICENSE-2.0
 ///
@@ -27,6 +27,9 @@ void LMS7002M_rfe_enable(LMS7002M_t *self, const LMS7002M_chan_t channel, const 
     self->regs->reg_0x010c_pd_rloopb_1_rfe = 1;
     self->regs->reg_0x010c_pd_rloopb_2_rfe = 1;
     LMS7002M_regs_spi_write(self, 0x010C);
+
+    self->regs->reg_0x010d_en_nextrx_rfe = 1;
+    LMS7002M_regs_spi_write(self, 0x010d);
 }
 
 void LMS7002M_rfe_set_path(LMS7002M_t *self, const LMS7002M_chan_t channel, const int path)

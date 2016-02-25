@@ -4,8 +4,8 @@
 /// Clock generation for the LMS7002M C driver.
 ///
 /// \copyright
-/// Copyright (c) 2014-2015 Fairwaves, Inc.
-/// Copyright (c) 2014-2015 Rice University
+/// Copyright (c) 2014-2016 Fairwaves, Inc.
+/// Copyright (c) 2014-2016 Rice University
 /// SPDX-License-Identifier: Apache-2.0
 /// http://www.apache.org/licenses/LICENSE-2.0
 ///
@@ -62,6 +62,15 @@ int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, const double fo
     //stash the freq now that we know the loop above passed
     self->cgen_freq = fout;
     self->cgen_fref = fref;
+
+    //usually these references are all the same frequency
+    //setting the clock is a good time to initialize them
+    //if they are not otherwise initialized by tuning the LO
+    if (self->sxt_fref == 0.0) self->sxt_fref = fref;
+    if (self->sxr_fref == 0.0) self->sxr_fref = fref;
+
+    self->sxr_fref_mhz = fref/1e6;
+    self->sxt_fref_mhz = fref/1e6;
 
     //reset
     self->regs->reg_0x0086_reset_n_cgen = 0;

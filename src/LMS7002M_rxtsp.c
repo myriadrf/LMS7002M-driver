@@ -108,15 +108,21 @@ void LMS7002M_rxtsp_tsg_tone(LMS7002M_t *self, const LMS7002M_chan_t channel)
     LMS7002M_regs_spi_write(self, 0x0400);
 }
 
-double LMS7002M_rxtsp_read_rssi(LMS7002M_t *self, const LMS7002M_chan_t channel)
+uint16_t LMS7002M_rxtsp_read_rssi(LMS7002M_t *self, const LMS7002M_chan_t channel)
 {
     LMS7002M_set_mac_ch(self, channel);
 
-    self->regs->reg_0x040c_agc_byp = 0;
-    LMS7002M_regs_spi_write(self, 0x040c);
+    if (self->regs->reg_0x040c_agc_byp != 0)
+    {
+        self->regs->reg_0x040c_agc_byp = 0;
+        LMS7002M_regs_spi_write(self, 0x040c);
+    }
 
-    self->regs->reg_0x040a_agc_mode = REG_0X040A_AGC_MODE_RSSI;
-    LMS7002M_regs_spi_write(self, 0x040a);
+    if (self->regs->reg_0x040a_agc_mode != REG_0X040A_AGC_MODE_RSSI)
+    {
+        self->regs->reg_0x040a_agc_mode = REG_0X040A_AGC_MODE_RSSI;
+        LMS7002M_regs_spi_write(self, 0x040a);
+    }
 
     self->regs->reg_0x0400_capsel = REG_0X0400_CAPSEL_RSSI;
     self->regs->reg_0x0400_capture = 0;
@@ -130,8 +136,7 @@ double LMS7002M_rxtsp_read_rssi(LMS7002M_t *self, const LMS7002M_chan_t channel)
     const int rssi_hi = LMS7002M_spi_read(self, 0x040F);
     const int rssi_int = (rssi_hi << 2) | rssi_lo;
 
-    //a full scale DC input level be 1.0 RSSI
-    return rssi_int/((double)(1 << 16));
+    return (uint16_t)rssi_int;
 }
 
 void LMS7002M_rxtsp_set_dc_correction(

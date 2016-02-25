@@ -4,8 +4,8 @@
 /// Lime-light config for the LMS7002M C driver.
 ///
 /// \copyright
-/// Copyright (c) 2014-2015 Fairwaves, Inc.
-/// Copyright (c) 2014-2015 Rice University
+/// Copyright (c) 2014-2016 Fairwaves, Inc.
+/// Copyright (c) 2014-2016 Rice University
 /// SPDX-License-Identifier: Apache-2.0
 /// http://www.apache.org/licenses/LICENSE-2.0
 ///
@@ -15,8 +15,8 @@
 
 void LMS7002M_set_spi_mode(LMS7002M_t *self, const int numWires)
 {
-    //always use the channel A shadow, LML is in global register space
-    LMS7002M_set_mac_ch(self, LMS_CHA);
+    //LML is in global register space
+    LMS7002M_set_mac_ch(self, LMS_CHAB);
 
     if (numWires == 3) self->regs->reg_0x0021_spimode = REG_0X0021_SPIMODE_3WIRE;
     if (numWires == 4) self->regs->reg_0x0021_spimode = REG_0X0021_SPIMODE_4WIRE;
@@ -25,37 +25,21 @@ void LMS7002M_set_spi_mode(LMS7002M_t *self, const int numWires)
 
 void LMS7002M_reset(LMS7002M_t *self)
 {
-    //always use the channel A shadow, LML is in global register space
-    LMS7002M_set_mac_ch(self, LMS_CHA);
+    //LML is in global register space
+    LMS7002M_set_mac_ch(self, LMS_CHAB);
 
     LMS7002M_spi_write(self, 0x0020, 0x0);
     LMS7002M_regs_spi_write(self, 0x0020);
     LMS7002M_regs_spi_write(self, 0x002E);//must write
 
-    //reset the register cache to match the device
-    LMS7002M_regs_init(&self->_regs[0]);
-    LMS7002M_regs_init(&self->_regs[1]);
-
-    //optional code to default all registers on reset (doesnt seem to be needed)
-    /*
-    LMS7002M_set_mac_ch(self, LMS_CHA);
-    for (const int *addrp = LMS7002M_regs_addrs(); *addrp != 0; addrp++)
-    {
-        LMS7002M_regs_spi_write(self, *addrp);
-    }
-
-    LMS7002M_set_mac_ch(self, LMS_CHB);
-    for (const int *addrp = LMS7002M_regs_addrs(); *addrp != 0; addrp++)
-    {
-        LMS7002M_regs_spi_write(self, *addrp);
-    }
-    */
+    //sync up the register cache
+    LMS7002M_rfic_to_regs(self);
 }
 
 void LMS7002M_power_down(LMS7002M_t *self)
 {
-    //always use the channel A shadow, LML is in global register space
-    LMS7002M_set_mac_ch(self, LMS_CHA);
+    //LML is in global register space
+    LMS7002M_set_mac_ch(self, LMS_CHAB);
 
     self->regs->reg_0x0020_rxen_a = 0;
     self->regs->reg_0x0020_rxen_b = 0;
@@ -80,8 +64,8 @@ void LMS7002M_power_down(LMS7002M_t *self)
 
 void LMS7002M_configure_lml_port(LMS7002M_t *self, const LMS7002M_port_t portNo, const LMS7002M_dir_t direction, const int mclkDiv)
 {
-    //always use the channel A shadow, LML is in global register space
-    LMS7002M_set_mac_ch(self, LMS_CHA);
+    //LML is in global register space
+    LMS7002M_set_mac_ch(self, LMS_CHAB);
 
     //set TRXIQ on both ports
     if (portNo == LMS_PORT1)
@@ -161,8 +145,8 @@ void LMS7002M_configure_lml_port(LMS7002M_t *self, const LMS7002M_port_t portNo,
 
 void LMS7002M_invert_fclk(LMS7002M_t *self, const bool invert)
 {
-    //always use the channel A shadow, LML is in global register space
-    LMS7002M_set_mac_ch(self, LMS_CHA);
+    //LML is in global register space
+    LMS7002M_set_mac_ch(self, LMS_CHAB);
 
     self->regs->reg_0x002b_fclk1_inv = invert?1:0;
     self->regs->reg_0x002b_fclk2_inv = invert?1:0;
@@ -171,8 +155,8 @@ void LMS7002M_invert_fclk(LMS7002M_t *self, const bool invert)
 
 void LMS7002M_setup_digital_loopback(LMS7002M_t *self)
 {
-    //always use the channel A shadow, LML is in global register space
-    LMS7002M_set_mac_ch(self, LMS_CHA);
+    //LML is in global register space
+    LMS7002M_set_mac_ch(self, LMS_CHAB);
 
     self->regs->reg_0x002a_rx_mux = REG_0X002A_RX_MUX_TXFIFO;
     //self->regs->reg_0x002a_rx_mux = REG_0X002A_RX_MUX_LFSR;
@@ -245,8 +229,8 @@ static inline int __lms7002m_diq_index(const int search, const int positions[4])
 
 void LMS7002M_set_diq_mux(LMS7002M_t *self, const LMS7002M_dir_t direction, const int positions[4])
 {
-    //always use the channel A shadow, LML is in global register space
-    LMS7002M_set_mac_ch(self, LMS_CHA);
+    //LML is in global register space
+    LMS7002M_set_mac_ch(self, LMS_CHAB);
 
     //set the same config on both ports, only one is used as per port config
 
