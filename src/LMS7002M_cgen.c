@@ -69,9 +69,6 @@ int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, const double fo
     if (self->sxt_fref == 0.0) self->sxt_fref = fref;
     if (self->sxr_fref == 0.0) self->sxr_fref = fref;
 
-    self->sxr_fref_mhz = fref/1e6;
-    self->sxt_fref_mhz = fref/1e6;
-
     //reset
     self->regs->reg_0x0086_reset_n_cgen = 0;
     LMS7002M_regs_spi_write(self, 0x0086);

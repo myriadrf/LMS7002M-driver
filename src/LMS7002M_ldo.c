@@ -4,8 +4,8 @@
 /// LDO config for the LMS7002M C driver.
 ///
 /// \copyright
-/// Copyright (c) 2015-2015 Fairwaves, Inc.
-/// Copyright (c) 2015-2015 Rice University
+/// Copyright (c) 2015-2016 Fairwaves, Inc.
+/// Copyright (c) 2015-2016 Rice University
 /// SPDX-License-Identifier: Apache-2.0
 /// http://www.apache.org/licenses/LICENSE-2.0
 ///
@@ -14,6 +14,9 @@
 
 void LMS7002M_ldo_enable(LMS7002M_t *self, const bool enable, const int group)
 {
+    //LDO is a global register space
+    LMS7002M_set_mac_ch(self, LMS_CHAB);
+
     //TODO, we can implement more groups, for now only 1
     if (group != LMS7002M_LDO_ALL) return;
 
