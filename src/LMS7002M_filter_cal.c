@@ -10,8 +10,8 @@
 /// http://www.apache.org/licenses/LICENSE-2.0
 ///
 
+#include "LMS7002M_impl.h"
 #include "LMS7002M_filter_cal.h"
-#include <LMS7002M/LMS7002M_logger.h>
 #include <LMS7002M/LMS7002M_time.h>
 
 static long long cal_rssi_sleep_ticks(void)
@@ -39,10 +39,9 @@ void set_addrs_to_default(LMS7002M_t *self, const LMS7002M_chan_t channel, const
 
 int cal_gain_selection(LMS7002M_t *self, const LMS7002M_chan_t channel)
 {
-    int rssi_value_50k = 0;
     while (true)
     {
-        rssi_value_50k = cal_read_rssi(self, channel);
+        const int rssi_value_50k = cal_read_rssi(self, channel);
         if (rssi_value_50k < 0x8400) break;
 
         LMS7002M_regs(self)->reg_0x0108_cg_iamp_tbb++;
@@ -56,7 +55,14 @@ int cal_gain_selection(LMS7002M_t *self, const LMS7002M_chan_t channel)
         LMS7002M_regs_spi_write(self, 0x0108);
         LMS7002M_regs_spi_write(self, 0x0119);
     }
-    rssi_value_50k = cal_read_rssi(self, channel);
-    LMS7_logf(LMS7_DEBUG, "rssi_value_50k = %d", rssi_value_50k);
-    return rssi_value_50k;
+    return cal_read_rssi(self, channel);
+}
+
+int cal_setup_cgen(LMS7002M_t *self, const double bw)
+{
+    double cgen_freq = bw*20;
+    if (cgen_freq < 60e6) cgen_freq = 60e6;
+    if (cgen_freq > 640e6) cgen_freq = 640e6;
+    while ((int)(cgen_freq/1e6) == (int)(bw/16e6)) cgen_freq -= 10e6;
+    return LMS7002M_set_data_clock(self, self->cgen_fref, cgen_freq, NULL);
 }

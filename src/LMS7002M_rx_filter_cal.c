@@ -41,6 +41,47 @@ static int setup_rx_cal_tone(LMS7002M_t *self, const LMS7002M_chan_t channel, co
 }
 
 /***********************************************************************
+ * Rx calibration loop
+ **********************************************************************/
+static int rx_cal_loop(
+    LMS7002M_t *self, const LMS7002M_chan_t channel, const double bw,
+    int *reg_ptr, const int reg_addr, const int reg_max, const char *reg_name)
+{
+    int status = 0;
+    LMS7002M_set_mac_ch(self, channel);
+
+    //--- cgen already set prior ---//
+
+    //--- gain selection ---//
+    const int rssi_value_50k = cal_gain_selection(self, channel);
+
+    //--- setup calibration tone ---//
+    status = setup_rx_cal_tone(self, channel, bw);
+    if (status != 0) goto done;
+
+    //--- calibration loop ---//
+    uint16_t rssi_value = cal_read_rssi(self, channel);
+    const int adjust = (rssi_value < rssi_value_50k*0.7071)?-1:+1;
+    while (true)
+    {
+        *reg_ptr += adjust;
+        LMS7002M_regs_spi_write(self, reg_addr);
+        rssi_value = cal_read_rssi(self, channel);
+        if (rssi_value > rssi_value_50k*0.7071 && adjust < 0) break;
+        if (rssi_value < rssi_value_50k*0.7071 && adjust > 0) break;
+        if (*reg_ptr == 0 || *reg_ptr == reg_max)
+        {
+            LMS7_logf(LMS7_ERROR, "failed to cal %s -> %d", reg_name, *reg_ptr);
+            status = -1;
+            goto done;
+        }
+    }
+    LMS7_logf(LMS7_DEBUG, "%s = %d", reg_name, *reg_ptr);
+    done:
+    return status;
+}
+
+/***********************************************************************
  * Prepare for RX filter self-calibration
  **********************************************************************/
 static int rx_cal_init(LMS7002M_t *self, const LMS7002M_chan_t channel)
@@ -105,21 +146,16 @@ static int rx_cal_init(LMS7002M_t *self, const LMS7002M_chan_t channel)
     LMS7002M_afe_enable(self, LMS_TX, channel, true);
     LMS7002M_set_mac_ch(self, channel);
 
-    //--- sxr ---
-    const double sxr_freq = 499.95e6;
-    double sxr_freq_actual = 0.0;
-    status = LMS7002M_set_lo_freq(self, LMS_RX, self->sxr_fref, sxr_freq, &sxr_freq_actual);
+    //--- bias -- must write to chA ---//
+    LMS7002M_set_mac_ch(self, LMS_CHA);
+    const int rp_calib_bias = LMS7002M_regs(self)->reg_0x0084_rp_calib_bias;
+    set_addrs_to_default(self, channel, 0x0083, 0x0084);
+    LMS7002M_regs(self)->reg_0x0084_rp_calib_bias = rp_calib_bias;
     LMS7002M_set_mac_ch(self, channel);
-    if (status != 0)
-    {
-        LMS7_logf(LMS7_ERROR, "LMS7002M_set_lo_freq(LMS_RX, %f MHz)", sxr_freq/1e6);
-        goto done;
-    }
 
     //--- sxt ---
     const double sxt_freq = 500e6;
-    double sxt_freq_actual = 0.0;
-    status = LMS7002M_set_lo_freq(self, LMS_TX, self->sxt_fref, sxt_freq, &sxt_freq_actual);
+    status = LMS7002M_set_lo_freq(self, LMS_TX, self->sxt_fref, sxt_freq, NULL);
     LMS7002M_set_mac_ch(self, channel);
     if (status != 0)
     {
@@ -138,7 +174,6 @@ static int rx_cal_init(LMS7002M_t *self, const LMS7002M_chan_t channel)
     LMS7002M_regs_spi_write(self, 0x0200);
     LMS7002M_regs_spi_write(self, 0x0208);
     LMS7002M_txtsp_tsg_const(self, channel, 0x7fff, 0x8000);
-    LMS7002M_txtsp_set_freq(self, channel, 0.0);
 
     //--- RxTSP ---
     set_addrs_to_default(self, channel, 0x0400, 0x040f);
@@ -150,9 +185,10 @@ static int rx_cal_init(LMS7002M_t *self, const LMS7002M_chan_t channel)
     LMS7002M_regs(self)->reg_0x040c_cmix_gain = 1;
     LMS7002M_regs_spi_write(self, 0x040a);
     LMS7002M_regs_spi_write(self, 0x040c);
-    double rxtsp_rate = self->cgen_freq/4;
-    double rx_nco_freq = (sxt_freq_actual-sxr_freq_actual)-1e6;
-    LMS7002M_rxtsp_set_freq(self, channel, rx_nco_freq/rxtsp_rate);
+
+    //--- initial cal tone ---//
+    status = setup_rx_cal_tone(self, channel, 50e3);
+    if (status != 0) goto done;
 
     done:
     return status;
@@ -167,6 +203,7 @@ static int rx_cal_tia_rfe(LMS7002M_t *self, const LMS7002M_chan_t channel, const
     LMS7002M_set_mac_ch(self, channel);
     const int g_tia_rfe_user = LMS7002M_regs(self)->reg_0x0113_g_tia_rfe;
 
+    //--- check filter bounds ---//
     if (bw < 0.5e6 || bw > 60e6)
     {
         LMS7_logf(LMS7_ERROR, "TIA bandwidth not in range[0.5 to 60 MHz]");
@@ -191,6 +228,7 @@ static int rx_cal_tia_rfe(LMS7002M_t *self, const LMS7002M_chan_t channel, const
     {
         LMS7_logf(LMS7_ERROR, "g_tia_rfe must be [1, 2, or 3], got %d", g_tia_rfe_user);
         status = -1;
+        goto done;
     }
     if (ccomp_tia_rfe > 15) ccomp_tia_rfe = 15;
     LMS7002M_regs(self)->reg_0x0112_cfb_tia_rfe = cfb_tia_rfe;
@@ -209,33 +247,10 @@ static int rx_cal_tia_rfe(LMS7002M_t *self, const LMS7002M_chan_t channel, const
     LMS7002M_regs_spi_write(self, 0x0118);
     LMS7002M_regs_spi_write(self, 0x0115);
 
-    //--- cgen already set prior ---//
-
-    //--- gain selection ---//
-    const int rssi_value_50k = cal_gain_selection(self, channel);
-
-    //--- setup calibration tone ---
-    status = setup_rx_cal_tone(self, channel, bw);
-    if (status != 0) goto done;
-
-    //--- cfb_tia_rf ---//
-    uint16_t rssi_value = cal_read_rssi(self, channel);
-    const int adjust = (rssi_value < rssi_value_50k*0.7071)?-1:+1;
-    while (true)
-    {
-        LMS7002M_regs(self)->reg_0x0112_cfb_tia_rfe += adjust;
-        LMS7002M_regs_spi_write(self, 0x0112);
-        rssi_value = cal_read_rssi(self, channel);
-        if (rssi_value > rssi_value_50k*0.7071) break;
-        if (LMS7002M_regs(self)->reg_0x0112_cfb_tia_rfe == 0 ||
-            LMS7002M_regs(self)->reg_0x0112_cfb_tia_rfe == 4095)
-        {
-            status = -1;
-            LMS7_logf(LMS7_ERROR, "failed to cal c_ctl_lpfh_rbb -> %d", LMS7002M_regs(self)->reg_0x0112_cfb_tia_rfe);
-            goto done;
-        }
-    }
-    LMS7_logf(LMS7_DEBUG, "cfb_tia_rfe = %d", LMS7002M_regs(self)->reg_0x0112_cfb_tia_rfe);
+    //--- calibration ---//
+    status = rx_cal_loop(self, channel, bw,
+        &LMS7002M_regs(self)->reg_0x0112_cfb_tia_rfe,
+        0x0112, 4095, "cfb_tia_rfe");
 
     done:
     return status;
@@ -249,6 +264,7 @@ static int rx_cal_rbb_lpfl(LMS7002M_t *self, const LMS7002M_chan_t channel, cons
     int status = 0;
     LMS7002M_set_mac_ch(self, channel);
 
+    //--- check filter bounds ---//
     if (bw < 0.5e6 || bw > 20e6)
     {
         LMS7_logf(LMS7_ERROR, "LPFL bandwidth not in range[0.5 to 20 MHz]");
@@ -277,33 +293,10 @@ static int rx_cal_rbb_lpfl(LMS7002M_t *self, const LMS7002M_chan_t channel, cons
     LMS7002M_regs_spi_write(self, 0x0113);
     LMS7002M_regs_spi_write(self, 0x0114);
 
-    //--- cgen already set prior ---//
-
-    //--- gain selection ---//
-    const int rssi_value_50k = cal_gain_selection(self, channel);
-
-    //--- setup calibration tone ---
-    status = setup_rx_cal_tone(self, channel, bw);
-    if (status != 0) goto done;
-
-    //--- c_ctl_lpfl_rbb ---//
-    uint16_t rssi_value = cal_read_rssi(self, channel);
-    const int adjust = (rssi_value < rssi_value_50k*0.7071)?-1:+1;
-    while (true)
-    {
-        LMS7002M_regs(self)->reg_0x0117_c_ctl_lpfl_rbb += adjust;
-        LMS7002M_regs_spi_write(self, 0x0117);
-        rssi_value = cal_read_rssi(self, channel);
-        if (rssi_value > rssi_value_50k*0.7071) break;
-        if (LMS7002M_regs(self)->reg_0x0117_c_ctl_lpfl_rbb == 0 ||
-            LMS7002M_regs(self)->reg_0x0117_c_ctl_lpfl_rbb == 2047)
-        {
-            status = -1;
-            LMS7_logf(LMS7_ERROR, "failed to cal c_ctl_lpfl_rbb -> %d", LMS7002M_regs(self)->reg_0x0117_c_ctl_lpfl_rbb);
-            goto done;
-        }
-    }
-    LMS7_logf(LMS7_DEBUG, "c_ctl_lpfl_rbb = %d", LMS7002M_regs(self)->reg_0x0117_c_ctl_lpfl_rbb);
+    //--- calibration ---//
+    status = rx_cal_loop(self, channel, bw,
+        &LMS7002M_regs(self)->reg_0x0117_c_ctl_lpfl_rbb,
+        0x0117, 2047, "c_ctl_lpfl_rbb");
 
     done:
     return status;
@@ -317,7 +310,8 @@ static int rx_cal_rbb_lpfh(LMS7002M_t *self, const LMS7002M_chan_t channel, cons
     int status = 0;
     LMS7002M_set_mac_ch(self, channel);
 
-    if (bw < 10e6 || bw > 60e6)
+    //--- check filter bounds ---//
+    if (bw < 20e6 || bw > 60e6)
     {
         LMS7_logf(LMS7_ERROR, "LPFH bandwidth not in range[0.5 to 60 MHz]");
         status = -1;
@@ -345,33 +339,10 @@ static int rx_cal_rbb_lpfh(LMS7002M_t *self, const LMS7002M_chan_t channel, cons
     LMS7002M_regs_spi_write(self, 0x0115);
     LMS7002M_regs_spi_write(self, 0x0118);
 
-    //--- cgen already set prior ---//
-
-    //--- gain selection ---//
-    const int rssi_value_50k = cal_gain_selection(self, channel);
-
-    //--- setup calibration tone ---
-    status = setup_rx_cal_tone(self, channel, bw);
-    if (status != 0) goto done;
-
-    //--- c_ctl_lpfh_rbb ---//
-    uint16_t rssi_value = cal_read_rssi(self, channel);
-    const int adjust = (rssi_value < rssi_value_50k*0.7071)?-1:+1;
-    while (true)
-    {
-        LMS7002M_regs(self)->reg_0x0116_c_ctl_lpfh_rbb += adjust;
-        LMS7002M_regs_spi_write(self, 0x0116);
-        rssi_value = cal_read_rssi(self, channel);
-        if (rssi_value > rssi_value_50k*0.7071) break;
-        if (LMS7002M_regs(self)->reg_0x0116_c_ctl_lpfh_rbb == 0 ||
-            LMS7002M_regs(self)->reg_0x0116_c_ctl_lpfh_rbb == 255)
-        {
-            status = -1;
-            LMS7_logf(LMS7_ERROR, "failed to cal c_ctl_lpfh_rbb -> %d", LMS7002M_regs(self)->reg_0x0116_c_ctl_lpfh_rbb);
-            goto done;
-        }
-    }
-    LMS7_logf(LMS7_DEBUG, "c_ctl_lpfh_rbb = %d", LMS7002M_regs(self)->reg_0x0116_c_ctl_lpfh_rbb);
+    //--- calibration ---//
+    status = rx_cal_loop(self, channel, bw,
+        &LMS7002M_regs(self)->reg_0x0116_c_ctl_lpfh_rbb,
+        0x0116, 255, "c_ctl_lpfh_rbb");
 
     done:
     return status;
@@ -380,10 +351,11 @@ static int rx_cal_rbb_lpfh(LMS7002M_t *self, const LMS7002M_chan_t channel, cons
 /***********************************************************************
  * Rx calibration dispatcher
  **********************************************************************/
-int LMS7002M_rbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, const double bw, double *bwactual)
+int LMS7002M_rbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, double bw, double *bwactual)
 {
     LMS7002M_set_mac_ch(self, channel);
     int status = 0;
+    if (bw < 0.5) bw = 0.5; //low-band starts at 0.5
     const int path = (bw < 20e6)?LMS7002M_RBB_LBF:LMS7002M_RBB_HBF;
 
     //check for initialized reference frequencies
@@ -412,15 +384,10 @@ int LMS7002M_rbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, 
     ////////////////////////////////////////////////////////////////////
     // Clocking configuration
     ////////////////////////////////////////////////////////////////////
-    double cgen_freq = bw*20;
-    if (cgen_freq < 60e6) cgen_freq = 60e6;
-    if (cgen_freq > 640e6) cgen_freq = 640e6;
-    while ((int)(cgen_freq/1e6) == (int)(bw/16e6)) cgen_freq -= 10e6;
-    double cgen_freq_actual = 0.0;
-    status = LMS7002M_set_data_clock(self, self->cgen_fref, cgen_freq, &cgen_freq_actual);
+    status = cal_setup_cgen(self, bw);
     if (status != 0)
     {
-        LMS7_logf(LMS7_ERROR, "LMS7002M_set_data_clock(%f MHz)", cgen_freq/1e6);
+        LMS7_logf(LMS7_ERROR, "cal_setup_cgen() faled");
         goto done;
     }
 
