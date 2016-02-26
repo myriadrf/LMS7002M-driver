@@ -484,7 +484,9 @@ LMS7002M_API void LMS7002M_txtsp_set_iq_correction(
 //=====================================================================//
 
 #define LMS7002M_TBB_BYP (int)'B'  //!< Bypass filters path selected
-#define LMS7002M_TBB_LBF (int)'L'  //!< Low band filter path selected
+#define LMS7002M_TBB_S5  (int)'S'  //!< Low band single pole path selected
+#define LMS7002M_TBB_LAD (int)'A'  //!< Low band ladder filter path selected
+#define LMS7002M_TBB_LBF (int)'L'  //!< Low band (ladder + S5) path selected
 #define LMS7002M_TBB_HBF (int)'H'  //!< High band filter path selected
 
 #define LMS7002M_TBB_TSTIN_OFF 0 //!< Disable test input signal
@@ -687,9 +689,7 @@ LMS7002M_API void LMS7002M_rxtsp_set_iq_correction(
 //=====================================================================//
 
 #define LMS7002M_RBB_BYP (int)'B'  //!< Bypass filters path selected
-#define LMS7002M_RBB_S5  (int)'S'  //!< Low band single pole path selected
-#define LMS7002M_RBB_LAD (int)'A'  //!< Low band ladder filter path selected
-#define LMS7002M_RBB_LBF (int)'L'  //!< Low band (ladder + S5) path selected
+#define LMS7002M_RBB_LBF (int)'L'  //!< Low band filter path selected
 #define LMS7002M_RBB_HBF (int)'H'  //!< High band filter path selected
 #define LMS7002M_RBB_LB_BYP 0      //!< Bypass filters with loopback from TXBB
 #define LMS7002M_RBB_LB_LBF 1      //!< Low band filter with loopback from TXBB
