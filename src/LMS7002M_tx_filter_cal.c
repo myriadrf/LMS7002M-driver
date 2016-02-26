@@ -49,10 +49,17 @@ static int tx_cal_loop(
     setup_tx_cal_tone(self, channel, bw);
 
     //--- calibration loop ---//
+    size_t iter = 0;
     uint16_t rssi_value = cal_read_rssi(self, channel);
     int adjust = (rssi_value < rssi_value_50k*0.7071)?-1:+1;
     while (true)
     {
+        if (iter++ == MAX_CAL_LOOP_ITERS)
+        {
+            LMS7_logf(LMS7_ERROR, "failed to converge when calibrating %s", reg_name);
+            return -1;
+        }
+
         LMS7002M_regs(self)->reg_0x010a_ccal_lpflad_tbb += adjust;
         LMS7002M_regs_spi_write(self, 0x010a);
 

@@ -12,6 +12,9 @@
 
 #include <LMS7002M/LMS7002M.h>
 
+//! Prevent calibration loops from getting stuck
+#define MAX_CAL_LOOP_ITERS 512
+
 //! Read the RSSI from RxTSP with small sleep for settling
 uint16_t cal_read_rssi(LMS7002M_t *self, const LMS7002M_chan_t channel);
 

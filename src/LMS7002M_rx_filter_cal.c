@@ -59,10 +59,17 @@ static int rx_cal_loop(
     if (status != 0) return status;
 
     //--- calibration loop ---//
+    size_t iter = 0;
     uint16_t rssi_value = cal_read_rssi(self, channel);
     const int adjust = (rssi_value < rssi_value_50k*0.7071)?-1:+1;
     while (true)
     {
+        if (iter++ == MAX_CAL_LOOP_ITERS)
+        {
+            LMS7_logf(LMS7_ERROR, "failed to converge when calibrating %s", reg_name);
+            return -1;
+        }
+
         *reg_ptr += adjust;
         LMS7002M_regs_spi_write(self, reg_addr);
         rssi_value = cal_read_rssi(self, channel);
