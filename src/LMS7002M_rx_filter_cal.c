@@ -47,7 +47,6 @@ static int rx_cal_loop(
     LMS7002M_t *self, const LMS7002M_chan_t channel, const double bw,
     int *reg_ptr, const int reg_addr, const int reg_max, const char *reg_name)
 {
-    int status = 0;
     LMS7002M_set_mac_ch(self, channel);
 
     //--- cgen already set prior ---//
@@ -56,8 +55,8 @@ static int rx_cal_loop(
     const int rssi_value_50k = cal_gain_selection(self, channel);
 
     //--- setup calibration tone ---//
-    status = setup_rx_cal_tone(self, channel, bw);
-    if (status != 0) goto done;
+    int status = setup_rx_cal_tone(self, channel, bw);
+    if (status != 0) return status;
 
     //--- calibration loop ---//
     uint16_t rssi_value = cal_read_rssi(self, channel);
@@ -72,13 +71,11 @@ static int rx_cal_loop(
         if (*reg_ptr == 0 || *reg_ptr == reg_max)
         {
             LMS7_logf(LMS7_ERROR, "failed to cal %s -> %d", reg_name, *reg_ptr);
-            status = -1;
-            goto done;
+            return -1;
         }
     }
     LMS7_logf(LMS7_DEBUG, "%s = %d", reg_name, *reg_ptr);
-    done:
-    return status;
+    return 0;
 }
 
 /***********************************************************************
@@ -307,15 +304,13 @@ static int rx_cal_rbb_lpfl(LMS7002M_t *self, const LMS7002M_chan_t channel, cons
  **********************************************************************/
 static int rx_cal_rbb_lpfh(LMS7002M_t *self, const LMS7002M_chan_t channel, const double bw)
 {
-    int status = 0;
     LMS7002M_set_mac_ch(self, channel);
 
     //--- check filter bounds ---//
     if (bw < 20e6 || bw > 60e6)
     {
         LMS7_logf(LMS7_ERROR, "LPFH bandwidth not in range[0.5 to 60 MHz]");
-        status = -1;
-        goto done;
+        return -1;
     }
 
     //--- c_ctl_lpfl_rbb, rcc_ctl_lpfl_rbb ---//
@@ -340,12 +335,9 @@ static int rx_cal_rbb_lpfh(LMS7002M_t *self, const LMS7002M_chan_t channel, cons
     LMS7002M_regs_spi_write(self, 0x0118);
 
     //--- calibration ---//
-    status = rx_cal_loop(self, channel, bw,
+    return rx_cal_loop(self, channel, bw,
         &LMS7002M_regs(self)->reg_0x0116_c_ctl_lpfh_rbb,
         0x0116, 255, "c_ctl_lpfh_rbb");
-
-    done:
-    return status;
 }
 
 /***********************************************************************

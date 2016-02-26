@@ -38,7 +38,6 @@ static int tx_cal_loop(
     LMS7002M_t *self, const LMS7002M_chan_t channel, const double bw,
     int *reg_ptr, const int reg_addr, const int reg_max, const char *reg_name)
 {
-    int status = 0;
     LMS7002M_set_mac_ch(self, channel);
 
     //--- cgen already set prior ---//
@@ -51,33 +50,35 @@ static int tx_cal_loop(
 
     //--- calibration loop ---//
     uint16_t rssi_value = cal_read_rssi(self, channel);
-    const int adjust = (rssi_value < rssi_value_50k*0.7071)?-1:+1;
+    int adjust = (rssi_value < rssi_value_50k*0.7071)?-1:+1;
     while (true)
     {
         LMS7002M_regs(self)->reg_0x010a_ccal_lpflad_tbb += adjust;
         LMS7002M_regs_spi_write(self, 0x010a);
-        LMS7002M_regs_spi_write(self, reg_addr);
 
         rssi_value = cal_read_rssi(self, channel);
         if (rssi_value > rssi_value_50k*0.7071 && adjust < 0) break;
         if (rssi_value < rssi_value_50k*0.7071 && adjust > 0) break;
-
-        if (LMS7002M_regs(self)->reg_0x010a_ccal_lpflad_tbb == 0 ||
-            LMS7002M_regs(self)->reg_0x010a_ccal_lpflad_tbb == 31) continue;
+        if (LMS7002M_regs(self)->reg_0x010a_ccal_lpflad_tbb != 0 &&
+            LMS7002M_regs(self)->reg_0x010a_ccal_lpflad_tbb != 31) continue;
 
         *reg_ptr -= adjust*5;
         LMS7002M_regs(self)->reg_0x010a_ccal_lpflad_tbb = 16;
+        LMS7002M_regs_spi_write(self, 0x010a);
+        LMS7002M_regs_spi_write(self, reg_addr);
 
         if (*reg_ptr < 0 || *reg_ptr > reg_max)
         {
             LMS7_logf(LMS7_ERROR, "failed to cal %s -> %d", reg_name, *reg_ptr);
-            status = -1;
-            goto done;
+            return -1;
         }
+
+        rssi_value = cal_read_rssi(self, channel);
+        adjust = (rssi_value < rssi_value_50k*0.7071)?-1:+1;
     }
     LMS7_logf(LMS7_DEBUG, "%s = %d", reg_name, *reg_ptr);
-    done:
-    return status;
+    LMS7_logf(LMS7_DEBUG, "ccal_lpflad_tbb = %d", LMS7002M_regs(self)->reg_0x010a_ccal_lpflad_tbb);
+    return 0;
 }
 
 /***********************************************************************
@@ -160,15 +161,13 @@ static int tx_cal_init(LMS7002M_t *self, const LMS7002M_chan_t channel)
  **********************************************************************/
 static int rx_cal_tbb_lpfs5(LMS7002M_t *self, const LMS7002M_chan_t channel, const double bw)
 {
-    int status = 0;
     LMS7002M_set_mac_ch(self, channel);
 
     //--- check filter bounds ---//
     if (bw < 0.8e6 || bw > 3.2e6)
     {
         LMS7_logf(LMS7_ERROR, "LPFS5 bandwidth not in range[0.8 to 3.2 MHz]");
-        status = -1;
-        goto done;
+        return -1;
     }
 
     //--- setup rcal, path ---//
@@ -181,19 +180,13 @@ static int rx_cal_tbb_lpfs5(LMS7002M_t *self, const LMS7002M_chan_t channel, con
     const int rcal_lpfs5_tbb = (int)(f*f*f*f*p1 + f*f*f*p2 + f*f*p3 + f*p4 + p5);
     LMS7002M_regs(self)->reg_0x010a_rcal_lpfs5_tbb = rcal_lpfs5_tbb;
     LMS7002M_regs(self)->reg_0x0105_loopb_tbb = 3;
-    LMS7002M_regs(self)->reg_0x0105_pd_lpfh_tbb = 1;
-    LMS7002M_regs(self)->reg_0x0105_pd_lpfs5_tbb = 0;
-    LMS7002M_regs(self)->reg_0x010a_bypladder_tbb = 1;
     LMS7002M_regs_spi_write(self, 0x0105);
     LMS7002M_regs_spi_write(self, 0x010a);
 
     //--- calibration ---//
-    status = tx_cal_loop(self, channel, bw,
+    return tx_cal_loop(self, channel, bw,
         &LMS7002M_regs(self)->reg_0x010a_rcal_lpfs5_tbb,
         0x010a, 255, "rcal_lpfs5_tbb");
-
-    done:
-    return status;
 }
 
 /***********************************************************************
@@ -222,8 +215,6 @@ static int rx_cal_tbb_lpflad(LMS7002M_t *self, const LMS7002M_chan_t channel, co
     const int rcal_lpflad_tbb = (int)(f*f*f*f*p1 + f*f*f*p2 + f*f*p3 + f*p4 + p5);
     LMS7002M_regs(self)->reg_0x0109_rcal_lpflad_tbb = rcal_lpflad_tbb;
     LMS7002M_regs(self)->reg_0x0105_loopb_tbb = 2;
-    LMS7002M_regs(self)->reg_0x0105_pd_lpfh_tbb = 1;
-    LMS7002M_regs(self)->reg_0x0105_pd_lpflad_tbb = 0;
     LMS7002M_regs_spi_write(self, 0x0105);
     LMS7002M_regs_spi_write(self, 0x0109);
 
@@ -281,9 +272,18 @@ int LMS7002M_tbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, 
 {
     LMS7002M_set_mac_ch(self, channel);
     int status = 0;
-    if (bw < 0.8) bw = 0.8; //real pole starts at 0.8
-    if (bw > 16e6) bw = 28e6; //ladder stops at 16e6, high-band starts at 28e6
-    const int path = (bw < 2e6)?LMS7002M_TBB_S5:(bw <= 16e6)?LMS7002M_TBB_LAD:LMS7002M_RBB_HBF;
+
+    //ranges to work around filter tuning issues
+    //LPFLAD does not calibrate near extreme ranges
+    //and LPFS5 does not calibrate at all (FIXME)
+    const double lpflad_start = 3e6;
+    const double lpflad_stop = 13e6;
+    const double lpfh_start = 28e6;
+    const double lpf5_start = lpflad_start; //FIXME -> 0.8e6
+
+    if (bw < lpf5_start) bw = lpf5_start;
+    if (bw > lpflad_stop) bw = lpfh_start; //clip up to high-band
+    const int path = (bw < lpflad_start)?LMS7002M_TBB_S5:(bw <= lpflad_stop)?LMS7002M_TBB_LAD:LMS7002M_RBB_HBF;
 
     ////////////////////////////////////////////////////////////////////
     // Save register map
@@ -310,6 +310,7 @@ int LMS7002M_tbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, 
         LMS7_logf(LMS7_ERROR, "tx_cal_init() failed");
         goto done;
     }
+    LMS7002M_tbb_set_path(self, channel, path);
 
     ////////////////////////////////////////////////////////////////////
     // TBB LPF calibration
