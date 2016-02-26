@@ -4,15 +4,14 @@
 /// RX baseband controls for the LMS7002M C driver.
 ///
 /// \copyright
-/// Copyright (c) 2015-2015 Fairwaves, Inc.
-/// Copyright (c) 2015-2015 Rice University
+/// Copyright (c) 2015-2016 Fairwaves, Inc.
+/// Copyright (c) 2015-2016 Rice University
 /// SPDX-License-Identifier: Apache-2.0
 /// http://www.apache.org/licenses/LICENSE-2.0
 ///
 
 #include <stdlib.h>
 #include "LMS7002M_impl.h"
-#include "LMS7002M_ported.h"
 #include <math.h> //pow
 #include <LMS7002M/LMS7002M_logger.h>
 
@@ -104,62 +103,3 @@ double LMS7002M_rbb_set_pga(LMS7002M_t *self, const LMS7002M_chan_t channel, con
 
     return G_PGA_RBB - 12.0;
 }
-
-/*
-int LMS7002M_rbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, const double bw, double *bwactual)
-{
-    LMS7002M_set_mac_ch(self, channel);
-
-    int val = 0;
-    double actual = bw;
-    bool bypass = false;
-    const bool hb = bw >= 37.0e6;
-
-    if (bw <= 1.4e6) val = 0, actual = 1.4e6;
-    else if (bw <= 3.0e6) val = 1, actual = 3.0e6;
-    else if (bw <= 5.0e6) val = 2, actual = 5.0e6;
-    else if (bw <= 10.0e6) val = 3, actual = 10.0e6;
-    else if (bw <= 15.0e6) val = 4, actual = 15.0e6;
-    else if (bw <= 20.0e6) val = 5, actual = 20.0e6;
-    else if (bw <= 37.0e6) val = 1, actual = 37.0e6;
-    else if (bw <= 66.0e6) val = 4, actual = 66.0e6;
-    else if (bw <= 108.0e6) val = 7, actual = 108.0e6;
-    else bypass = true;
-    if (bwactual != NULL) *bwactual = actual;
-
-    //only one filter is actually used
-    self->regs->reg_0x0117_rcc_ctl_lpfl_rbb = val;
-    self->regs->reg_0x0116_rcc_ctl_lpfh_rbb = val;
-    LMS7002M_regs_spi_write(self, 0x0116);
-    LMS7002M_regs_spi_write(self, 0x0117);
-
-    //set path
-    if (bypass) LMS7002M_rbb_set_path(self, channel, LMS7002M_RBB_BYP);
-    else if (hb) LMS7002M_rbb_set_path(self, channel, LMS7002M_RBB_HBF);
-    else LMS7002M_rbb_set_path(self, channel, LMS7002M_RBB_LBF);
-
-    //run the calibration for this bandwidth setting
-    LMS7_logf(LMS7_DEBUG, "CalibrateRx(%f MHz)", bw/1e6);
-    liblms7_status status = CalibrateRx(self, bw/1e6);
-    if (!bypass && status == LIBLMS7_SUCCESS)
-    {
-        LMS7_log(LMS7_DEBUG, "TuneRxFilter");
-        status = TuneRxFilter(self, hb?RX_LPF_HIGHBAND:RX_LPF_LOWBAND, bw/1e6);
-    }
-    if (status == LIBLMS7_SUCCESS)
-    {
-        LMS7_log(LMS7_DEBUG, "TuneRxFilter(RX_TIA)");
-        status = TuneRxFilter(self, RX_TIA, bw/1e6);
-    }
-    if (status != LIBLMS7_SUCCESS)
-    {
-        LMS7_logf(LMS7_ERROR, "CalibrateRx(%f MHz) Fail - %s", bw/1e6, liblms7_status_strings[status]);
-    }
-    else
-    {
-        //if (self->sxr_freq != 0.0) LMS7002M_set_lo_freq(self, LMS_RX, self->sxr_fref, self->sxr_freq, NULL);
-    }
-
-    return (int)status;
-}
-*/
