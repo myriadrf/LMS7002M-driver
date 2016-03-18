@@ -66,6 +66,7 @@ void LMS7002M_txtsp_tsg_const(LMS7002M_t *self, const LMS7002M_chan_t channel, c
     LMS7002M_set_mac_ch(self, channel);
 
     //muxes
+    self->regs->reg_0x0200_tsgfc = REG_0X0200_TSGFC_FS;
     self->regs->reg_0x0200_tsgmode = REG_0X0200_TSGMODE_DC;
     self->regs->reg_0x0200_insel = REG_0X0200_INSEL_TEST;
     LMS7002M_regs_spi_write(self, 0x0200);
