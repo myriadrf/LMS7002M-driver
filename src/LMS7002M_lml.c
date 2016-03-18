@@ -213,8 +213,8 @@ void LMS7002M_set_mac_dir(LMS7002M_t *self, const LMS7002M_dir_t direction)
 {
     switch (direction)
     {
-    case LMS_RX: return LMS7002M_set_mac_ch(self, LMS_CHA);
-    case LMS_TX: return LMS7002M_set_mac_ch(self, LMS_CHB);
+    case LMS_RX: LMS7002M_set_mac_ch(self, LMS_CHA); break;
+    case LMS_TX: LMS7002M_set_mac_ch(self, LMS_CHB); break;
     }
 }
 
