@@ -23,8 +23,15 @@ void LMS7002M_trf_enable(LMS7002M_t *self, const LMS7002M_chan_t channel, const 
     self->regs->reg_0x0100_en_g_trf = enable?1:0;
     self->regs->reg_0x0100_pd_tlobuf_trf = 0;
     self->regs->reg_0x0100_pd_txpad_trf = 0;
-    self->regs->reg_0x0100_en_nexttx_trf = 1;
     LMS7002M_regs_spi_write(self, 0x0100);
+
+    //the chB LO enable register is a chA register
+    if (channel != LMS_CHA)
+    {
+        LMS7002M_set_mac_ch(self, LMS_CHA);
+        self->regs->reg_0x0100_en_nexttx_trf = enable?1:0;
+        LMS7002M_regs_spi_write(self, 0x0100);
+    }
 }
 
 void LMS7002M_trf_select_band(LMS7002M_t *self, const LMS7002M_chan_t channel, const int band)
