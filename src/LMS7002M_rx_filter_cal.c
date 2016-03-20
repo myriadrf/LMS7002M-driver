@@ -476,11 +476,9 @@ int LMS7002M_rbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, 
     LMS7002M_regs(self)->reg_0x0119_ict_pga_out_rbb = 20;
     LMS7002M_regs(self)->reg_0x0119_ict_pga_in_rbb = 20;
     LMS7002M_regs(self)->reg_0x0116_r_ctl_lpf_rbb = 16;
-    LMS7002M_regs(self)->reg_0x011a_c_ctl_pga_rbb = 3;
     LMS7002M_regs_spi_write(self, 0x0117);
     LMS7002M_regs_spi_write(self, 0x0119);
     LMS7002M_regs_spi_write(self, 0x0116);
-    LMS7002M_regs_spi_write(self, 0x011a);
 
     ////////////////////////////////////////////////////////////////////
     // set the filter selection
