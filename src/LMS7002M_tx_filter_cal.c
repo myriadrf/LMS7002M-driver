@@ -289,7 +289,7 @@ int LMS7002M_tbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, 
     const double lpf5_start = lpflad_start; //FIXME -> 0.8e6
 
     if (bw < lpf5_start) bw = lpf5_start;
-    if (bw > lpflad_stop) bw = lpfh_start; //clip up to high-band
+    if (bw > lpflad_stop && bw < lpfh_start) bw = lpfh_start; //clip up to high-band
     const int path = (bw < lpflad_start)?LMS7002M_TBB_S5:(bw <= lpflad_stop)?LMS7002M_TBB_LAD:LMS7002M_RBB_HBF;
 
     ////////////////////////////////////////////////////////////////////
