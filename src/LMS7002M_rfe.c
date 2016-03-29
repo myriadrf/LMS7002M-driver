@@ -20,9 +20,9 @@ void LMS7002M_rfe_enable(LMS7002M_t *self, const LMS7002M_chan_t channel, const 
     LMS7002M_regs_spi_write(self, 0x0124);
 
     self->regs->reg_0x010c_en_g_rfe = enable?1:0;
-    self->regs->reg_0x010c_pd_mxlobuf_rfe = 0;
-    self->regs->reg_0x010c_pd_qgen_rfe = 0;
-    self->regs->reg_0x010c_pd_tia_rfe = 0;
+    self->regs->reg_0x010c_pd_mxlobuf_rfe = enable?0:1;
+    self->regs->reg_0x010c_pd_qgen_rfe = enable?0:1;
+    self->regs->reg_0x010c_pd_tia_rfe = enable?0:1;
     self->regs->reg_0x010c_pd_lna_rfe = 1;
     self->regs->reg_0x010c_pd_rloopb_1_rfe = 1;
     self->regs->reg_0x010c_pd_rloopb_2_rfe = 1;
