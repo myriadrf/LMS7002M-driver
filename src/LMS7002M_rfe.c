@@ -23,9 +23,7 @@ void LMS7002M_rfe_enable(LMS7002M_t *self, const LMS7002M_chan_t channel, const 
     self->regs->reg_0x010c_pd_mxlobuf_rfe = enable?0:1;
     self->regs->reg_0x010c_pd_qgen_rfe = enable?0:1;
     self->regs->reg_0x010c_pd_tia_rfe = enable?0:1;
-    self->regs->reg_0x010c_pd_lna_rfe = 1;
-    self->regs->reg_0x010c_pd_rloopb_1_rfe = 1;
-    self->regs->reg_0x010c_pd_rloopb_2_rfe = 1;
+    self->regs->reg_0x010c_pd_lna_rfe = enable?0:1;
     LMS7002M_regs_spi_write(self, 0x010C);
 
     //the chB LO enable register is a chA register
