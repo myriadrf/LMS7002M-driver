@@ -192,6 +192,14 @@ LMS7002M_API void LMS7002M_set_spi_mode(LMS7002M_t *self, const int numWires);
 LMS7002M_API void LMS7002M_reset(LMS7002M_t *self);
 
 /*!
+ * Reset all logic registers and FIFO state.
+ * Use after configuring and before streaming.
+ * \param self an instance of the LMS7002M driver
+ * \param direction the direction LMS_TX or LMS_RX
+ */
+LMS7002M_API void LMS7002M_reset_lml_fifo(LMS7002M_t *self, const LMS7002M_dir_t direction);
+
+/*!
  * Put all available hardware into disable/power-down mode.
  * Call this last before destroying the LMS7002M instance.
  * \param self an instance of the LMS7002M driver

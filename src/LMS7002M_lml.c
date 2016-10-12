@@ -36,6 +36,42 @@ void LMS7002M_reset(LMS7002M_t *self)
     LMS7002M_rfic_to_regs(self);
 }
 
+void LMS7002M_reset_lml_fifo(LMS7002M_t *self, const LMS7002M_dir_t direction)
+{
+    //LML is in global register space
+    LMS7002M_set_mac_ch(self, LMS_CHAB);
+
+    //put into reset
+    if (direction == LMS_RX)
+    {
+        self->regs->reg_0x0020_srst_rxfifo = 0;
+        self->regs->reg_0x0020_lrst_rx_a = 0;
+        self->regs->reg_0x0020_lrst_rx_b = 0;
+    }
+    if (direction == LMS_TX)
+    {
+        self->regs->reg_0x0020_srst_txfifo = 0;
+        self->regs->reg_0x0020_lrst_tx_a = 0;
+        self->regs->reg_0x0020_lrst_tx_b = 0;
+    }
+    LMS7002M_regs_spi_write(self, 0x0020);
+
+    //clear resets
+    if (direction == LMS_RX)
+    {
+        self->regs->reg_0x0020_srst_rxfifo = 1;
+        self->regs->reg_0x0020_lrst_rx_a = 1;
+        self->regs->reg_0x0020_lrst_rx_b = 1;
+    }
+    if (direction == LMS_TX)
+    {
+        self->regs->reg_0x0020_srst_txfifo = 1;
+        self->regs->reg_0x0020_lrst_tx_a = 1;
+        self->regs->reg_0x0020_lrst_tx_b = 1;
+    }
+    LMS7002M_regs_spi_write(self, 0x0020);
+}
+
 void LMS7002M_power_down(LMS7002M_t *self)
 {
     //LML is in global register space
