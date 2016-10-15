@@ -28,6 +28,17 @@ As an alternative, the CMake build exists in the root directory
 to build a LMS7002M static library and to install header files.
 A client project can link against this library in standard fashion.
 
+### Installation instructions
+
+```
+git clone https://github.com/myriadrf/LMS7002M-driver.git
+cd LMS7002M-driver
+mkdir build; cd build
+cmake ../
+make -j4
+sudo make install
+```
+
 ## Licensing information
 
 Use, modification and distribution is subject to the Apache License
