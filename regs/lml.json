@@ -44,6 +44,28 @@
     "default": "00001110 10011111"
 },
 {
+    "addr" : "0x0022",
+    "fields" : {
+        "DIQ2_DS" : {"bits":"11",
+            "options":{"4ma":0, "8ma":1}
+        },
+        "DIQ2_PE" : {"bits":"10"},
+        "IQ_SEL_EN_2_PE" : {"bits":"9"},
+        "TXNRX2_PE" : {"bits":"8"},
+        "FCLK2_PE" : {"bits":"7"},
+        "MCLK2_PE" : {"bits":"6"},
+        "DIQ1_DS" : {"bits":"5",
+            "options":{"4ma":0, "8ma":1}
+        },
+        "DIQ1_PE" : {"bits":"4"},
+        "IQ_SEL_EN_1_PE" : {"bits":"3"},
+        "TXNRX1_PE" : {"bits":"2"},
+        "FCLK1_PE" : {"bits":"1"},
+        "MCLK1_PE" : {"bits":"0"}
+    },
+    "default": "00000111 11011111"
+},
+{
     "addr" : "0x0023",
     "fields" : {
         "DIQDIRCTR2" : {"bits":"15"},

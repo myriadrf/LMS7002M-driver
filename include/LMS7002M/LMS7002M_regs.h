@@ -38,6 +38,10 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr);
 #define REG_0X0020_MAC_CHAB 3
 #define REG_0X0021_SPIMODE_3WIRE 0
 #define REG_0X0021_SPIMODE_4WIRE 1
+#define REG_0X0022_DIQ2_DS_4MA 0
+#define REG_0X0022_DIQ2_DS_8MA 1
+#define REG_0X0022_DIQ1_DS_4MA 0
+#define REG_0X0022_DIQ1_DS_8MA 1
 #define REG_0X0023_DIQDIR2_OUTPUT 0
 #define REG_0X0023_DIQDIR2_INPUT 1
 #define REG_0X0023_DIQDIR1_OUTPUT 0
@@ -222,6 +226,18 @@ struct LMS7002M_regs_struct
     int reg_0x0021_sclk_pe;
     int reg_0x0021_sen_pe;
     int reg_0x0021_spimode;
+    int reg_0x0022_diq2_ds;
+    int reg_0x0022_diq2_pe;
+    int reg_0x0022_iq_sel_en_2_pe;
+    int reg_0x0022_txnrx2_pe;
+    int reg_0x0022_fclk2_pe;
+    int reg_0x0022_mclk2_pe;
+    int reg_0x0022_diq1_ds;
+    int reg_0x0022_diq1_pe;
+    int reg_0x0022_iq_sel_en_1_pe;
+    int reg_0x0022_txnrx1_pe;
+    int reg_0x0022_fclk1_pe;
+    int reg_0x0022_mclk1_pe;
     int reg_0x0023_diqdirctr2;
     int reg_0x0023_diqdir2;
     int reg_0x0023_diqdirctr1;
@@ -722,6 +738,7 @@ static inline void LMS7002M_regs_init(LMS7002M_regs_t *regs)
 {
     LMS7002M_regs_set(regs, 0x0020, 0xffff);
     LMS7002M_regs_set(regs, 0x0021, 0xe9f);
+    LMS7002M_regs_set(regs, 0x0022, 0x7df);
     LMS7002M_regs_set(regs, 0x0023, 0x5559);
     LMS7002M_regs_set(regs, 0x0024, 0xe4e4);
     LMS7002M_regs_set(regs, 0x0027, 0xe4e4);
@@ -837,6 +854,7 @@ static inline int LMS7002M_regs_default(const int addr)
 {
     if (addr == 0x0020) return 0xffff;
     if (addr == 0x0021) return 0xe9f;
+    if (addr == 0x0022) return 0x7df;
     if (addr == 0x0023) return 0x5559;
     if (addr == 0x0024) return 0xe4e4;
     if (addr == 0x0027) return 0xe4e4;
@@ -984,6 +1002,22 @@ static inline void LMS7002M_regs_set(LMS7002M_regs_t *regs, const int addr, cons
         regs->reg_0x0021_sclk_pe = (value >> 2) & 0x1;
         regs->reg_0x0021_sen_pe = (value >> 1) & 0x1;
         regs->reg_0x0021_spimode = (value >> 0) & 0x1;
+        return;
+    }
+    if (addr == 0x0022)
+    {
+        regs->reg_0x0022_diq2_ds = (value >> 11) & 0x1;
+        regs->reg_0x0022_diq2_pe = (value >> 10) & 0x1;
+        regs->reg_0x0022_iq_sel_en_2_pe = (value >> 9) & 0x1;
+        regs->reg_0x0022_txnrx2_pe = (value >> 8) & 0x1;
+        regs->reg_0x0022_fclk2_pe = (value >> 7) & 0x1;
+        regs->reg_0x0022_mclk2_pe = (value >> 6) & 0x1;
+        regs->reg_0x0022_diq1_ds = (value >> 5) & 0x1;
+        regs->reg_0x0022_diq1_pe = (value >> 4) & 0x1;
+        regs->reg_0x0022_iq_sel_en_1_pe = (value >> 3) & 0x1;
+        regs->reg_0x0022_txnrx1_pe = (value >> 2) & 0x1;
+        regs->reg_0x0022_fclk1_pe = (value >> 1) & 0x1;
+        regs->reg_0x0022_mclk1_pe = (value >> 0) & 0x1;
         return;
     }
     if (addr == 0x0023)
@@ -1950,6 +1984,21 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr)
         value |= (regs->reg_0x0021_sen_pe & 0x1) << 1;
         value |= (regs->reg_0x0021_spimode & 0x1) << 0;
     }
+    if (addr == 0x0022)
+    {
+        value |= (regs->reg_0x0022_diq2_ds & 0x1) << 11;
+        value |= (regs->reg_0x0022_diq2_pe & 0x1) << 10;
+        value |= (regs->reg_0x0022_iq_sel_en_2_pe & 0x1) << 9;
+        value |= (regs->reg_0x0022_txnrx2_pe & 0x1) << 8;
+        value |= (regs->reg_0x0022_fclk2_pe & 0x1) << 7;
+        value |= (regs->reg_0x0022_mclk2_pe & 0x1) << 6;
+        value |= (regs->reg_0x0022_diq1_ds & 0x1) << 5;
+        value |= (regs->reg_0x0022_diq1_pe & 0x1) << 4;
+        value |= (regs->reg_0x0022_iq_sel_en_1_pe & 0x1) << 3;
+        value |= (regs->reg_0x0022_txnrx1_pe & 0x1) << 2;
+        value |= (regs->reg_0x0022_fclk1_pe & 0x1) << 1;
+        value |= (regs->reg_0x0022_mclk1_pe & 0x1) << 0;
+    }
     if (addr == 0x0023)
     {
         value |= (regs->reg_0x0023_diqdirctr2 & 0x1) << 15;
@@ -2775,6 +2824,7 @@ static inline const int *LMS7002M_regs_addrs(void)
     static const int addrs[] = {
     0x0020,
     0x0021,
+    0x0022,
     0x0023,
     0x0024,
     0x0027,
