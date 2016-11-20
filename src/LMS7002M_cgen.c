@@ -12,13 +12,8 @@
 
 #include <stdlib.h>
 #include "LMS7002M_impl.h"
-#include <LMS7002M/LMS7002M_time.h>
+#include "LMS7002M_vco.h"
 #include <LMS7002M/LMS7002M_logger.h>
-
-static long long cgen_cmp_sleep_ticks(void)
-{
-    return (LMS7_time_tps())/1000; //1 ms -> ticks
-}
 
 int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, const double fout, double *factual)
 {
@@ -106,64 +101,10 @@ int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, const double fo
     LMS7002M_regs_spi_write(self, 0x0089);
 
     //select the correct CSW for this VCO frequency
-    int csw_lowest = -1;
-    self->regs->reg_0x008b_csw_vco_cgen = 0;
-    for (int i = 7; i >= 0; i--)
-    {
-        self->regs->reg_0x008b_csw_vco_cgen |= 1 << i;
-        LMS7002M_regs_spi_write(self, 0x008B);
-        LMS7_sleep_for(cgen_cmp_sleep_ticks());
-        LMS7002M_regs_spi_read(self, 0x008C);
-
-        LMS7_logf(LMS7_DEBUG, "i=%d, hi=%d, lo=%d", i, self->regs->reg_0x008c_vco_cmpho_cgen, self->regs->reg_0x008c_vco_cmplo_cgen);
-        if (self->regs->reg_0x008c_vco_cmplo_cgen != 0)
-        {
-            self->regs->reg_0x008b_csw_vco_cgen &= ~(1 << i); //clear bit i
-        }
-        if (self->regs->reg_0x008c_vco_cmpho_cgen != 0 && self->regs->reg_0x008c_vco_cmplo_cgen == 0 && csw_lowest < 0)
-        {
-            csw_lowest = self->regs->reg_0x008b_csw_vco_cgen;
-        }
-        LMS7002M_regs_spi_write(self, 0x008B);
-    }
-
-    //find the midpoint for the high and low bounds
-    if (csw_lowest >= 0)
-    {
-        int csw_highest = self->regs->reg_0x008b_csw_vco_cgen;
-        if (csw_lowest == csw_highest)
-        {
-            while (csw_lowest >= 0)
-            {
-                self->regs->reg_0x008b_csw_vco_cgen = csw_lowest;
-                LMS7002M_regs_spi_write(self, 0x008B);
-                LMS7_sleep_for(cgen_cmp_sleep_ticks());
-                LMS7002M_regs_spi_read(self, 0x008C);
-
-                if (self->regs->reg_0x008c_vco_cmpho_cgen == 0 && self->regs->reg_0x008c_vco_cmplo_cgen == 0) break;
-                else csw_lowest--;
-            }
-            if (csw_lowest < 0) csw_lowest = 0;
-        }
-        csw_lowest += 1;
-
-        LMS7_logf(LMS7_INFO, "lowest CSW_VCO %i, highest CSW_VCO %i", csw_lowest, csw_highest);
-        self->regs->reg_0x008b_csw_vco_cgen = (csw_highest+csw_lowest)/2;
-        LMS7002M_regs_spi_write(self, 0x008B);
-    }
-
-    //check that the vco selection was successful
-    LMS7_sleep_for(cgen_cmp_sleep_ticks());
-    LMS7002M_regs_spi_read(self, 0x008C);
-    if (self->regs->reg_0x008c_vco_cmpho_cgen != 0 && self->regs->reg_0x008c_vco_cmplo_cgen == 0)
-    {
-        LMS7_log(LMS7_INFO, "CGEN VCO OK");
-    }
-    else
-    {
-        LMS7_log(LMS7_ERROR, "CGEN VCO select FAIL");
-        return -3;
-    }
+    if (LMS7002M_tune_vco(self,
+        &self->regs->reg_0x008b_csw_vco_cgen, 0x008B,
+        &self->regs->reg_0x008c_vco_cmpho_cgen,
+        &self->regs->reg_0x008c_vco_cmplo_cgen, 0x008C) != 0) return -3;
 
     self->regs->reg_0x0086_spdup_vco_cgen = 0; //done with fast settling
     LMS7002M_regs_spi_write(self, 0x0086);
