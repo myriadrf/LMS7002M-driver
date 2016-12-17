@@ -15,9 +15,17 @@
 #include <LMS7002M/LMS7002M_time.h>
 #include <LMS7002M/LMS7002M_logger.h>
 
-static long long vco_cmp_sleep_ticks(void)
+static void LMS7002M_read_vco_cmp(LMS7002M_t *self, const int vco_cmp_addr)
 {
-    return (LMS7_time_tps())/1000; //1 ms -> ticks
+    //an initial read forces spi writes to be flushed
+    //any read will do, the address does not matter
+    LMS7002M_regs_spi_read(self, vco_cmp_addr);
+
+    //sleep while the comparator value settles
+    LMS7_sleep_for(LMS7_time_tps()/1000); //1 ms -> ticks
+
+    //final read of the comparator after settling
+    LMS7002M_regs_spi_read(self, vco_cmp_addr);
 }
 
 int LMS7002M_tune_vco(
@@ -35,8 +43,7 @@ int LMS7002M_tune_vco(
     {
         *vco_csw_reg |= 1 << i;
         LMS7002M_regs_spi_write(self, vco_csw_addr);
-        LMS7_sleep_for(vco_cmp_sleep_ticks());
-        LMS7002M_regs_spi_read(self, vco_cmp_addr);
+        LMS7002M_read_vco_cmp(self, vco_cmp_addr);
 
         LMS7_logf(LMS7_DEBUG, "i=%d, hi=%d, lo=%d", i, *vco_cmpho_reg, *vco_cmplo_reg);
         if (*vco_cmplo_reg != 0)
@@ -60,8 +67,7 @@ int LMS7002M_tune_vco(
             {
                 *vco_csw_reg = csw_lowest;
                 LMS7002M_regs_spi_write(self, vco_csw_addr);
-                LMS7_sleep_for(vco_cmp_sleep_ticks());
-                LMS7002M_regs_spi_read(self, vco_cmp_addr);
+                LMS7002M_read_vco_cmp(self, vco_cmp_addr);
 
                 if (*vco_cmpho_reg == 0 && *vco_cmplo_reg == 0) break;
                 else csw_lowest--;
@@ -76,8 +82,7 @@ int LMS7002M_tune_vco(
     }
 
     //check that the vco selection was successful
-    LMS7_sleep_for(vco_cmp_sleep_ticks());
-    LMS7002M_regs_spi_read(self, vco_cmp_addr);
+    LMS7002M_read_vco_cmp(self, vco_cmp_addr);
     if (*vco_cmpho_reg != 0 && *vco_cmplo_reg == 0)
     {
         LMS7_log(LMS7_INFO, "VCO OK");
