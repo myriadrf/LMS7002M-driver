@@ -104,7 +104,11 @@ int LMS7002M_set_data_clock(LMS7002M_t *self, const double fref, const double fo
     if (LMS7002M_tune_vco(self,
         &self->regs->reg_0x008b_csw_vco_cgen, 0x008B,
         &self->regs->reg_0x008c_vco_cmpho_cgen,
-        &self->regs->reg_0x008c_vco_cmplo_cgen, 0x008C) != 0) return -3;
+        &self->regs->reg_0x008c_vco_cmplo_cgen, 0x008C) != 0)
+    {
+        LMS7_log(LMS7_ERROR, "VCO select FAIL");
+        return -3;
+    }
 
     self->regs->reg_0x0086_spdup_vco_cgen = 0; //done with fast settling
     LMS7002M_regs_spi_write(self, 0x0086);

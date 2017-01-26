@@ -66,27 +66,6 @@ int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, const
     }
     LMS7_logf(LMS7_DEBUG, "fdiv = %d, Ndiv = %f, fvco = %f MHz", fdiv, Ndiv, fvco/1e6);
 
-    //select the VCO and handle overlap -- pick the VCO that we are more within range of
-    const bool inVCOH = (fvco <= LMS7002M_SXX_VCOH_HI && fvco >= LMS7002M_SXX_VCOH_LO);
-    const bool inVCOM = (fvco <= LMS7002M_SXX_VCOM_HI && fvco >= LMS7002M_SXX_VCOM_LO);
-    const bool inVCOL = (fvco <= LMS7002M_SXX_VCOL_HI && fvco >= LMS7002M_SXX_VCOL_LO);
-    const bool prefVCOH = ((fvco - LMS7002M_SXX_VCOH_LO) > (LMS7002M_SXX_VCOM_HI - fvco));
-    const bool prefVCOM = ((fvco - LMS7002M_SXX_VCOM_LO) > (LMS7002M_SXX_VCOL_HI - fvco));
-
-    int SEL_VCO = 0;
-    if      (inVCOH && !inVCOM)               SEL_VCO = REG_0X0121_SEL_VCO_VCOH;
-    else if (inVCOH && inVCOM && prefVCOH)    SEL_VCO = REG_0X0121_SEL_VCO_VCOH;
-    else if (inVCOH && inVCOM && !prefVCOH)   SEL_VCO = REG_0X0121_SEL_VCO_VCOM;
-    else if (inVCOM && !inVCOL)               SEL_VCO = REG_0X0121_SEL_VCO_VCOM;
-    else if (inVCOM && inVCOL && prefVCOM)    SEL_VCO = REG_0X0121_SEL_VCO_VCOM;
-    else if (inVCOM && inVCOL && !prefVCOM)   SEL_VCO = REG_0X0121_SEL_VCO_VCOL;
-    else if (inVCOL)                          SEL_VCO = REG_0X0121_SEL_VCO_VCOL;
-    else
-    {
-        LMS7_logf(LMS7_ERROR, "SXX no available VCO for %f MHz", fvco/1e6);
-        return -2;
-    }
-
     //deal with VCO divider
     const int EN_DIV2 = (fvco > 5.5e9)?1:0;
 
@@ -127,7 +106,7 @@ int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, const
     self->regs->reg_0x011d_frac_sdm = (Nfrac) & 0xffff; //lower 16 bits
     self->regs->reg_0x011e_frac_sdm = (Nfrac) >> 16; //upper 4 bits
     self->regs->reg_0x011e_int_sdm = Nint;
-    LMS7_logf(LMS7_DEBUG, "fdiv = %d, Ndiv = %f, Nint = %d, Nfrac = %d, DIV_LOCH_SX = %d, SEL_VCO = %d, fvco = %f MHz", fdiv, Ndiv, Nint, Nfrac, DIV_LOCH_SX, SEL_VCO, fvco/1e6);
+    LMS7_logf(LMS7_DEBUG, "fdiv = %d, Ndiv = %f, Nint = %d, Nfrac = %d, DIV_LOCH_SX = %d, fvco = %f MHz", fdiv, Ndiv, Nint, Nfrac, DIV_LOCH_SX, fvco/1e6);
     LMS7002M_regs_spi_write(self, 0x011d);
     LMS7002M_regs_spi_write(self, 0x011e);
 
@@ -136,15 +115,46 @@ int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, const
     self->regs->reg_0x011f_div_loch = DIV_LOCH_SX;
     LMS7002M_regs_spi_write(self, 0x011f);
 
-    //select vco based on freq
-    self->regs->reg_0x0121_sel_vco = SEL_VCO;
-    LMS7002M_regs_spi_write(self, 0x0121);
+    //try several VCO settings to establish the best one
+    double VCO_LO[] = {LMS7002M_SXX_VCOL_LO, LMS7002M_SXX_VCOM_LO, LMS7002M_SXX_VCOH_LO};
+    double VCO_HI[] = {LMS7002M_SXX_VCOL_HI, LMS7002M_SXX_VCOM_HI, LMS7002M_SXX_VCOH_HI};
 
-    //select the correct CSW for this VCO frequency
-    if (LMS7002M_tune_vco(self,
-        &self->regs->reg_0x0121_csw_vco, 0x0121,
-        &self->regs->reg_0x0123_vco_cmpho,
-        &self->regs->reg_0x0123_vco_cmplo, 0x0123) != 0) return -3;
+    int SEL_VCO_best = -1;
+    int CSW_VCO_best = -1;
+
+    for (int SEL_VCO_i = 0; SEL_VCO_i < 3; SEL_VCO_i++)
+    {
+        if (fvco < VCO_LO[SEL_VCO_i]) continue;
+        if (fvco > VCO_HI[SEL_VCO_i]) continue;
+
+        //select vco based on freq
+        self->regs->reg_0x0121_sel_vco = SEL_VCO_i;
+        LMS7002M_regs_spi_write(self, 0x0121);
+
+        //select the correct CSW for this VCO frequency
+        if (LMS7002M_tune_vco(self,
+            &self->regs->reg_0x0121_csw_vco, 0x0121,
+            &self->regs->reg_0x0123_vco_cmpho,
+            &self->regs->reg_0x0123_vco_cmplo, 0x0123) != 0) continue;
+
+        if (CSW_VCO_best == -1 || (self->regs->reg_0x0121_csw_vco-128) < (CSW_VCO_best-128))
+        {
+            SEL_VCO_best = SEL_VCO_i;
+            CSW_VCO_best = self->regs->reg_0x0121_csw_vco;
+        }
+    }
+
+    //failed to tune any VCO
+    if (SEL_VCO_best == -1)
+    {
+        LMS7_log(LMS7_ERROR, "VCO select FAIL");
+        return -3;
+    }
+
+    //select the best VCO now
+    self->regs->reg_0x0121_csw_vco = CSW_VCO_best;
+    self->regs->reg_0x0121_sel_vco = SEL_VCO_best;
+    LMS7002M_regs_spi_write(self, 0x0121);
 
     self->regs->reg_0x011c_spdup_vco = 0; //done with fast settling
     LMS7002M_regs_spi_write(self, 0x011c);
