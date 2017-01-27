@@ -166,7 +166,7 @@ static int tx_cal_init(LMS7002M_t *self, const LMS7002M_chan_t channel)
 /***********************************************************************
  * Perform TBB LPFS5 filter calibration
  **********************************************************************/
-static int rx_cal_tbb_lpfs5(LMS7002M_t *self, const LMS7002M_chan_t channel, const double bw)
+static int tx_cal_tbb_lpfs5(LMS7002M_t *self, const LMS7002M_chan_t channel, const double bw)
 {
     LMS7002M_set_mac_ch(self, channel);
 
@@ -199,7 +199,7 @@ static int rx_cal_tbb_lpfs5(LMS7002M_t *self, const LMS7002M_chan_t channel, con
 /***********************************************************************
  * Perform TBB LPFLAD filter calibration
  **********************************************************************/
-static int rx_cal_tbb_lpflad(LMS7002M_t *self, const LMS7002M_chan_t channel, const double bw)
+static int tx_cal_tbb_lpflad(LMS7002M_t *self, const LMS7002M_chan_t channel, const double bw)
 {
     int status = 0;
     LMS7002M_set_mac_ch(self, channel);
@@ -237,7 +237,7 @@ static int rx_cal_tbb_lpflad(LMS7002M_t *self, const LMS7002M_chan_t channel, co
 /***********************************************************************
  * Perform TBB LPFH filter calibration
  **********************************************************************/
-static int rx_cal_tbb_lpfh(LMS7002M_t *self, const LMS7002M_chan_t channel, const double bw)
+static int tx_cal_tbb_lpfh(LMS7002M_t *self, const LMS7002M_chan_t channel, const double bw)
 {
     int status = 0;
     LMS7002M_set_mac_ch(self, channel);
@@ -322,12 +322,12 @@ int LMS7002M_tbb_set_filter_bw(LMS7002M_t *self, const LMS7002M_chan_t channel, 
     ////////////////////////////////////////////////////////////////////
     // TBB LPF calibration
     ////////////////////////////////////////////////////////////////////
-    if (path == LMS7002M_TBB_S5)  status = rx_cal_tbb_lpfs5(self, channel, bw);
-    if (path == LMS7002M_TBB_LAD) status = rx_cal_tbb_lpflad(self, channel, bw);
-    if (path == LMS7002M_RBB_HBF) status = rx_cal_tbb_lpfh(self, channel, bw);
+    if (path == LMS7002M_TBB_S5)  status = tx_cal_tbb_lpfs5(self, channel, bw);
+    if (path == LMS7002M_TBB_LAD) status = tx_cal_tbb_lpflad(self, channel, bw);
+    if (path == LMS7002M_RBB_HBF) status = tx_cal_tbb_lpfh(self, channel, bw);
     if (status != 0)
     {
-        LMS7_logf(LMS7_ERROR, "rx_cal_tbb_lpf() failed");
+        LMS7_logf(LMS7_ERROR, "tx_cal_tbb_lpf() failed");
         goto done;
     }
 
