@@ -98,7 +98,7 @@ int LMS7002M_tune_vco(
     LMS7002M_read_vco_cmp(self, vco_cmp_addr);
     if (*vco_cmpho_reg == 1 && *vco_cmplo_reg == 1)
     {
-        LMS7_log(LMS7_ERROR, "VCO select FAIL - too high");
+        LMS7_log(LMS7_DEBUG, "VCO select FAIL - too high");
         return -1;
     }
 
@@ -108,7 +108,7 @@ int LMS7002M_tune_vco(
     LMS7002M_read_vco_cmp(self, vco_cmp_addr);
     if (*vco_cmpho_reg == 0 && *vco_cmplo_reg == 0)
     {
-        LMS7_log(LMS7_ERROR, "VCO select FAIL - too low");
+        LMS7_log(LMS7_DEBUG, "VCO select FAIL - too low");
         return -1;
     }
 
