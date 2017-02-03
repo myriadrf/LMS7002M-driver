@@ -6,6 +6,7 @@
 /// \copyright
 /// Copyright (c) 2016-2016 Fairwaves, Inc.
 /// Copyright (c) 2016-2016 Rice University
+/// Copyright (c) 2016-2017 Skylark Wireless
 /// SPDX-License-Identifier: Apache-2.0
 /// http://www.apache.org/licenses/LICENSE-2.0
 ///
@@ -21,6 +22,8 @@
  **********************************************************************/
 static int setup_rx_cal_tone(LMS7002M_t *self, const LMS7002M_chan_t channel, const double bw)
 {
+    LMS7002M_sxx_enable(self, LMS_RX, true);
+    LMS7002M_sxt_to_sxr(self, false);
     int status = 0;
     LMS7002M_set_mac_ch(self, channel);
     const double sxr_freq = self->sxt_freq-bw;

@@ -7,6 +7,7 @@
 /// \copyright
 /// Copyright (c) 2015-2015 Fairwaves, Inc.
 /// Copyright (c) 2015-2015 Rice University
+/// Copyright (c) 2016-2017 Skylark Wireless
 /// SPDX-License-Identifier: Apache-2.0
 /// http://www.apache.org/licenses/LICENSE-2.0
 ///
@@ -163,4 +164,11 @@ int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, const
     if (factual != NULL) *factual = (1 << EN_DIV2) * fref * ((Nint+4) + (Nfrac/((double)(1 << 20)))) / fdiv;
 
     return 0; //OK
+}
+
+void LMS7002M_sxt_to_sxr(LMS7002M_t *self, const bool enable)
+{
+    LMS7002M_set_mac_dir(self, LMS_TX);
+    self->regs->reg_0x011c_pd_loch_t2rbuf = enable?0:1;
+    LMS7002M_regs_spi_write(self, 0x011c);
 }

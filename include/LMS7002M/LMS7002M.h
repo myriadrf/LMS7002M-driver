@@ -6,6 +6,7 @@
 /// \copyright
 /// Copyright (c) 2014-2016 Fairwaves, Inc.
 /// Copyright (c) 2014-2016 Rice University
+/// Copyright (c) 2016-2017 Skylark Wireless
 /// SPDX-License-Identifier: Apache-2.0
 /// http://www.apache.org/licenses/LICENSE-2.0
 ///
@@ -403,6 +404,15 @@ LMS7002M_API void LMS7002M_sxx_enable(LMS7002M_t *self, const LMS7002M_dir_t dir
  * \return 0 for success or error code on failure
  */
 LMS7002M_API int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, const double fref, const double fout, double *factual);
+
+/*!
+ * Share the transmit LO to the receive chain.
+ * This is useful for TDD modes which use the same LO for Rx and Tx.
+ * The default is disabled. Its recommended to disable SXR when using.
+ * \param self an instance of the LMS7002M driver
+ * \param enable true to enable, false to power down
+ */
+LMS7002M_API void LMS7002M_sxt_to_sxr(LMS7002M_t *self, const bool enable);
 
 //=====================================================================//
 // TxTSP (transmit DSP chain)
