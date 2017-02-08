@@ -129,6 +129,7 @@ int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, const
         if (fvco > VCO_HI[SEL_VCO_i]) continue;
 
         //select vco based on freq
+        LMS7_logf(LMS7_DEBUG, "Testing for SEL_VCO = %d", SEL_VCO_i);
         self->regs->reg_0x0121_sel_vco = SEL_VCO_i;
         LMS7002M_regs_spi_write(self, 0x0121);
 
@@ -138,7 +139,7 @@ int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, const
             &self->regs->reg_0x0123_vco_cmpho,
             &self->regs->reg_0x0123_vco_cmplo, 0x0123) != 0) continue;
 
-        if (CSW_VCO_best == -1 || (self->regs->reg_0x0121_csw_vco-128) < (CSW_VCO_best-128))
+        if (CSW_VCO_best == -1 || abs(self->regs->reg_0x0121_csw_vco-128) < abs(CSW_VCO_best-128))
         {
             SEL_VCO_best = SEL_VCO_i;
             CSW_VCO_best = self->regs->reg_0x0121_csw_vco;
@@ -151,6 +152,7 @@ int LMS7002M_set_lo_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, const
         LMS7_log(LMS7_ERROR, "VCO select FAIL");
         return -3;
     }
+    LMS7_logf(LMS7_DEBUG, "Choosing SEL_VCO = %d", SEL_VCO_best);
 
     //select the best VCO now
     self->regs->reg_0x0121_csw_vco = CSW_VCO_best;
