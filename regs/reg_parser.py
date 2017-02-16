@@ -155,8 +155,24 @@ static inline const int *LMS7002M_regs_addrs(void)
 if __name__ == '__main__':
     regs = list()
     for arg in sys.argv[1:]:
-        regs.extend(json.loads(open(arg).read()))
-    regs = sorted(regs, key=lambda x: eval(x['addr']))
+        if arg.endswith('defaults.json'):
+            DEFAULTS = json.loads(open(arg).read())
+        else:
+            regs.extend(json.loads(open(arg).read()))
+
+    #apply the defaults
+    regs = dict([(r['addr'].lower(), r) for r in regs])
+    for addr, value in DEFAULTS.items():
+        addr = addr.lower()
+        if addr in regs: regs[addr]['default']= value
+        else: regs[addr] = dict(
+            addr=addr,
+            fields=dict(
+                value=dict(bits='15:0')),
+            default=value)
+
+    #sort registers back into list
+    regs = sorted(regs.values(), key=lambda x: eval(x['addr']))
 
     code = str(Template(TMPL, dict(
         regs=regs,
