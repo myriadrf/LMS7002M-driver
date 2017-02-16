@@ -9,8 +9,6 @@ import re
 import json
 from Cheetah.Template import Template
 
-DEFAULTS = None
-
 def get_name(reg, field_name):
     #TODO optional reg[name]
     reg_name = reg['addr'].lower()
@@ -18,15 +16,9 @@ def get_name(reg, field_name):
     return 'reg_' + reg_name + '_' + field_name.lower()
 
 def get_default(reg):
-    try:
-        return hex(eval('0b'+DEFAULTS[eval(reg['addr'])].replace(' ', '')))
-    except KeyError:
-        sys.stderr.write('No default in defaults.json for %s\n'%reg['addr'])
-
     if 'default' in reg:
         return hex(eval('0b'+reg['default'].replace(' ', '')))
     return 0
-
 
 def get_options(reg, field_name):
     field = reg['fields'][field_name]
@@ -167,8 +159,19 @@ if __name__ == '__main__':
             DEFAULTS = json.loads(open(arg).read())
         else:
             regs.extend(json.loads(open(arg).read()))
-    DEFAULTS = dict([(eval(k), v) for k,v in DEFAULTS.iteritems()])
-    regs = sorted(regs, key=lambda x: eval(x['addr']))
+
+    #apply the defaults
+    regs = dict([(r['addr'], r) for r in regs])
+    for addr, value in DEFAULTS.items():
+        if addr in regs: regs[addr]['default']= value
+        else: regs[addr] = dict(
+            addr=addr,
+            fields=dict(
+                value=dict(bits='15:0')),
+            default=value)
+
+    #sort registers back into list
+    regs = sorted(regs.values(), key=lambda x: eval(x['addr']))
 
     code = str(Template(TMPL, dict(
         regs=regs,
