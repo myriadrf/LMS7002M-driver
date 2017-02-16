@@ -161,8 +161,9 @@ if __name__ == '__main__':
             regs.extend(json.loads(open(arg).read()))
 
     #apply the defaults
-    regs = dict([(r['addr'], r) for r in regs])
+    regs = dict([(r['addr'].lower(), r) for r in regs])
     for addr, value in DEFAULTS.items():
+        addr = addr.lower()
         if addr in regs: regs[addr]['default']= value
         else: regs[addr] = dict(
             addr=addr,
