@@ -71,7 +71,7 @@
     "addr" : "0x0122",
     "fields" : {
         "REVPH_PFD" : {"bits":"12"},
-        "IOFFSET_CP" : {"bits":"11:16"},
+        "IOFFSET_CP" : {"bits":"11:6"},
         "IPULSE_CP" : {"bits":"5:0"}
     },
     "default": "00000101 00010100"

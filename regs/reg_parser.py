@@ -31,6 +31,8 @@ def get_shift_mask(reg, field_name):
     bits = field['bits']
     if ':' in bits:
         low, high = sorted(map(int, bits.split(':')))
+        assert(low >= 0)
+        assert(high < 16)
         mask = hex(eval('0b'+('1'*(high-low+1))))
         return low, mask
     return int(bits), "0x1"

@@ -1877,7 +1877,7 @@ static inline void LMS7002M_regs_set(LMS7002M_regs_t *regs, const int addr, cons
     if (addr == 0x0122)
     {
         regs->reg_0x0122_revph_pfd = (value >> 12) & 0x1;
-        regs->reg_0x0122_ioffset_cp = (value >> 11) & 0x3f;
+        regs->reg_0x0122_ioffset_cp = (value >> 6) & 0x3f;
         regs->reg_0x0122_ipulse_cp = (value >> 0) & 0x3f;
         return;
     }
@@ -2956,7 +2956,7 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr)
     if (addr == 0x0122)
     {
         value |= (regs->reg_0x0122_revph_pfd & 0x1) << 12;
-        value |= (regs->reg_0x0122_ioffset_cp & 0x3f) << 11;
+        value |= (regs->reg_0x0122_ioffset_cp & 0x3f) << 6;
         value |= (regs->reg_0x0122_ipulse_cp & 0x3f) << 0;
     }
     if (addr == 0x0123)
