@@ -6,6 +6,7 @@
 /// and the SPI transaction helper functions.
 ///
 /// \copyright
+/// Copyright (c) 2016-2017 Skylark Wireless
 /// Copyright (c) 2014-2015 Fairwaves, Inc.
 /// Copyright (c) 2014-2015 Rice University
 /// SPDX-License-Identifier: Apache-2.0
@@ -97,6 +98,10 @@ void LMS7002M_regs_to_rfic(LMS7002M_t *self)
 
         LMS7002M_regs_spi_write(self, *addrp);
     }
+
+    //ensure that we cache the chips actual version register
+    //used in the codebase to handle hardware rev differences
+    LMS7002M_regs_spi_read(self, 0x002f);
 }
 
 void LMS7002M_rfic_to_regs(LMS7002M_t *self)

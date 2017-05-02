@@ -4,6 +4,7 @@
 /// Numerically controlled oscillator hooks for the LMS7002M C driver.
 ///
 /// \copyright
+/// Copyright (c) 2016-2017 Skylark Wireless
 /// Copyright (c) 2015-2015 Fairwaves, Inc.
 /// Copyright (c) 2015-2015 Rice University
 /// SPDX-License-Identifier: Apache-2.0
@@ -17,7 +18,11 @@ void LMS7002M_set_nco_freq(LMS7002M_t *self, const LMS7002M_dir_t direction, con
 {
     LMS7002M_set_mac_ch(self, channel);
 
-    uint32_t freqWord = (int32_t)(freqRel*4294967296.0);
+    //handle sign flip for RX NCO on newer masks of the RFIC
+    int sign = 1;
+    if (self->regs->reg_0x002f_mask != 0 && direction == LMS_RX) sign = -1;
+
+    uint32_t freqWord = sign*(int32_t)(freqRel*4294967296.0);
     const int freqHi = freqWord >> 16;
     const int freqLo = freqWord & 0xffff;
 
