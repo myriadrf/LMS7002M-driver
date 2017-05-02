@@ -31,9 +31,6 @@ void LMS7002M_reset(LMS7002M_t *self)
     LMS7002M_spi_write(self, 0x0020, 0x0);
     LMS7002M_regs_spi_write(self, 0x0020);
     LMS7002M_regs_spi_write(self, 0x002E);//must write
-
-    //sync up the register cache
-    LMS7002M_rfic_to_regs(self);
 }
 
 void LMS7002M_reset_lml_fifo(LMS7002M_t *self, const LMS7002M_dir_t direction)
