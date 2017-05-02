@@ -279,16 +279,20 @@ void LMS7002M_set_diq_mux(LMS7002M_t *self, const LMS7002M_dir_t direction, cons
         self->regs->reg_0x0027_lml2_aip = __lms7002m_diq_index(LMS7002M_LML_AI, positions);
     }
 
+    //compensate for positional shift on new mask
+    int s = 0;
+    if (self->regs->reg_0x002f_mask != 0) s = 3;
+
     if (direction == LMS_RX)
     {
-        self->regs->reg_0x0024_lml1_s3s = positions[3];
-        self->regs->reg_0x0024_lml1_s2s = positions[2];
-        self->regs->reg_0x0024_lml1_s1s = positions[1];
-        self->regs->reg_0x0024_lml1_s0s = positions[0];
-        self->regs->reg_0x0027_lml2_s3s = positions[3];
-        self->regs->reg_0x0027_lml2_s2s = positions[2];
-        self->regs->reg_0x0027_lml2_s1s = positions[1];
-        self->regs->reg_0x0027_lml2_s0s = positions[0];
+        self->regs->reg_0x0024_lml1_s3s = positions[(3+s)%4];
+        self->regs->reg_0x0024_lml1_s2s = positions[(2+s)%4];
+        self->regs->reg_0x0024_lml1_s1s = positions[(1+s)%4];
+        self->regs->reg_0x0024_lml1_s0s = positions[(0+s)%4];
+        self->regs->reg_0x0027_lml2_s3s = positions[(3+s)%4];
+        self->regs->reg_0x0027_lml2_s2s = positions[(2+s)%4];
+        self->regs->reg_0x0027_lml2_s1s = positions[(1+s)%4];
+        self->regs->reg_0x0027_lml2_s0s = positions[(0+s)%4];
     }
 
     LMS7002M_regs_spi_write(self, 0x0024);
