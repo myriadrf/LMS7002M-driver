@@ -49,6 +49,13 @@ void LMS7002M_ldo_enable(LMS7002M_t *self, const bool enable, const int group)
     self->regs->reg_0x0093_en_ldo_vcosxr= val;
     self->regs->reg_0x0093_en_ldo_vcosxt= val;
     self->regs->reg_0x0093_en_ldo_cpsxt= val;
+
+    self->regs->reg_0x00a6_en_g_ldop = 1;
+    self->regs->reg_0x00a6_pd_ldo_digip1 = enable?0:1;
+    self->regs->reg_0x00a6_pd_ldo_digip2 = enable?0:1;
+    self->regs->reg_0x00a6_pd_ldo_spibuf = enable?0:1;
+
     LMS7002M_regs_spi_write(self, 0x0092);
     LMS7002M_regs_spi_write(self, 0x0093);
+    LMS7002M_regs_spi_write(self, 0x00a6);
 }
