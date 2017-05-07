@@ -281,8 +281,6 @@ struct LMS7002M_regs_struct
     int reg_0x002a_rxwrclk_mux;
     int reg_0x002b_fclk2_inv;
     int reg_0x002b_fclk1_inv;
-    int reg_0x002b_mclk2dly;
-    int reg_0x002b_mclk1dly;
     int reg_0x002b_mclk2src;
     int reg_0x002b_mclk1src;
     int reg_0x002b_txdiven;
@@ -1208,8 +1206,6 @@ static inline void LMS7002M_regs_set(LMS7002M_regs_t *regs, const int addr, cons
     {
         regs->reg_0x002b_fclk2_inv = (value >> 15) & 0x1;
         regs->reg_0x002b_fclk1_inv = (value >> 14) & 0x1;
-        regs->reg_0x002b_mclk2dly = (value >> 12) & 0x3;
-        regs->reg_0x002b_mclk1dly = (value >> 10) & 0x3;
         regs->reg_0x002b_mclk2src = (value >> 4) & 0x3;
         regs->reg_0x002b_mclk1src = (value >> 2) & 0x3;
         regs->reg_0x002b_txdiven = (value >> 1) & 0x1;
@@ -2364,8 +2360,6 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr)
     {
         value |= (regs->reg_0x002b_fclk2_inv & 0x1) << 15;
         value |= (regs->reg_0x002b_fclk1_inv & 0x1) << 14;
-        value |= (regs->reg_0x002b_mclk2dly & 0x3) << 12;
-        value |= (regs->reg_0x002b_mclk1dly & 0x3) << 10;
         value |= (regs->reg_0x002b_mclk2src & 0x3) << 4;
         value |= (regs->reg_0x002b_mclk1src & 0x3) << 2;
         value |= (regs->reg_0x002b_txdiven & 0x1) << 1;
