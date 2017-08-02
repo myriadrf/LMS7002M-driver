@@ -67,7 +67,7 @@ void LMS7_vlogf(const LMS7_log_level_t level, const char *format, va_list args)
 {
     if (level > _log_level) return;
     char *message;
-    vasprintf(&message, format, args);
+    if (vasprintf(&message, format, args) < 0) return;
     LMS7_log(level, message);
     free(message);
 }
