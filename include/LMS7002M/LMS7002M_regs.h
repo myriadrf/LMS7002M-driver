@@ -196,6 +196,8 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr);
 #define REG_0X040C_CMIX_SC_DOWNCONVERT 1
 #define REG_0X0440_MODE_FCW 0
 #define REG_0X0440_MODE_PHO 1
+#define REG_0X05C0_DCMODE_MANUAL 0
+#define REG_0X05C0_DCMODE_AUTOMATIC 1
 
 struct LMS7002M_regs_struct
 {
@@ -741,17 +743,71 @@ struct LMS7002M_regs_struct
     int reg_0x0441_pho;
     int reg_0x0442_fcw0_hi;
     int reg_0x0443_fcw0_lo;
-    int reg_0x05c0_value;
-    int reg_0x05c1_value;
-    int reg_0x05c2_value;
-    int reg_0x05c3_value;
-    int reg_0x05c4_value;
-    int reg_0x05c5_value;
-    int reg_0x05c6_value;
-    int reg_0x05c7_value;
-    int reg_0x05c8_value;
-    int reg_0x05c9_value;
-    int reg_0x05ca_value;
+    int reg_0x05c0_dcmode;
+    int reg_0x05c0_pd_dcdac_rxb;
+    int reg_0x05c0_pd_dcdac_rxa;
+    int reg_0x05c0_pd_dcdac_txb;
+    int reg_0x05c0_pd_dcdac_txa;
+    int reg_0x05c0_pd_dccmp_rxb;
+    int reg_0x05c0_pd_dccmp_rxa;
+    int reg_0x05c0_pd_dccmp_txb;
+    int reg_0x05c0_pd_dccmp_txa;
+    int reg_0x05c1_dccal_calstatus_rxbq;
+    int reg_0x05c1_dccal_calstatus_rxbi;
+    int reg_0x05c1_dccal_calstatus_rxaq;
+    int reg_0x05c1_dccal_calstatus_rxai;
+    int reg_0x05c1_dccal_calstatus_txbq;
+    int reg_0x05c1_dccal_calstatus_txbi;
+    int reg_0x05c1_dccal_calstatus_txaq;
+    int reg_0x05c1_dccal_calstatus_txai;
+    int reg_0x05c1_dccmp_cmpstatus_rxbq;
+    int reg_0x05c1_dccmp_cmpstatus_rxbi;
+    int reg_0x05c1_dccmp_cmpstatus_rxaq;
+    int reg_0x05c1_dccmp_cmpstatus_rxai;
+    int reg_0x05c1_dccmp_cmpstatus_txbq;
+    int reg_0x05c1_dccmp_cmpstatus_txbi;
+    int reg_0x05c1_dccmp_cmpstatus_txaq;
+    int reg_0x05c1_dccmp_cmpstatus_txai;
+    int reg_0x05c2_dccal_cmpcfg_rxbq;
+    int reg_0x05c2_dccal_cmpcfg_rxbi;
+    int reg_0x05c2_dccal_cmpcfg_rxaq;
+    int reg_0x05c2_dccal_cmpcfg_rxai;
+    int reg_0x05c2_dccal_cmpcfg_txbq;
+    int reg_0x05c2_dccal_cmpcfg_txbi;
+    int reg_0x05c2_dccal_cmpcfg_txaq;
+    int reg_0x05c2_dccal_cmpcfg_txai;
+    int reg_0x05c2_dccal_start_rxbq;
+    int reg_0x05c2_dccal_start_rxbi;
+    int reg_0x05c2_dccal_start_rxaq;
+    int reg_0x05c2_dccal_start_rxai;
+    int reg_0x05c2_dccal_start_txbq;
+    int reg_0x05c2_dccal_start_txbi;
+    int reg_0x05c2_dccal_start_txaq;
+    int reg_0x05c2_dccal_start_txai;
+    int reg_0x05c3_dcwr_txai;
+    int reg_0x05c3_dcrd_txai;
+    int reg_0x05c3_dc_txai;
+    int reg_0x05c4_dcwr_txaq;
+    int reg_0x05c4_dcrd_txaq;
+    int reg_0x05c4_dc_txaq;
+    int reg_0x05c5_dcwr_txbi;
+    int reg_0x05c5_dcrd_txbi;
+    int reg_0x05c5_dc_txbi;
+    int reg_0x05c6_dcwr_txbq;
+    int reg_0x05c6_dcrd_txbq;
+    int reg_0x05c6_dc_txbq;
+    int reg_0x05c7_dcwr_rxai;
+    int reg_0x05c7_dcrd_rxai;
+    int reg_0x05c7_dc_rxai;
+    int reg_0x05c8_dcwr_rxaq;
+    int reg_0x05c8_dcrd_rxaq;
+    int reg_0x05c8_dc_rxaq;
+    int reg_0x05c9_dcwr_rxbi;
+    int reg_0x05c9_dcrd_rxbi;
+    int reg_0x05c9_dc_rxbi;
+    int reg_0x05ca_dcwr_rxbq;
+    int reg_0x05ca_dcrd_rxbq;
+    int reg_0x05ca_dc_rxbq;
     int reg_0x05cb_value;
     int reg_0x05cc_value;
     int reg_0x0600_value;
@@ -898,17 +954,17 @@ static inline void LMS7002M_regs_init(LMS7002M_regs_t *regs)
     LMS7002M_regs_set(regs, 0x0441, 0x0);
     LMS7002M_regs_set(regs, 0x0442, 0x0);
     LMS7002M_regs_set(regs, 0x0443, 0x0);
-    LMS7002M_regs_set(regs, 0x05c0, 0x0);
-    LMS7002M_regs_set(regs, 0x05c1, 0x0);
-    LMS7002M_regs_set(regs, 0x05c2, 0x0);
-    LMS7002M_regs_set(regs, 0x05c3, 0x0);
-    LMS7002M_regs_set(regs, 0x05c4, 0x0);
-    LMS7002M_regs_set(regs, 0x05c5, 0x0);
-    LMS7002M_regs_set(regs, 0x05c6, 0x0);
-    LMS7002M_regs_set(regs, 0x05c7, 0x0);
-    LMS7002M_regs_set(regs, 0x05c8, 0x0);
-    LMS7002M_regs_set(regs, 0x05c9, 0x0);
-    LMS7002M_regs_set(regs, 0x05ca, 0x0);
+    LMS7002M_regs_set(regs, 0x05C0, 0x0);
+    LMS7002M_regs_set(regs, 0x05C1, 0x0);
+    LMS7002M_regs_set(regs, 0x05C2, 0x0);
+    LMS7002M_regs_set(regs, 0x05C3, 0x0);
+    LMS7002M_regs_set(regs, 0x05C4, 0x0);
+    LMS7002M_regs_set(regs, 0x05C5, 0x0);
+    LMS7002M_regs_set(regs, 0x05C6, 0x0);
+    LMS7002M_regs_set(regs, 0x05C7, 0x0);
+    LMS7002M_regs_set(regs, 0x05C8, 0x0);
+    LMS7002M_regs_set(regs, 0x05C9, 0x0);
+    LMS7002M_regs_set(regs, 0x05CA, 0x0);
     LMS7002M_regs_set(regs, 0x05cb, 0x0);
     LMS7002M_regs_set(regs, 0x05cc, 0x0);
     LMS7002M_regs_set(regs, 0x0600, 0xf00);
@@ -1051,17 +1107,17 @@ static inline int LMS7002M_regs_default(const int addr)
     if (addr == 0x0441) return 0x0;
     if (addr == 0x0442) return 0x0;
     if (addr == 0x0443) return 0x0;
-    if (addr == 0x05c0) return 0x0;
-    if (addr == 0x05c1) return 0x0;
-    if (addr == 0x05c2) return 0x0;
-    if (addr == 0x05c3) return 0x0;
-    if (addr == 0x05c4) return 0x0;
-    if (addr == 0x05c5) return 0x0;
-    if (addr == 0x05c6) return 0x0;
-    if (addr == 0x05c7) return 0x0;
-    if (addr == 0x05c8) return 0x0;
-    if (addr == 0x05c9) return 0x0;
-    if (addr == 0x05ca) return 0x0;
+    if (addr == 0x05C0) return 0x0;
+    if (addr == 0x05C1) return 0x0;
+    if (addr == 0x05C2) return 0x0;
+    if (addr == 0x05C3) return 0x0;
+    if (addr == 0x05C4) return 0x0;
+    if (addr == 0x05C5) return 0x0;
+    if (addr == 0x05C6) return 0x0;
+    if (addr == 0x05C7) return 0x0;
+    if (addr == 0x05C8) return 0x0;
+    if (addr == 0x05C9) return 0x0;
+    if (addr == 0x05CA) return 0x0;
     if (addr == 0x05cb) return 0x0;
     if (addr == 0x05cc) return 0x0;
     if (addr == 0x0600) return 0xf00;
@@ -2128,59 +2184,113 @@ static inline void LMS7002M_regs_set(LMS7002M_regs_t *regs, const int addr, cons
         regs->reg_0x0443_fcw0_lo = (value >> 0) & 0xffff;
         return;
     }
-    if (addr == 0x05c0)
+    if (addr == 0x05C0)
     {
-        regs->reg_0x05c0_value = (value >> 0) & 0xffff;
+        regs->reg_0x05c0_dcmode = (value >> 15) & 0x1;
+        regs->reg_0x05c0_pd_dcdac_rxb = (value >> 7) & 0x1;
+        regs->reg_0x05c0_pd_dcdac_rxa = (value >> 6) & 0x1;
+        regs->reg_0x05c0_pd_dcdac_txb = (value >> 5) & 0x1;
+        regs->reg_0x05c0_pd_dcdac_txa = (value >> 4) & 0x1;
+        regs->reg_0x05c0_pd_dccmp_rxb = (value >> 3) & 0x1;
+        regs->reg_0x05c0_pd_dccmp_rxa = (value >> 2) & 0x1;
+        regs->reg_0x05c0_pd_dccmp_txb = (value >> 1) & 0x1;
+        regs->reg_0x05c0_pd_dccmp_txa = (value >> 0) & 0x1;
         return;
     }
-    if (addr == 0x05c1)
+    if (addr == 0x05C1)
     {
-        regs->reg_0x05c1_value = (value >> 0) & 0xffff;
+        regs->reg_0x05c1_dccal_calstatus_rxbq = (value >> 15) & 0x1;
+        regs->reg_0x05c1_dccal_calstatus_rxbi = (value >> 14) & 0x1;
+        regs->reg_0x05c1_dccal_calstatus_rxaq = (value >> 13) & 0x1;
+        regs->reg_0x05c1_dccal_calstatus_rxai = (value >> 12) & 0x1;
+        regs->reg_0x05c1_dccal_calstatus_txbq = (value >> 11) & 0x1;
+        regs->reg_0x05c1_dccal_calstatus_txbi = (value >> 10) & 0x1;
+        regs->reg_0x05c1_dccal_calstatus_txaq = (value >> 9) & 0x1;
+        regs->reg_0x05c1_dccal_calstatus_txai = (value >> 8) & 0x1;
+        regs->reg_0x05c1_dccmp_cmpstatus_rxbq = (value >> 7) & 0x1;
+        regs->reg_0x05c1_dccmp_cmpstatus_rxbi = (value >> 6) & 0x1;
+        regs->reg_0x05c1_dccmp_cmpstatus_rxaq = (value >> 5) & 0x1;
+        regs->reg_0x05c1_dccmp_cmpstatus_rxai = (value >> 4) & 0x1;
+        regs->reg_0x05c1_dccmp_cmpstatus_txbq = (value >> 3) & 0x1;
+        regs->reg_0x05c1_dccmp_cmpstatus_txbi = (value >> 2) & 0x1;
+        regs->reg_0x05c1_dccmp_cmpstatus_txaq = (value >> 1) & 0x1;
+        regs->reg_0x05c1_dccmp_cmpstatus_txai = (value >> 0) & 0x1;
         return;
     }
-    if (addr == 0x05c2)
+    if (addr == 0x05C2)
     {
-        regs->reg_0x05c2_value = (value >> 0) & 0xffff;
+        regs->reg_0x05c2_dccal_cmpcfg_rxbq = (value >> 15) & 0x1;
+        regs->reg_0x05c2_dccal_cmpcfg_rxbi = (value >> 14) & 0x1;
+        regs->reg_0x05c2_dccal_cmpcfg_rxaq = (value >> 13) & 0x1;
+        regs->reg_0x05c2_dccal_cmpcfg_rxai = (value >> 12) & 0x1;
+        regs->reg_0x05c2_dccal_cmpcfg_txbq = (value >> 11) & 0x1;
+        regs->reg_0x05c2_dccal_cmpcfg_txbi = (value >> 10) & 0x1;
+        regs->reg_0x05c2_dccal_cmpcfg_txaq = (value >> 9) & 0x1;
+        regs->reg_0x05c2_dccal_cmpcfg_txai = (value >> 8) & 0x1;
+        regs->reg_0x05c2_dccal_start_rxbq = (value >> 7) & 0x1;
+        regs->reg_0x05c2_dccal_start_rxbi = (value >> 6) & 0x1;
+        regs->reg_0x05c2_dccal_start_rxaq = (value >> 5) & 0x1;
+        regs->reg_0x05c2_dccal_start_rxai = (value >> 4) & 0x1;
+        regs->reg_0x05c2_dccal_start_txbq = (value >> 3) & 0x1;
+        regs->reg_0x05c2_dccal_start_txbi = (value >> 2) & 0x1;
+        regs->reg_0x05c2_dccal_start_txaq = (value >> 1) & 0x1;
+        regs->reg_0x05c2_dccal_start_txai = (value >> 0) & 0x1;
         return;
     }
-    if (addr == 0x05c3)
+    if (addr == 0x05C3)
     {
-        regs->reg_0x05c3_value = (value >> 0) & 0xffff;
+        regs->reg_0x05c3_dcwr_txai = (value >> 15) & 0x1;
+        regs->reg_0x05c3_dcrd_txai = (value >> 14) & 0x1;
+        regs->reg_0x05c3_dc_txai = (value >> 0) & 0x7ff;
         return;
     }
-    if (addr == 0x05c4)
+    if (addr == 0x05C4)
     {
-        regs->reg_0x05c4_value = (value >> 0) & 0xffff;
+        regs->reg_0x05c4_dcwr_txaq = (value >> 15) & 0x1;
+        regs->reg_0x05c4_dcrd_txaq = (value >> 14) & 0x1;
+        regs->reg_0x05c4_dc_txaq = (value >> 0) & 0x7ff;
         return;
     }
-    if (addr == 0x05c5)
+    if (addr == 0x05C5)
     {
-        regs->reg_0x05c5_value = (value >> 0) & 0xffff;
+        regs->reg_0x05c5_dcwr_txbi = (value >> 15) & 0x1;
+        regs->reg_0x05c5_dcrd_txbi = (value >> 14) & 0x1;
+        regs->reg_0x05c5_dc_txbi = (value >> 0) & 0x7ff;
         return;
     }
-    if (addr == 0x05c6)
+    if (addr == 0x05C6)
     {
-        regs->reg_0x05c6_value = (value >> 0) & 0xffff;
+        regs->reg_0x05c6_dcwr_txbq = (value >> 15) & 0x1;
+        regs->reg_0x05c6_dcrd_txbq = (value >> 14) & 0x1;
+        regs->reg_0x05c6_dc_txbq = (value >> 0) & 0x7ff;
         return;
     }
-    if (addr == 0x05c7)
+    if (addr == 0x05C7)
     {
-        regs->reg_0x05c7_value = (value >> 0) & 0xffff;
+        regs->reg_0x05c7_dcwr_rxai = (value >> 15) & 0x1;
+        regs->reg_0x05c7_dcrd_rxai = (value >> 14) & 0x1;
+        regs->reg_0x05c7_dc_rxai = (value >> 0) & 0x7ff;
         return;
     }
-    if (addr == 0x05c8)
+    if (addr == 0x05C8)
     {
-        regs->reg_0x05c8_value = (value >> 0) & 0xffff;
+        regs->reg_0x05c8_dcwr_rxaq = (value >> 15) & 0x1;
+        regs->reg_0x05c8_dcrd_rxaq = (value >> 14) & 0x1;
+        regs->reg_0x05c8_dc_rxaq = (value >> 0) & 0x7ff;
         return;
     }
-    if (addr == 0x05c9)
+    if (addr == 0x05C9)
     {
-        regs->reg_0x05c9_value = (value >> 0) & 0xffff;
+        regs->reg_0x05c9_dcwr_rxbi = (value >> 15) & 0x1;
+        regs->reg_0x05c9_dcrd_rxbi = (value >> 14) & 0x1;
+        regs->reg_0x05c9_dc_rxbi = (value >> 0) & 0x7ff;
         return;
     }
-    if (addr == 0x05ca)
+    if (addr == 0x05CA)
     {
-        regs->reg_0x05ca_value = (value >> 0) & 0xffff;
+        regs->reg_0x05ca_dcwr_rxbq = (value >> 15) & 0x1;
+        regs->reg_0x05ca_dcrd_rxbq = (value >> 14) & 0x1;
+        regs->reg_0x05ca_dc_rxbq = (value >> 0) & 0x7ff;
         return;
     }
     if (addr == 0x05cb)
@@ -3166,49 +3276,103 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr)
     {
         value |= (regs->reg_0x0443_fcw0_lo & 0xffff) << 0;
     }
-    if (addr == 0x05c0)
+    if (addr == 0x05C0)
     {
-        value |= (regs->reg_0x05c0_value & 0xffff) << 0;
+        value |= (regs->reg_0x05c0_dcmode & 0x1) << 15;
+        value |= (regs->reg_0x05c0_pd_dcdac_rxb & 0x1) << 7;
+        value |= (regs->reg_0x05c0_pd_dcdac_rxa & 0x1) << 6;
+        value |= (regs->reg_0x05c0_pd_dcdac_txb & 0x1) << 5;
+        value |= (regs->reg_0x05c0_pd_dcdac_txa & 0x1) << 4;
+        value |= (regs->reg_0x05c0_pd_dccmp_rxb & 0x1) << 3;
+        value |= (regs->reg_0x05c0_pd_dccmp_rxa & 0x1) << 2;
+        value |= (regs->reg_0x05c0_pd_dccmp_txb & 0x1) << 1;
+        value |= (regs->reg_0x05c0_pd_dccmp_txa & 0x1) << 0;
     }
-    if (addr == 0x05c1)
+    if (addr == 0x05C1)
     {
-        value |= (regs->reg_0x05c1_value & 0xffff) << 0;
+        value |= (regs->reg_0x05c1_dccal_calstatus_rxbq & 0x1) << 15;
+        value |= (regs->reg_0x05c1_dccal_calstatus_rxbi & 0x1) << 14;
+        value |= (regs->reg_0x05c1_dccal_calstatus_rxaq & 0x1) << 13;
+        value |= (regs->reg_0x05c1_dccal_calstatus_rxai & 0x1) << 12;
+        value |= (regs->reg_0x05c1_dccal_calstatus_txbq & 0x1) << 11;
+        value |= (regs->reg_0x05c1_dccal_calstatus_txbi & 0x1) << 10;
+        value |= (regs->reg_0x05c1_dccal_calstatus_txaq & 0x1) << 9;
+        value |= (regs->reg_0x05c1_dccal_calstatus_txai & 0x1) << 8;
+        value |= (regs->reg_0x05c1_dccmp_cmpstatus_rxbq & 0x1) << 7;
+        value |= (regs->reg_0x05c1_dccmp_cmpstatus_rxbi & 0x1) << 6;
+        value |= (regs->reg_0x05c1_dccmp_cmpstatus_rxaq & 0x1) << 5;
+        value |= (regs->reg_0x05c1_dccmp_cmpstatus_rxai & 0x1) << 4;
+        value |= (regs->reg_0x05c1_dccmp_cmpstatus_txbq & 0x1) << 3;
+        value |= (regs->reg_0x05c1_dccmp_cmpstatus_txbi & 0x1) << 2;
+        value |= (regs->reg_0x05c1_dccmp_cmpstatus_txaq & 0x1) << 1;
+        value |= (regs->reg_0x05c1_dccmp_cmpstatus_txai & 0x1) << 0;
     }
-    if (addr == 0x05c2)
+    if (addr == 0x05C2)
     {
-        value |= (regs->reg_0x05c2_value & 0xffff) << 0;
+        value |= (regs->reg_0x05c2_dccal_cmpcfg_rxbq & 0x1) << 15;
+        value |= (regs->reg_0x05c2_dccal_cmpcfg_rxbi & 0x1) << 14;
+        value |= (regs->reg_0x05c2_dccal_cmpcfg_rxaq & 0x1) << 13;
+        value |= (regs->reg_0x05c2_dccal_cmpcfg_rxai & 0x1) << 12;
+        value |= (regs->reg_0x05c2_dccal_cmpcfg_txbq & 0x1) << 11;
+        value |= (regs->reg_0x05c2_dccal_cmpcfg_txbi & 0x1) << 10;
+        value |= (regs->reg_0x05c2_dccal_cmpcfg_txaq & 0x1) << 9;
+        value |= (regs->reg_0x05c2_dccal_cmpcfg_txai & 0x1) << 8;
+        value |= (regs->reg_0x05c2_dccal_start_rxbq & 0x1) << 7;
+        value |= (regs->reg_0x05c2_dccal_start_rxbi & 0x1) << 6;
+        value |= (regs->reg_0x05c2_dccal_start_rxaq & 0x1) << 5;
+        value |= (regs->reg_0x05c2_dccal_start_rxai & 0x1) << 4;
+        value |= (regs->reg_0x05c2_dccal_start_txbq & 0x1) << 3;
+        value |= (regs->reg_0x05c2_dccal_start_txbi & 0x1) << 2;
+        value |= (regs->reg_0x05c2_dccal_start_txaq & 0x1) << 1;
+        value |= (regs->reg_0x05c2_dccal_start_txai & 0x1) << 0;
     }
-    if (addr == 0x05c3)
+    if (addr == 0x05C3)
     {
-        value |= (regs->reg_0x05c3_value & 0xffff) << 0;
+        value |= (regs->reg_0x05c3_dcwr_txai & 0x1) << 15;
+        value |= (regs->reg_0x05c3_dcrd_txai & 0x1) << 14;
+        value |= (regs->reg_0x05c3_dc_txai & 0x7ff) << 0;
     }
-    if (addr == 0x05c4)
+    if (addr == 0x05C4)
     {
-        value |= (regs->reg_0x05c4_value & 0xffff) << 0;
+        value |= (regs->reg_0x05c4_dcwr_txaq & 0x1) << 15;
+        value |= (regs->reg_0x05c4_dcrd_txaq & 0x1) << 14;
+        value |= (regs->reg_0x05c4_dc_txaq & 0x7ff) << 0;
     }
-    if (addr == 0x05c5)
+    if (addr == 0x05C5)
     {
-        value |= (regs->reg_0x05c5_value & 0xffff) << 0;
+        value |= (regs->reg_0x05c5_dcwr_txbi & 0x1) << 15;
+        value |= (regs->reg_0x05c5_dcrd_txbi & 0x1) << 14;
+        value |= (regs->reg_0x05c5_dc_txbi & 0x7ff) << 0;
     }
-    if (addr == 0x05c6)
+    if (addr == 0x05C6)
     {
-        value |= (regs->reg_0x05c6_value & 0xffff) << 0;
+        value |= (regs->reg_0x05c6_dcwr_txbq & 0x1) << 15;
+        value |= (regs->reg_0x05c6_dcrd_txbq & 0x1) << 14;
+        value |= (regs->reg_0x05c6_dc_txbq & 0x7ff) << 0;
     }
-    if (addr == 0x05c7)
+    if (addr == 0x05C7)
     {
-        value |= (regs->reg_0x05c7_value & 0xffff) << 0;
+        value |= (regs->reg_0x05c7_dcwr_rxai & 0x1) << 15;
+        value |= (regs->reg_0x05c7_dcrd_rxai & 0x1) << 14;
+        value |= (regs->reg_0x05c7_dc_rxai & 0x7ff) << 0;
     }
-    if (addr == 0x05c8)
+    if (addr == 0x05C8)
     {
-        value |= (regs->reg_0x05c8_value & 0xffff) << 0;
+        value |= (regs->reg_0x05c8_dcwr_rxaq & 0x1) << 15;
+        value |= (regs->reg_0x05c8_dcrd_rxaq & 0x1) << 14;
+        value |= (regs->reg_0x05c8_dc_rxaq & 0x7ff) << 0;
     }
-    if (addr == 0x05c9)
+    if (addr == 0x05C9)
     {
-        value |= (regs->reg_0x05c9_value & 0xffff) << 0;
+        value |= (regs->reg_0x05c9_dcwr_rxbi & 0x1) << 15;
+        value |= (regs->reg_0x05c9_dcrd_rxbi & 0x1) << 14;
+        value |= (regs->reg_0x05c9_dc_rxbi & 0x7ff) << 0;
     }
-    if (addr == 0x05ca)
+    if (addr == 0x05CA)
     {
-        value |= (regs->reg_0x05ca_value & 0xffff) << 0;
+        value |= (regs->reg_0x05ca_dcwr_rxbq & 0x1) << 15;
+        value |= (regs->reg_0x05ca_dcrd_rxbq & 0x1) << 14;
+        value |= (regs->reg_0x05ca_dc_rxbq & 0x7ff) << 0;
     }
     if (addr == 0x05cb)
     {
@@ -3387,17 +3551,17 @@ static inline const int *LMS7002M_regs_addrs(void)
     0x0441,
     0x0442,
     0x0443,
-    0x05c0,
-    0x05c1,
-    0x05c2,
-    0x05c3,
-    0x05c4,
-    0x05c5,
-    0x05c6,
-    0x05c7,
-    0x05c8,
-    0x05c9,
-    0x05ca,
+    0x05C0,
+    0x05C1,
+    0x05C2,
+    0x05C3,
+    0x05C4,
+    0x05C5,
+    0x05C6,
+    0x05C7,
+    0x05C8,
+    0x05C9,
+    0x05CA,
     0x05cb,
     0x05cc,
     0x0600,

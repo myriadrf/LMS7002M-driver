@@ -1,0 +1,133 @@
+[
+{
+    "addr": "0x05C0",
+    "fields" : {
+        "DCMODE" : {"bits":"15", "options" : {"MANUAL":0, "AUTOMATIC":1}},
+        "PD_DCDAC_RXB" : {"bits":"7"},
+        "PD_DCDAC_RXA" : {"bits":"6"},
+        "PD_DCDAC_TXB" : {"bits":"5"},
+        "PD_DCDAC_TXA" : {"bits":"4"},
+        "PD_DCCMP_RXB" : {"bits":"3"},
+        "PD_DCCMP_RXA" : {"bits":"2"},
+        "PD_DCCMP_TXB" : {"bits":"1"},
+        "PD_DCCMP_TXA" : {"bits":"0"}
+    },
+    "default": "0000000011111111"
+},
+{
+    "addr": "0x05C1",
+    "fields" : {
+        "DCCAL_CALSTATUS_RXBQ" : {"bits":"15"},
+        "DCCAL_CALSTATUS_RXBI" : {"bits":"14"},
+        "DCCAL_CALSTATUS_RXAQ" : {"bits":"13"},
+        "DCCAL_CALSTATUS_RXAI" : {"bits":"12"},
+        "DCCAL_CALSTATUS_TXBQ" : {"bits":"11"},
+        "DCCAL_CALSTATUS_TXBI" : {"bits":"10"},
+        "DCCAL_CALSTATUS_TXAQ" : {"bits":"9"},
+        "DCCAL_CALSTATUS_TXAI" : {"bits":"8"},
+        "DCCMP_CMPSTATUS_RXBQ" : {"bits":"7"},
+        "DCCMP_CMPSTATUS_RXBI" : {"bits":"6"},
+        "DCCMP_CMPSTATUS_RXAQ" : {"bits":"5"},
+        "DCCMP_CMPSTATUS_RXAI" : {"bits":"4"},
+        "DCCMP_CMPSTATUS_TXBQ" : {"bits":"3"},
+        "DCCMP_CMPSTATUS_TXBI" : {"bits":"2"},
+        "DCCMP_CMPSTATUS_TXAQ" : {"bits":"1"},
+        "DCCMP_CMPSTATUS_TXAI" : {"bits":"0"}
+    },
+    "default": "0000000000000000"
+},
+{
+    "addr": "0x05C2",
+    "fields" : {
+        "DCCAL_CMPCFG_RXBQ" : {"bits":"15"},
+        "DCCAL_CMPCFG_RXBI" : {"bits":"14"},
+        "DCCAL_CMPCFG_RXAQ" : {"bits":"13"},
+        "DCCAL_CMPCFG_RXAI" : {"bits":"12"},
+        "DCCAL_CMPCFG_TXBQ" : {"bits":"11"},
+        "DCCAL_CMPCFG_TXBI" : {"bits":"10"},
+        "DCCAL_CMPCFG_TXAQ" : {"bits":"9"},
+        "DCCAL_CMPCFG_TXAI" : {"bits":"8"},
+        "DCCAL_START_RXBQ" : {"bits":"7"},
+        "DCCAL_START_RXBI" : {"bits":"6"},
+        "DCCAL_START_RXAQ" : {"bits":"5"},
+        "DCCAL_START_RXAI" : {"bits":"4"},
+        "DCCAL_START_TXBQ" : {"bits":"3"},
+        "DCCAL_START_TXBI" : {"bits":"2"},
+        "DCCAL_START_TXAQ" : {"bits":"1"},
+        "DCCAL_START_TXAI" : {"bits":"0"}
+    },
+    "default": "0000000000000000"
+},
+{
+    "addr": "0x05C3",
+    "fields" : {
+        "DCWR_TXAI" : {"bits":"15"},
+        "DCRD_TXAI" : {"bits":"14"},
+        "DC_TXAI" : {"bits":"10:0"}
+    },
+    "default": "0000000000000000"
+},
+{
+    "addr": "0x05C4",
+    "fields" : {
+        "DCWR_TXAQ" : {"bits":"15"},
+        "DCRD_TXAQ" : {"bits":"14"},
+        "DC_TXAQ" : {"bits":"10:0"}
+    },
+    "default": "0000000000000000"
+},
+{
+    "addr": "0x05C5",
+    "fields" : {
+        "DCWR_TXBI" : {"bits":"15"},
+        "DCRD_TXBI" : {"bits":"14"},
+        "DC_TXBI" : {"bits":"10:0"}
+    },
+    "default": "0000000000000000"
+},
+{
+    "addr": "0x05C6",
+    "fields" : {
+        "DCWR_TXBQ" : {"bits":"15"},
+        "DCRD_TXBQ" : {"bits":"14"},
+        "DC_TXBQ" : {"bits":"10:0"}
+    },
+    "default": "0000000000000000"
+},
+{
+    "addr": "0x05C7",
+    "fields" : {
+        "DCWR_RXAI" : {"bits":"15"},
+        "DCRD_RXAI" : {"bits":"14"},
+        "DC_RXAI" : {"bits":"10:0"}
+    },
+    "default": "0000000000000000"
+},
+{
+    "addr": "0x05C8",
+    "fields" : {
+        "DCWR_RXAQ" : {"bits":"15"},
+        "DCRD_RXAQ" : {"bits":"14"},
+        "DC_RXAQ" : {"bits":"10:0"}
+    },
+    "default": "0000000000000000"
+},
+{
+    "addr": "0x05C9",
+    "fields" : {
+        "DCWR_RXBI" : {"bits":"15"},
+        "DCRD_RXBI" : {"bits":"14"},
+        "DC_RXBI" : {"bits":"10:0"}
+    },
+    "default": "0000000000000000"
+},
+{
+    "addr": "0x05CA",
+    "fields" : {
+        "DCWR_RXBQ" : {"bits":"15"},
+        "DCRD_RXBQ" : {"bits":"14"},
+        "DC_RXBQ" : {"bits":"10:0"}
+    },
+    "default": "0000000000000000"
+}
+]
