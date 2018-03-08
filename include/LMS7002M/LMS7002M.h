@@ -820,13 +820,53 @@ LMS7002M_API double LMS7002M_rfe_set_tia(LMS7002M_t *self, const LMS7002M_chan_t
 //=====================================================================//
 
 /*!
+ * Enable power on of analog DC corrections.
+ * \param self an instance of the LMS7002M driver
+ * \param direction the direction LMS_TX or LMS_RX
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param enable true to enable, false to power down
+ */
+void LMS7002M_dc_cal_enable(LMS7002M_t *self, const LMS7002M_dir_t direction, const LMS7002M_chan_t channel, const bool enable);
+
+/*!
  * Automatic DC calibrations for the specified channel.
  * \param self an instance of the LMS7002M driver
  * \param direction the direction LMS_TX or LMS_RX
  * \param channel the channel LMS_CHA or LMS_CHB
  * \return 0 for success or error code on failure
  */
-LMS7002M_API int LMS7002M_dc_cal(LMS7002M_t *self, const LMS7002M_dir_t direction, const LMS7002M_chan_t channel);
+//LMS7002M_API int LMS7002M_dc_cal(LMS7002M_t *self, const LMS7002M_dir_t direction, const LMS7002M_chan_t channel);
+
+/*!
+ * Read the current DC calibration value for the given channel.
+ * Correction values are maximum 1.0 (full scale).
+ * \param self an instance of the LMS7002M driver
+ * \param direction the direction LMS_TX or LMS_RX
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param real true for real false for imaginary
+ * \return the correction value
+ */
+LMS7002M_API double LMS7002M_dc_cal_read(
+    LMS7002M_t *self,
+    const LMS7002M_dir_t direction,
+    const LMS7002M_chan_t channel,
+    const bool real);
+
+/*!
+ * Write the current DC calibration value for the given channel.
+ * Correction values are maximum 1.0 (full scale).
+ * \param self an instance of the LMS7002M driver
+ * \param direction the direction LMS_TX or LMS_RX
+ * \param channel the channel LMS_CHA or LMS_CHB
+ * \param real true for real false for imaginary
+ * \param val the correction value
+ */
+LMS7002M_API void LMS7002M_dc_cal_write(
+    LMS7002M_t *self,
+    const LMS7002M_dir_t direction,
+    const LMS7002M_chan_t channel,
+    const bool real,
+    const double val);
 
 #ifdef __cplusplus
 }
