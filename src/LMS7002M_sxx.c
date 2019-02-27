@@ -56,10 +56,9 @@ int LMS7002M_sxx_calc_tune_state(
     s->good = false;
 
     //calculation loop to find dividers that are possible
-    while (true)
+    for (s->DIV_LOCH_SX = 6; s->DIV_LOCH_SX >= 0; --(s->DIV_LOCH_SX))
     {
         //try the next divider power
-        s->DIV_LOCH_SX++;
         divRatio_LOCH = 1 << s->DIV_LOCH_SX;
         s->fdiv = divRatio_LOCH*2;
 
@@ -69,8 +68,8 @@ int LMS7002M_sxx_calc_tune_state(
 
         //check dividers and vco in range...
         if (s->fdiv > 128) return -1;
-        if (s->Ndiv < 4) continue;
-        if (s->Ndiv > 512) return -1;
+        if (s->Ndiv < 4) return -1;
+        if (s->Ndiv > 512) continue;
 
         //check vco boundaries
         if (s->fvco < VCO_LO) continue;
