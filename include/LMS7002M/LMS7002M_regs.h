@@ -273,6 +273,8 @@ struct LMS7002M_regs_struct
     int reg_0x0027_lml2_aip;
     int reg_0x0028_value;
     int reg_0x0029_value;
+    int reg_0x002a_fclk2_dly;
+    int reg_0x002a_fclk1_dly;
     int reg_0x002a_rx_mux;
     int reg_0x002a_tx_mux;
     int reg_0x002a_txrdclk_mux;
@@ -1194,6 +1196,8 @@ static inline void LMS7002M_regs_set(LMS7002M_regs_t *regs, const int addr, cons
     }
     if (addr == 0x002A)
     {
+        regs->reg_0x002a_fclk2_dly = (value >> 14) & 0x3;
+        regs->reg_0x002a_fclk1_dly = (value >> 12) & 0x3;
         regs->reg_0x002a_rx_mux = (value >> 10) & 0x3;
         regs->reg_0x002a_tx_mux = (value >> 8) & 0x3;
         regs->reg_0x002a_txrdclk_mux = (value >> 6) & 0x3;
@@ -2349,6 +2353,8 @@ static inline int LMS7002M_regs_get(LMS7002M_regs_t *regs, const int addr)
     }
     if (addr == 0x002A)
     {
+        value |= (regs->reg_0x002a_fclk2_dly & 0x3) << 14;
+        value |= (regs->reg_0x002a_fclk1_dly & 0x3) << 12;
         value |= (regs->reg_0x002a_rx_mux & 0x3) << 10;
         value |= (regs->reg_0x002a_tx_mux & 0x3) << 8;
         value |= (regs->reg_0x002a_txrdclk_mux & 0x3) << 6;

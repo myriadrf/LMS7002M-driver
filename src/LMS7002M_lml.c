@@ -182,6 +182,16 @@ void LMS7002M_invert_fclk(LMS7002M_t *self, const bool invert)
     LMS7002M_regs_spi_write(self, 0x002B);
 }
 
+void LMS7002M_delay_fclk(LMS7002M_t *self, const int delay)
+{
+    //LML is in global register space
+    LMS7002M_set_mac_ch(self, LMS_CHAB);
+
+    self->regs->reg_0x002a_fclk1_dly = delay;
+    self->regs->reg_0x002a_fclk2_dly = delay;
+    LMS7002M_regs_spi_write(self, 0x002A);
+}
+
 void LMS7002M_setup_digital_loopback(LMS7002M_t *self)
 {
     //LML is in global register space

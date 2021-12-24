@@ -232,6 +232,14 @@ LMS7002M_API void LMS7002M_configure_lml_port(LMS7002M_t *self, const LMS7002M_p
 LMS7002M_API void LMS7002M_invert_fclk(LMS7002M_t *self, const bool invert);
 
 /*!
+ * Delays the feedback clock used with the transmit pins.
+ * This call Delays both FCLK1 and FCLK2 (only one of which is used).
+ * \param self an instance of the LMS7002M driver
+ * \param delay how much to delay the clock (0-3)
+ */
+LMS7002M_API void LMS7002M_delay_fclk(LMS7002M_t *self, const int delay);
+
+/*!
  * Enable digital loopback inside the lime light.
  * This call also applies the tx fifo write clock to the rx fifo.
  * To undo the effect of this loopback, call LMS7002M_configure_lml_port().
