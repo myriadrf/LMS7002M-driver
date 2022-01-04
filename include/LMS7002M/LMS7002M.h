@@ -240,6 +240,22 @@ LMS7002M_API void LMS7002M_invert_fclk(LMS7002M_t *self, const bool invert);
 LMS7002M_API void LMS7002M_delay_fclk(LMS7002M_t *self, const int delay);
 
 /*!
+ * Invert the output clock used with the transmit pins.
+ * This call inverts both MCLK1 and MCLK2 (only one of which is used).
+ * \param self an instance of the LMS7002M driver
+ * \param invert true to invert the clock
+ */
+LMS7002M_API void LMS7002M_invert_mclk(LMS7002M_t *self, const bool invert);
+
+/*!
+ * Delays the output clock used with the transmit pins.
+ * This call Delays both MCLK1 and MCLK2 (only one of which is used).
+ * \param self an instance of the LMS7002M driver
+ * \param delay how much to delay the clock (0-3)
+ */
+LMS7002M_API void LMS7002M_delay_mclk(LMS7002M_t *self, const int delay);
+
+/*!
  * Enable digital loopback inside the lime light.
  * This call also applies the tx fifo write clock to the rx fifo.
  * To undo the effect of this loopback, call LMS7002M_configure_lml_port().
